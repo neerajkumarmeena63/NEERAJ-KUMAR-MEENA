@@ -2878,6 +2878,35 @@
   initAdminDisplayControl();
 </script>
 <!-- ==================== END TYPING INTERFACE & ADMIN DISPLAY SETTINGS ==================== -->
+<style>
+  #tiHeading {
+    font-size: 0.85rem !important; /* Zaroorat ke hisab se 0.8rem ya 0.9rem kar sakte hain */
+  }
+</style>
+
+<script>
+  (function () {
+    const headingEl = document.getElementById("tiHeading");
+    if (!headingEl) return;
+
+    function updateBilingualHeading() {
+      const text = headingEl.textContent.trim();
+      if (text === "English Typing Speed Test") {
+        headingEl.textContent = "English Typing Speed Test/अंग्रेजी टंकण गति परीक्षा";
+      } else if (text === "Hindi Typing Speed Test") {
+        headingEl.textContent = "Hindi Typing Speed Test/हिंदी टंकण गति परीक्षा";
+      }
+    }
+
+    new MutationObserver(updateBilingualHeading).observe(headingEl, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+
+    updateBilingualHeading();
+  })();
+</script>
 
 </body>
 </html>
