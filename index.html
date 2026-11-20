@@ -1444,6 +1444,30 @@
     });
   })();
 </script>
+<script>
+  (function () {
+    const ta = document.getElementById("testContent");
+
+    ta.addEventListener("keydown", function (e) {
+      if (e.key === " " && ta.selectionStart === ta.selectionEnd) {
+        const pos = ta.selectionStart;
+        if (ta.value[pos - 1] === " " || ta.value[pos] === " ") {
+          e.preventDefault();
+        }
+      }
+    });
+
+    ta.addEventListener("input", function () {
+      const start = ta.selectionStart;
+      const cleaned = ta.value.replace(/ {2,}/g, " ");
+      if (cleaned !== ta.value) {
+        const beforeCursor = ta.value.slice(0, start).replace(/ {2,}/g, " ");
+        ta.value = cleaned;
+        ta.selectionStart = ta.selectionEnd = beforeCursor.length;
+      }
+    });
+  })();
+</script>
 
 </body>
 </html>
