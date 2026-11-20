@@ -3163,6 +3163,7 @@
   })();
 </script>
 <!-- ==================== END LOADING ANIMATIONS ==================== -->
+
 <!-- ==================== COMPLETE EXAM RESULT PAGE & WORD ALIGNMENT ==================== -->
 <style>
   #tiResultPage.show {
@@ -3238,6 +3239,627 @@
     border-radius: var(--radius);
     padding: 0.75rem 0.6rem;
     text-align: center;
+  }
+  .tr-metric-card.marks-card {
+    background: var(--navy-light);
+    border-color: var(--navy);
+  }
+  .tr-metric-val {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+  .tr-metric-sub {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-top: 0.12rem;
+  }
+  .tr-metric-lbl {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 0.25rem;
+  }
+
+  /* Word Breakdown Strip */
+  .tr-counts-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.85rem;
+    margin-bottom: 1rem;
+    font-size: 0.7rem;
+  }
+  .tr-count-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+  }
+  .tr-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .tr-dot.right { background: #16a34a; }
+  .tr-dot.wrong { background: #dc2626; }
+  .tr-dot.skip { background: #d97706; }
+  .tr-dot.extra { background: #7c3aed; }
+
+  /* Content Review Section */
+  .tr-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .tr-review-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .tr-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .tr-filter-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 0.22rem 0.65rem;
+    font-family: inherit;
+    font-size: 0.64rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tr-filter-btn:hover {
+    border-color: var(--navy);
+    color: var(--navy);
+  }
+  .tr-filter-btn.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
+
+  .tr-review-box {
+    background: #ffffff;
+    border: 1px solid #000000;
+    padding: 0.9rem 1rem;
+    max-height: 17rem;
+    overflow-y: auto;
+    line-height: 2.1;
+    font-size: 1.05rem;
+    text-align: justify;
+    color: #000000;
+    word-spacing: 0.14em;
+  }
+
+  /* Word Review Token Styles */
+  .rw-right {
+    color: #15803d;
+  }
+  .rw-wrong-wrap {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 0.02rem 0.3rem;
+    margin: 0.06rem 0.05rem;
+  }
+  .rw-wrong-typed {
+    color: #dc2626;
+    text-decoration: line-through;
+  }
+  .rw-wrong-expected {
+    color: #15803d;
+    font-weight: 700;
+  }
+  .rw-wrong-expected::before {
+    content: "[";
+    color: #64748b;
+    font-weight: 400;
+    font-family: 'Google Sans', sans-serif;
+  }
+  .rw-wrong-expected::after {
+    content: "]";
+    color: #64748b;
+    font-weight: 400;
+    font-family: 'Google Sans', sans-serif;
+  }
+
+  .rw-skip-wrap {
+    display: inline-flex;
+    align-items: baseline;
+    background: #fffbeb;
+    border: 1px dashed #d97706;
+    color: #b45309;
+    padding: 0.02rem 0.3rem;
+    margin: 0.06rem 0.05rem;
+  }
+  .rw-skip-tag {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.56rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 0.22rem;
+    color: #d97706;
+  }
+
+  .rw-extra-wrap {
+    display: inline-flex;
+    align-items: baseline;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    color: #6d28d9;
+    padding: 0.02rem 0.3rem;
+    margin: 0.06rem 0.05rem;
+  }
+  .rw-extra-tag {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.56rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 0.22rem;
+    color: #7c3aed;
+  }
+
+  /* Legend & Actions */
+  .tr-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    font-size: 0.64rem;
+    color: var(--text-muted);
+    margin-top: 0.55rem;
+  }
+  .tr-actions {
+    display: flex;
+    gap: 0.65rem;
+    margin-top: 1.1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 650px) {
+    .tr-wrapper {
+      padding: 1rem;
+    }
+    .tr-metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const tiInterface = document.getElementById("typingInterface");
+    const tiPassageBox = document.getElementById("tiPassageBox");
+    const tiTypingBox = document.getElementById("tiTypingBox");
+    const tiHeading = document.getElementById("tiHeading");
+    const tiResultPage = document.getElementById("tiResultPage");
+    if (!tiInterface || !tiPassageBox || !tiTypingBox || !tiResultPage) return;
+
+    let currentTestId = null;
+    let firstKeystrokeTs = null;
+    let lastKeystrokeTs = null;
+    let backspaceCount = 0;
+
+    // 1. Start Button click par tracking reset karna
+    document.addEventListener(
+      "click",
+      function (e) {
+        const startBtn = e.target.closest(".start-btn");
+        if (!startBtn) return;
+        currentTestId = startBtn.dataset.id || null;
+        firstKeystrokeTs = null;
+        lastKeystrokeTs = null;
+        backspaceCount = 0;
+      },
+      true
+    );
+
+    // 2. Backspace Count + 1st Keystroke se Last Keystroke tak ka Exact Time Track karna
+    tiTypingBox.addEventListener(
+      "keydown",
+      function (e) {
+        if (tiTypingBox.disabled || !tiInterface.classList.contains("active")) return;
+
+        if (e.key === "Backspace") {
+          backspaceCount++;
+          if (firstKeystrokeTs !== null) {
+            lastKeystrokeTs = Date.now();
+          }
+          return;
+        }
+
+        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          const now = Date.now();
+          if (firstKeystrokeTs === null) {
+            firstKeystrokeTs = now;
+          }
+          lastKeystrokeTs = now;
+        }
+      },
+      true
+    );
+
+    tiTypingBox.addEventListener(
+      "input",
+      function () {
+        if (tiTypingBox.disabled || !tiInterface.classList.contains("active")) return;
+        const now = Date.now();
+        if (firstKeystrokeTs === null && tiTypingBox.value.length > 0) {
+          firstKeystrokeTs = now;
+        }
+        if (firstKeystrokeTs !== null) {
+          lastKeystrokeTs = now;
+        }
+      },
+      true
+    );
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatDuration(totalSec) {
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function formatExamDate(dateObj) {
+      return dateObj.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    // 3. Smart Sequence Alignment (Right, Wrong, Skip, Extra - bina aage ke words kharab kiye)
+    function alignTypedWithPassage(passageWords, typedWords) {
+      const M = passageWords.length;
+      const N = typedWords.length;
+
+      if (N === 0) {
+        return {
+          items: [],
+          rightCount: 0,
+          wrongCount: 0,
+          skipCount: 0,
+          extraCount: 0
+        };
+      }
+
+      const MATCH_SCORE = 10;
+      const SUB_PENALTY = -2;
+      const SKIP_PENALTY = -2;
+      const EXTRA_PENALTY = -2;
+
+      const cols = M + 1;
+      const dp = new Int32Array((N + 1) * cols);
+      // Dir codes: 1 = diag (right/wrong), 2 = left (skip passage word), 3 = up (extra typed word)
+      const dir = new Uint8Array((N + 1) * cols);
+
+      for (let j = 1; j <= M; j++) {
+        dp[j] = j * SKIP_PENALTY;
+        dir[j] = 2;
+      }
+      for (let i = 1; i <= N; i++) {
+        dp[i * cols] = i * EXTRA_PENALTY;
+        dir[i * cols] = 3;
+      }
+
+      for (let i = 1; i <= N; i++) {
+        const tWord = typedWords[i - 1];
+        const rowOffset = i * cols;
+        const prevRowOffset = (i - 1) * cols;
+
+        for (let j = 1; j <= M; j++) {
+          const isMatch = tWord === passageWords[j - 1];
+          const diagScore = dp[prevRowOffset + (j - 1)] + (isMatch ? MATCH_SCORE : SUB_PENALTY);
+          const skipScore = dp[rowOffset + (j - 1)] + SKIP_PENALTY;
+          const extraScore = dp[prevRowOffset + j] + EXTRA_PENALTY;
+
+          // Priority: Match / Wrong (diag) >= Skip (left) >= Extra (up)
+          if (diagScore >= skipScore && diagScore >= extraScore) {
+            dp[rowOffset + j] = diagScore;
+            dir[rowOffset + j] = 1;
+          } else if (skipScore >= extraScore) {
+            dp[rowOffset + j] = skipScore;
+            dir[rowOffset + j] = 2;
+          } else {
+            dp[rowOffset + j] = extraScore;
+            dir[rowOffset + j] = 3;
+          }
+        }
+      }
+
+      // Free end-gap on passage: unreached words at end of passage are NOT marked as skipped
+      let bestJ = 0;
+      let bestScore = -Infinity;
+      const lastRow = N * cols;
+      for (let j = 0; j <= M; j++) {
+        if (dp[lastRow + j] >= bestScore) {
+          bestScore = dp[lastRow + j];
+          bestJ = j;
+        }
+      }
+
+      const items = [];
+      let i = N;
+      let j = bestJ;
+      let rightCount = 0;
+      let wrongCount = 0;
+      let skipCount = 0;
+      let extraCount = 0;
+
+      while (i > 0 || j > 0) {
+        const step = dir[i * cols + j];
+        if (step === 1 && i > 0 && j > 0) {
+          const tW = typedWords[i - 1];
+          const pW = passageWords[j - 1];
+          if (tW === pW) {
+            items.push({ type: "right", typed: tW, expected: pW });
+            rightCount++;
+          } else {
+            items.push({ type: "wrong", typed: tW, expected: pW });
+            wrongCount++;
+          }
+          i--;
+          j--;
+        } else if (step === 2 && j > 0) {
+          items.push({ type: "skip", expected: passageWords[j - 1] });
+          skipCount++;
+          j--;
+        } else if (i > 0) {
+          items.push({ type: "extra", typed: typedWords[i - 1] });
+          extraCount++;
+          i--;
+        } else {
+          break;
+        }
+      }
+
+      items.reverse();
+      return { items, rightCount, wrongCount, skipCount, extraCount };
+    }
+
+    // 4. Review HTML Generate Karna
+    function buildReviewHtml(items, filter = "all") {
+      if (!items || items.length === 0) {
+        return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No words were typed during this test.</span>`;
+      }
+
+      const filtered =
+        filter === "all" ? items : items.filter((item) => item.type === filter);
+
+      if (filtered.length === 0) {
+        return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No ${filter} words found.</span>`;
+      }
+
+      return filtered
+        .map((item) => {
+          if (item.type === "right") {
+            return `<span class="rw-right" title="Correct">${escapeHtml(item.typed)}</span>`;
+          }
+          if (item.type === "wrong") {
+            return `<span class="rw-wrong-wrap" title="Wrong word (Expected: ${escapeHtml(item.expected)})"><span class="rw-wrong-typed">${escapeHtml(item.typed)}</span><span class="rw-wrong-expected">${escapeHtml(item.expected)}</span></span>`;
+          }
+          if (item.type === "skip") {
+            return `<span class="rw-skip-wrap" title="Skipped word"><span class="rw-skip-tag">Skip</span>${escapeHtml(item.expected)}</span>`;
+          }
+          if (item.type === "extra") {
+            return `<span class="rw-extra-wrap" title="Extra word"><span class="rw-extra-tag">Extra</span>${escapeHtml(item.typed)}</span>`;
+          }
+          return "";
+        })
+        .join(" ");
+    }
+
+    // 5. Result Page Render Karna
+    function renderDetailedResultPage() {
+      const testName =
+        (document.getElementById("resTestName")?.textContent || "").trim() ||
+        "Typing Speed Test";
+      const isHindi = tiHeading.textContent.toLowerCase().includes("hindi");
+      const langLabel = isHindi ? "Hindi" : "English";
+
+      // Original Passage Words & Typed Words
+      const passageWords = tiPassageBox.textContent
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      const typedWords = tiTypingBox.value
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+      const totalPassageWords = passageWords.length || (isHindi ? 400 : 500);
+      const totalTypedWords = typedWords.length;
+
+      // Exact Time Taken: 1st keystroke se last keystroke tak
+      let elapsedMs = 0;
+      if (firstKeystrokeTs !== null && lastKeystrokeTs !== null) {
+        elapsedMs = Math.max(1000, lastKeystrokeTs - firstKeystrokeTs);
+      }
+      const elapsedSecondsDisplay = Math.round(elapsedMs / 1000);
+      const elapsedMinutesExact = elapsedMs > 0 ? elapsedMs / 60000 : 0;
+
+      // Smart Alignment (Right, Wrong, Skip, Extra)
+      const alignment = alignTypedWithPassage(passageWords, typedWords);
+      const correctWords = alignment.rightCount;
+
+      // Marks out of 25 (Marks per correct word ke hisab se)
+      const marksPerWord = 25 / totalPassageWords;
+      const obtainedMarks = Math.min(25, correctWords * marksPerWord);
+
+      // Accuracy Percentage
+      const accuracyPct =
+        totalTypedWords > 0 ? (correctWords / totalTypedWords) * 100 : 0;
+
+      // Gross Speed & Net Speed (Original words ke hisab se)
+      const grossWpm =
+        elapsedMinutesExact > 0 ? totalTypedWords / elapsedMinutesExact : 0;
+      const netWpm =
+        elapsedMinutesExact > 0 ? correctWords / elapsedMinutesExact : 0;
+
+      const activeFontFamily =
+        tiTypingBox.style.fontFamily || "'Google Sans', sans-serif";
+      const examDateStr = formatExamDate(new Date());
+
+      tiResultPage.innerHTML = `
+        <div class="tr-wrapper">
+          <div class="tr-header">
+            <div class="tr-title-block">
+              <h2>${escapeHtml(testName)}</h2>
+              <p>RSSB LDC 2026 — ${langLabel} Typing Speed Test Result</p>
+            </div>
+            <div class="tr-meta-pills">
+              <div class="tr-pill">Exam Date: <strong>${escapeHtml(examDateStr)}</strong></div>
+              <div class="tr-pill">Language: <strong>${langLabel}</strong></div>
+              <div class="tr-pill">Target Words: <strong>${totalPassageWords}</strong></div>
+            </div>
+          </div>
+
+          <div class="tr-metrics-grid">
+            <div class="tr-metric-card marks-card">
+              <div class="tr-metric-val">${obtainedMarks.toFixed(2)} / 25</div>
+              <div class="tr-metric-sub">@ ${marksPerWord.toFixed(4)} marks / correct word</div>
+              <div class="tr-metric-lbl">Obtained Marks</div>
+            </div>
+
+            <div class="tr-metric-card">
+              <div class="tr-metric-val" style="color:var(--green-dark);">${netWpm.toFixed(2)} <span style="font-size:0.75rem;">WPM</span></div>
+              <div class="tr-metric-sub">${correctWords} correct words</div>
+              <div class="tr-metric-lbl">Net Speed</div>
+            </div>
+
+            <div class="tr-metric-card">
+              <div class="tr-metric-val">${grossWpm.toFixed(2)} <span style="font-size:0.75rem;">WPM</span></div>
+              <div class="tr-metric-sub">${totalTypedWords} total typed words</div>
+              <div class="tr-metric-lbl">Gross Speed</div>
+            </div>
+
+            <div class="tr-metric-card">
+              <div class="tr-metric-val">${accuracyPct.toFixed(2)}%</div>
+              <div class="tr-metric-sub">Correct / Typed words</div>
+              <div class="tr-metric-lbl">Accuracy</div>
+            </div>
+
+            <div class="tr-metric-card">
+              <div class="tr-metric-val">${formatDuration(elapsedSecondsDisplay)}</div>
+              <div class="tr-metric-sub">1st keystroke to last keystroke</div>
+              <div class="tr-metric-lbl">Time Taken</div>
+            </div>
+
+            <div class="tr-metric-card">
+              <div class="tr-metric-val" style="color:var(--saffron);">${backspaceCount}</div>
+              <div class="tr-metric-sub">Total key presses</div>
+              <div class="tr-metric-lbl">Backspace Used</div>
+            </div>
+          </div>
+
+          <div class="tr-counts-bar">
+            <span class="tr-count-item"><span class="tr-dot right"></span> Right Words: <strong>${alignment.rightCount}</strong></span>
+            <span class="tr-count-item"><span class="tr-dot wrong"></span> Wrong Words: <strong>${alignment.wrongCount}</strong></span>
+            <span class="tr-count-item"><span class="tr-dot skip"></span> Skip Words: <strong>${alignment.skipCount}</strong></span>
+            <span class="tr-count-item"><span class="tr-dot extra"></span> Extra Words: <strong>${alignment.extraCount}</strong></span>
+          </div>
+
+          <div class="tr-review-header">
+            <div class="tr-review-title">Typed Content Review</div>
+            <div class="tr-filter-group" id="trFilterGroup">
+              <button type="button" class="tr-filter-btn active" data-filter="all">All (${alignment.items.length})</button>
+              <button type="button" class="tr-filter-btn" data-filter="right">Right (${alignment.rightCount})</button>
+              <button type="button" class="tr-filter-btn" data-filter="wrong">Wrong (${alignment.wrongCount})</button>
+              <button type="button" class="tr-filter-btn" data-filter="skip">Skip (${alignment.skipCount})</button>
+              <button type="button" class="tr-filter-btn" data-filter="extra">Extra (${alignment.extraCount})</button>
+            </div>
+          </div>
+
+          <div class="tr-review-box" id="trReviewBox" style="font-family:${activeFontFamily};">
+            ${buildReviewHtml(alignment.items, "all")}
+          </div>
+
+          <div class="tr-legend">
+            <span><strong style="color:#15803d;">Green</strong> = Right Word</span>
+            <span><strong style="color:#dc2626;text-decoration:line-through;">Red</strong> <strong style="color:#15803d;">[Green]</strong> = Wrong Word [Sahi Word]</span>
+            <span><strong style="color:#b45309;">[SKIP Word]</strong> = Chhuta Hua Word</span>
+            <span><strong style="color:#6d28d9;">[EXTRA Word]</strong> = Extra Type Kiya Word</span>
+          </div>
+
+          <div class="tr-actions">
+            <button type="button" class="btn-secondary" id="trPrintBtn">Print Result</button>
+            ${currentTestId ? `<button type="button" class="btn-secondary" id="trRetakeBtn">Retake Test</button>` : ""}
+            <button type="button" class="btn-primary" id="trHomeBtn">Back to Home</button>
+          </div>
+        </div>
+      `;
+
+      // Filter buttons event
+      const filterGroup = document.getElementById("trFilterGroup");
+      const reviewBox = document.getElementById("trReviewBox");
+      if (filterGroup && reviewBox) {
+        filterGroup.querySelectorAll(".tr-filter-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            filterGroup.querySelectorAll(".tr-filter-btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            reviewBox.innerHTML = buildReviewHtml(alignment.items, btn.dataset.filter);
+          });
+        });
+      }
+
+      // Action buttons
+      document.getElementById("trHomeBtn").addEventListener("click", () => {
+        tiResultPage.classList.remove("show");
+        tiInterface.classList.remove("active");
+        document.body.style.overflow = "";
+      });
+
+      document.getElementById("trPrintBtn").addEventListener("click", () => {
+        window.print();
+      });
+
+      const retakeBtn = document.getElementById("trRetakeBtn");
+      if (retakeBtn && currentTestId) {
+        retakeBtn.addEventListener("click", () => {
+          tiResultPage.classList.remove("show");
+          const matchingBtn = document.querySelector(`.start-btn[data-id="${currentTestId}"]`);
+          if (matchingBtn) matchingBtn.click();
+        });
+      }
+    }
+
+    // Jab bhi #tiResultPage show ho, turant hamara detailed result render karein
+    new MutationObserver(function () {
+      if (tiResultPage.classList.contains("show")) {
+        renderDetailedResultPage();
+      }
+    }).observe(tiResultPage, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+  })();
+</script>
+<!-- ==================== END COMPLETE EXAM RESULT PAGE & WORD ALIGNMENT ==================== -->
+    
 
 </body>
 </html>
