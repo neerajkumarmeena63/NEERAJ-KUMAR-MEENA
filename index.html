@@ -3168,15 +3168,17 @@
 <style>
   #tiResultPage.show {
     display: flex !important;
-    align-items: flex-start !important;
-    justify-content: center !important;
-    padding: 1.25rem 1rem 2.2rem !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 1.25rem 0 0 !important;
     overflow-y: auto !important;
   }
 
   .tr-wrapper {
-    width: 100%;
+    width: calc(100% - 2rem);
     max-width: 54rem;
+    margin: 0 auto;
     background: var(--card);
     border: 1px solid var(--border);
     border-top: 4px solid var(--navy);
@@ -3287,7 +3289,7 @@
     border-radius: 50%;
     display: inline-block;
   }
-  .tr-dot.right { background: #16a34a; }
+  .tr-dot.right { background: #15803d; }
   .tr-dot.wrong { background: #dc2626; }
   .tr-dot.skip { background: #d97706; }
   .tr-dot.extra { background: #7c3aed; }
@@ -3333,31 +3335,22 @@
     color: #fff;
   }
 
+  /* Typed Content Review Box (Same font & font-size as Typing Test) */
   .tr-review-box {
     background: #ffffff;
     border: 1px solid #000000;
+    border-radius: 0;
     padding: 0.9rem 1rem;
-    max-height: 17rem;
+    max-height: 18rem;
     overflow-y: auto;
-    line-height: 2.1;
-    font-size: 1.05rem;
     text-align: justify;
     color: #000000;
     word-spacing: 0.14em;
   }
 
-  /* Word Review Token Styles */
+  /* Color-Only Word Review Styling (No Boxes/Borders) */
   .rw-right {
     color: #15803d;
-  }
-  .rw-wrong-wrap {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.2rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    padding: 0.02rem 0.3rem;
-    margin: 0.06rem 0.05rem;
   }
   .rw-wrong-typed {
     color: #dc2626;
@@ -3365,71 +3358,59 @@
   }
   .rw-wrong-expected {
     color: #15803d;
-    font-weight: 700;
   }
-  .rw-wrong-expected::before {
-    content: "[";
+  .rw-bracket {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.85em;
     color: #64748b;
-    font-weight: 400;
-    font-family: 'Google Sans', sans-serif;
   }
-  .rw-wrong-expected::after {
-    content: "]";
-    color: #64748b;
-    font-weight: 400;
-    font-family: 'Google Sans', sans-serif;
-  }
-
-  .rw-skip-wrap {
-    display: inline-flex;
-    align-items: baseline;
-    background: #fffbeb;
-    border: 1px dashed #d97706;
-    color: #b45309;
-    padding: 0.02rem 0.3rem;
-    margin: 0.06rem 0.05rem;
-  }
-  .rw-skip-tag {
-    font-family: 'Google Sans', sans-serif;
-    font-size: 0.56rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-right: 0.22rem;
+  .rw-skip {
     color: #d97706;
   }
-
-  .rw-extra-wrap {
-    display: inline-flex;
-    align-items: baseline;
-    background: #f5f3ff;
-    border: 1px solid #ddd6fe;
-    color: #6d28d9;
-    padding: 0.02rem 0.3rem;
-    margin: 0.06rem 0.05rem;
-  }
-  .rw-extra-tag {
-    font-family: 'Google Sans', sans-serif;
-    font-size: 0.56rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-right: 0.22rem;
+  .rw-extra {
     color: #7c3aed;
   }
 
-  /* Legend & Actions */
+  /* Color Legend & Actions */
   .tr-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.85rem;
-    font-size: 0.64rem;
+    gap: 1rem;
+    font-size: 0.66rem;
     color: var(--text-muted);
-    margin-top: 0.55rem;
+    margin-top: 0.6rem;
   }
   .tr-actions {
     display: flex;
     gap: 0.65rem;
-    margin-top: 1.1rem;
+    margin-top: 1.15rem;
     flex-wrap: wrap;
+  }
+
+  /* Result Page Footer */
+  .tr-footer {
+    width: 100%;
+    background: var(--navy);
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    padding: 1.1rem 1rem;
+    font-size: 0.65rem;
+    line-height: 1.7;
+    margin-top: 2rem;
+  }
+  .tr-footer strong {
+    color: #fff;
+  }
+  .tr-footer a {
+    color: #fbbf24;
+    text-decoration: none;
+  }
+  .tr-footer a:hover {
+    text-decoration: underline;
+  }
+  .tr-footer .sep {
+    margin: 0 0.5rem;
+    opacity: 0.45;
   }
 
   @media (max-width: 650px) {
@@ -3452,17 +3433,20 @@
     if (!tiInterface || !tiPassageBox || !tiTypingBox || !tiResultPage) return;
 
     let currentTestId = null;
+    let selectedTestTitle = "";
     let firstKeystrokeTs = null;
     let lastKeystrokeTs = null;
     let backspaceCount = 0;
 
-    // 1. Start Button click par tracking reset karna
+    // 1. Capture test info & reset tracking on Start button click
     document.addEventListener(
       "click",
       function (e) {
         const startBtn = e.target.closest(".start-btn");
         if (!startBtn) return;
         currentTestId = startBtn.dataset.id || null;
+        const rowNameEl = startBtn.closest("tr")?.querySelector(".col-name");
+        selectedTestTitle = rowNameEl ? rowNameEl.textContent.trim() : "";
         firstKeystrokeTs = null;
         lastKeystrokeTs = null;
         backspaceCount = 0;
@@ -3470,7 +3454,7 @@
       true
     );
 
-    // 2. Backspace Count + 1st Keystroke se Last Keystroke tak ka Exact Time Track karna
+    // 2. Track Backspace count & exact time from 1st keystroke to last keystroke
     tiTypingBox.addEventListener(
       "keydown",
       function (e) {
@@ -3532,7 +3516,7 @@
       });
     }
 
-    // 3. Smart Sequence Alignment (Right, Wrong, Skip, Extra - bina aage ke words kharab kiye)
+    // 3. Smart Sequence Alignment (Matches only exact right words; unaffected by skips/extras/wrongs)
     function alignTypedWithPassage(passageWords, typedWords) {
       const M = passageWords.length;
       const N = typedWords.length;
@@ -3554,7 +3538,7 @@
 
       const cols = M + 1;
       const dp = new Int32Array((N + 1) * cols);
-      // Dir codes: 1 = diag (right/wrong), 2 = left (skip passage word), 3 = up (extra typed word)
+      // 1 = diag (right/wrong), 2 = left (skip passage word), 3 = up (extra typed word)
       const dir = new Uint8Array((N + 1) * cols);
 
       for (let j = 1; j <= M; j++) {
@@ -3577,7 +3561,6 @@
           const skipScore = dp[rowOffset + (j - 1)] + SKIP_PENALTY;
           const extraScore = dp[prevRowOffset + j] + EXTRA_PENALTY;
 
-          // Priority: Match / Wrong (diag) >= Skip (left) >= Extra (up)
           if (diagScore >= skipScore && diagScore >= extraScore) {
             dp[rowOffset + j] = diagScore;
             dir[rowOffset + j] = 1;
@@ -3591,7 +3574,7 @@
         }
       }
 
-      // Free end-gap on passage: unreached words at end of passage are NOT marked as skipped
+      // Free end-gap on passage so unreached words at the end are not counted as skipped
       let bestJ = 0;
       let bestScore = -Infinity;
       const lastRow = N * cols;
@@ -3641,7 +3624,7 @@
       return { items, rightCount, wrongCount, skipCount, extraCount };
     }
 
-    // 4. Review HTML Generate Karna
+    // 4. Generate Color-Only Typed Content Review HTML (No boxes)
     function buildReviewHtml(items, filter = "all") {
       if (!items || items.length === 0) {
         return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No words were typed during this test.</span>`;
@@ -3651,33 +3634,42 @@
         filter === "all" ? items : items.filter((item) => item.type === filter);
 
       if (filtered.length === 0) {
-        return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No ${filter} words found.</span>`;
+        const labelMap = {
+          right: "correct",
+          wrong: "wrong",
+          skip: "skipped",
+          extra: "extra"
+        };
+        return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No ${labelMap[filter] || filter} words found.</span>`;
       }
 
       return filtered
         .map((item) => {
           if (item.type === "right") {
-            return `<span class="rw-right" title="Correct">${escapeHtml(item.typed)}</span>`;
+            return `<span class="rw-right" title="Correct Word">${escapeHtml(item.typed)}</span>`;
           }
           if (item.type === "wrong") {
-            return `<span class="rw-wrong-wrap" title="Wrong word (Expected: ${escapeHtml(item.expected)})"><span class="rw-wrong-typed">${escapeHtml(item.typed)}</span><span class="rw-wrong-expected">${escapeHtml(item.expected)}</span></span>`;
+            return `<span title="Wrong Word (Expected: ${escapeHtml(item.expected)})"><span class="rw-wrong-typed">${escapeHtml(item.typed)}</span> <span class="rw-bracket">[</span><span class="rw-wrong-expected">${escapeHtml(item.expected)}</span><span class="rw-bracket">]</span></span>`;
           }
           if (item.type === "skip") {
-            return `<span class="rw-skip-wrap" title="Skipped word"><span class="rw-skip-tag">Skip</span>${escapeHtml(item.expected)}</span>`;
+            return `<span class="rw-skip" title="Skipped Word">${escapeHtml(item.expected)}</span>`;
           }
           if (item.type === "extra") {
-            return `<span class="rw-extra-wrap" title="Extra word"><span class="rw-extra-tag">Extra</span>${escapeHtml(item.typed)}</span>`;
+            return `<span class="rw-extra" title="Extra Word">${escapeHtml(item.typed)}</span>`;
           }
           return "";
         })
         .join(" ");
     }
 
-    // 5. Result Page Render Karna
+    // 5. Render Standard & Professional English Result Page
     function renderDetailedResultPage() {
+      const existingNameEl = document.getElementById("resTestName");
       const testName =
-        (document.getElementById("resTestName")?.textContent || "").trim() ||
+        selectedTestTitle ||
+        (existingNameEl ? existingNameEl.textContent.trim() : "") ||
         "Typing Speed Test";
+
       const isHindi = tiHeading.textContent.toLowerCase().includes("hindi");
       const langLabel = isHindi ? "Hindi" : "English";
 
@@ -3694,7 +3686,7 @@
       const totalPassageWords = passageWords.length || (isHindi ? 400 : 500);
       const totalTypedWords = typedWords.length;
 
-      // Exact Time Taken: 1st keystroke se last keystroke tak
+      // Exact Time Taken: First keystroke to last keystroke
       let elapsedMs = 0;
       if (firstKeystrokeTs !== null && lastKeystrokeTs !== null) {
         elapsedMs = Math.max(1000, lastKeystrokeTs - firstKeystrokeTs);
@@ -3702,11 +3694,11 @@
       const elapsedSecondsDisplay = Math.round(elapsedMs / 1000);
       const elapsedMinutesExact = elapsedMs > 0 ? elapsedMs / 60000 : 0;
 
-      // Smart Alignment (Right, Wrong, Skip, Extra)
+      // Smart Alignment
       const alignment = alignTypedWithPassage(passageWords, typedWords);
       const correctWords = alignment.rightCount;
 
-      // Marks out of 25 (Marks per correct word ke hisab se)
+      // Obtained Marks out of 25 (Calculated per correct word)
       const marksPerWord = 25 / totalPassageWords;
       const obtainedMarks = Math.min(25, correctWords * marksPerWord);
 
@@ -3714,14 +3706,23 @@
       const accuracyPct =
         totalTypedWords > 0 ? (correctWords / totalTypedWords) * 100 : 0;
 
-      // Gross Speed & Net Speed (Original words ke hisab se)
+      // Gross Speed & Net Speed (Based on original words)
       const grossWpm =
         elapsedMinutesExact > 0 ? totalTypedWords / elapsedMinutesExact : 0;
       const netWpm =
         elapsedMinutesExact > 0 ? correctWords / elapsedMinutesExact : 0;
 
-      const activeFontFamily =
-        tiTypingBox.style.fontFamily || "'Google Sans', sans-serif";
+      // Exact Font Family, Font Size, Font Weight & Line Height used in the Typing Test
+      const computedTypingStyle = window.getComputedStyle(tiTypingBox);
+      const testFontFamily =
+        tiTypingBox.style.fontFamily || computedTypingStyle.fontFamily;
+      const testFontSize =
+        tiTypingBox.style.fontSize || computedTypingStyle.fontSize;
+      const testFontWeight =
+        tiTypingBox.style.fontWeight || computedTypingStyle.fontWeight;
+      const testLineHeight =
+        tiTypingBox.style.lineHeight || computedTypingStyle.lineHeight;
+
       const examDateStr = formatExamDate(new Date());
 
       tiResultPage.innerHTML = `
@@ -3729,19 +3730,19 @@
           <div class="tr-header">
             <div class="tr-title-block">
               <h2>${escapeHtml(testName)}</h2>
-              <p>RSSB LDC 2026 — ${langLabel} Typing Speed Test Result</p>
+              <p>RSSB LDC 2026 — ${langLabel} Typing Speed Test Assessment</p>
             </div>
             <div class="tr-meta-pills">
               <div class="tr-pill">Exam Date: <strong>${escapeHtml(examDateStr)}</strong></div>
               <div class="tr-pill">Language: <strong>${langLabel}</strong></div>
-              <div class="tr-pill">Target Words: <strong>${totalPassageWords}</strong></div>
+              <div class="tr-pill">Total Passage Words: <strong>${totalPassageWords}</strong></div>
             </div>
           </div>
 
           <div class="tr-metrics-grid">
             <div class="tr-metric-card marks-card">
               <div class="tr-metric-val">${obtainedMarks.toFixed(2)} / 25</div>
-              <div class="tr-metric-sub">@ ${marksPerWord.toFixed(4)} marks / correct word</div>
+              <div class="tr-metric-sub">${marksPerWord.toFixed(4)} marks per correct word</div>
               <div class="tr-metric-lbl">Obtained Marks</div>
             </div>
 
@@ -3759,27 +3760,27 @@
 
             <div class="tr-metric-card">
               <div class="tr-metric-val">${accuracyPct.toFixed(2)}%</div>
-              <div class="tr-metric-sub">Correct / Typed words</div>
+              <div class="tr-metric-sub">Correct to typed words ratio</div>
               <div class="tr-metric-lbl">Accuracy</div>
             </div>
 
             <div class="tr-metric-card">
               <div class="tr-metric-val">${formatDuration(elapsedSecondsDisplay)}</div>
-              <div class="tr-metric-sub">1st keystroke to last keystroke</div>
+              <div class="tr-metric-sub">First keystroke to last keystroke</div>
               <div class="tr-metric-lbl">Time Taken</div>
             </div>
 
             <div class="tr-metric-card">
               <div class="tr-metric-val" style="color:var(--saffron);">${backspaceCount}</div>
-              <div class="tr-metric-sub">Total key presses</div>
-              <div class="tr-metric-lbl">Backspace Used</div>
+              <div class="tr-metric-sub">Total backspace keystrokes</div>
+              <div class="tr-metric-lbl">Backspace Count</div>
             </div>
           </div>
 
           <div class="tr-counts-bar">
-            <span class="tr-count-item"><span class="tr-dot right"></span> Right Words: <strong>${alignment.rightCount}</strong></span>
+            <span class="tr-count-item"><span class="tr-dot right"></span> Correct Words: <strong>${alignment.rightCount}</strong></span>
             <span class="tr-count-item"><span class="tr-dot wrong"></span> Wrong Words: <strong>${alignment.wrongCount}</strong></span>
-            <span class="tr-count-item"><span class="tr-dot skip"></span> Skip Words: <strong>${alignment.skipCount}</strong></span>
+            <span class="tr-count-item"><span class="tr-dot skip"></span> Skipped Words: <strong>${alignment.skipCount}</strong></span>
             <span class="tr-count-item"><span class="tr-dot extra"></span> Extra Words: <strong>${alignment.extraCount}</strong></span>
           </div>
 
@@ -3787,35 +3788,50 @@
             <div class="tr-review-title">Typed Content Review</div>
             <div class="tr-filter-group" id="trFilterGroup">
               <button type="button" class="tr-filter-btn active" data-filter="all">All (${alignment.items.length})</button>
-              <button type="button" class="tr-filter-btn" data-filter="right">Right (${alignment.rightCount})</button>
+              <button type="button" class="tr-filter-btn" data-filter="right">Correct (${alignment.rightCount})</button>
               <button type="button" class="tr-filter-btn" data-filter="wrong">Wrong (${alignment.wrongCount})</button>
-              <button type="button" class="tr-filter-btn" data-filter="skip">Skip (${alignment.skipCount})</button>
+              <button type="button" class="tr-filter-btn" data-filter="skip">Skipped (${alignment.skipCount})</button>
               <button type="button" class="tr-filter-btn" data-filter="extra">Extra (${alignment.extraCount})</button>
             </div>
           </div>
 
-          <div class="tr-review-box" id="trReviewBox" style="font-family:${activeFontFamily};">
+          <div class="tr-review-box" id="trReviewBox">
             ${buildReviewHtml(alignment.items, "all")}
           </div>
 
           <div class="tr-legend">
-            <span><strong style="color:#15803d;">Green</strong> = Right Word</span>
-            <span><strong style="color:#dc2626;text-decoration:line-through;">Red</strong> <strong style="color:#15803d;">[Green]</strong> = Wrong Word [Sahi Word]</span>
-            <span><strong style="color:#b45309;">[SKIP Word]</strong> = Chhuta Hua Word</span>
-            <span><strong style="color:#6d28d9;">[EXTRA Word]</strong> = Extra Type Kiya Word</span>
+            <span><strong style="color:#15803d;">Green:</strong> Correct Word</span>
+            <span><strong style="color:#dc2626;text-decoration:line-through;">Red</strong> <strong style="color:#15803d;">[Green]:</strong> Wrong Word [Expected Word]</span>
+            <span><strong style="color:#d97706;">Amber:</strong> Skipped Word</span>
+            <span><strong style="color:#7c3aed;">Purple:</strong> Extra Word</span>
           </div>
 
           <div class="tr-actions">
-            <button type="button" class="btn-secondary" id="trPrintBtn">Print Result</button>
             ${currentTestId ? `<button type="button" class="btn-secondary" id="trRetakeBtn">Retake Test</button>` : ""}
             <button type="button" class="btn-primary" id="trHomeBtn">Back to Home</button>
           </div>
         </div>
+
+        <footer class="tr-footer">
+          <strong>Design &amp; Developed By Neeraj Kumar Meena</strong>
+          <span class="sep">|</span>
+          Any help: <a href="tel:+916378562616">+91 63785 62616</a>
+          <span class="sep">|</span>
+          <a href="mailto:neerajmeenatonk1@gmail.com">neerajmeenatonk1@gmail.com</a>
+        </footer>
       `;
+
+      // Apply exact font-family, font-size, font-weight, and line-height of the test to Review Box
+      const reviewBox = document.getElementById("trReviewBox");
+      if (reviewBox) {
+        reviewBox.style.fontFamily = testFontFamily;
+        reviewBox.style.fontSize = testFontSize;
+        reviewBox.style.fontWeight = testFontWeight;
+        reviewBox.style.lineHeight = testLineHeight;
+      }
 
       // Filter buttons event
       const filterGroup = document.getElementById("trFilterGroup");
-      const reviewBox = document.getElementById("trReviewBox");
       if (filterGroup && reviewBox) {
         filterGroup.querySelectorAll(".tr-filter-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
@@ -3826,15 +3842,11 @@
         });
       }
 
-      // Action buttons
+      // Action buttons (Back to Home & Retake Test)
       document.getElementById("trHomeBtn").addEventListener("click", () => {
         tiResultPage.classList.remove("show");
         tiInterface.classList.remove("active");
         document.body.style.overflow = "";
-      });
-
-      document.getElementById("trPrintBtn").addEventListener("click", () => {
-        window.print();
       });
 
       const retakeBtn = document.getElementById("trRetakeBtn");
@@ -3847,7 +3859,7 @@
       }
     }
 
-    // Jab bhi #tiResultPage show ho, turant hamara detailed result render karein
+    // Render updated result page whenever #tiResultPage opens
     new MutationObserver(function () {
       if (tiResultPage.classList.contains("show")) {
         renderDetailedResultPage();
@@ -3859,7 +3871,12 @@
   })();
 </script>
 <!-- ==================== END COMPLETE EXAM RESULT PAGE & WORD ALIGNMENT ==================== -->
-    
+
+  
+
+
+
+
 
 </body>
 </html>
