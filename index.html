@@ -3629,6 +3629,901 @@
   })();
 </script>
 <!-- ==================== END SCROLL-JUMP FIX, REVIEW WRAP & SAFETY GUARD ==================== -->
+<!-- ==================== STUDENT LOGIN SYSTEM & ADMIN STUDENT MANAGEMENT ==================== -->
+<style>
+  /* 1. Homepage Student Login Card */
+  .stu-login-wrap {
+    max-width: 25rem;
+    margin: 1.5rem auto 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    padding: 1.75rem 1.65rem;
+    animation: popIn 0.2s ease-out;
+  }
+  .stu-login-badge {
+    display: inline-block;
+    background: var(--navy-light);
+    color: var(--navy);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    margin-bottom: 0.55rem;
+  }
+  .stu-login-wrap h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.25rem;
+  }
+  .stu-login-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+  }
+  .stu-pass-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .stu-pass-wrap input {
+    padding-right: 3.2rem;
+  }
+  .stu-eye-btn {
+    position: absolute;
+    right: 0.55rem;
+    background: transparent;
+    border: none;
+    color: var(--navy);
+    font-family: inherit;
+    font-size: 0.64rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.2rem 0.35rem;
+  }
+  .stu-eye-btn:hover {
+    text-decoration: underline;
+  }
+
+  /* 2. Logged-in Student Welcome Banner on Homepage */
+  .stu-status-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--green);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 0.7rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .stu-status-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+  .stu-status-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .stu-status-meta {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+  .stu-logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--red-light);
+    color: var(--red);
+    border: 1px solid var(--red-border);
+    border-radius: var(--radius);
+    padding: 0.42rem 0.8rem;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .stu-logout-btn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+  }
+
+  /* 3. Admin Student Management Panel */
+  .stu-search-box {
+    flex: 1;
+    min-width: 13rem;
+    max-width: 22rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.74rem;
+    background: var(--card);
+    color: var(--text);
+  }
+  .stu-search-box:focus {
+    outline: none;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+  }
+  .stu-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .stu-bulk-del-btn {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.52rem 0.85rem;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .stu-bulk-del-btn.show {
+    display: inline-flex;
+  }
+  .stu-bulk-del-btn:hover {
+    background: var(--red-hover);
+  }
+  .stu-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+  .stu-pass-pill {
+    display: inline-block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 0.3rem;
+    padding: 0.15rem 0.45rem;
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--text);
+  }
+  .stu-chk {
+    width: 0.9rem;
+    height: 0.9rem;
+    accent-color: var(--navy);
+    cursor: pointer;
+  }
+
+  /* Result Review Wrong Word pair wrap fix & Typing Box scroll fix */
+  #trReviewBox span[title^="Wrong Word"] {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 650px) {
+    .stu-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script type="module">
+  import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    get,
+    set,
+    remove
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const primaryApp = getApp();
+  const auth = getAuth(primaryApp);
+  const db = getDatabase(primaryApp);
+  const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+  // Secondary Firebase App instance so Admin can register students without signing out Admin
+  const SECONDARY_APP_NAME = "TypingXStudentRegistrar";
+  const secondaryApp =
+    getApps().find((a) => a.name === SECONDARY_APP_NAME) ||
+    initializeApp(primaryApp.options, SECONDARY_APP_NAME);
+  const secondaryAuth = getAuth(secondaryApp);
+
+  let registeredStudents = [];
+  let selectedStudentIds = new Set();
+  let activeStudentProfile = null;
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function showToastMsg(msg, type = "success") {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.className = "toast show " + type;
+    setTimeout(() => toast.classList.remove("show"), 3500);
+  }
+
+  /* ============================================================
+     1. HOMEPAGE: STUDENT LOGIN GATE & STUDENT WELCOME BAR
+     ============================================================ */
+  const homepageView = document.getElementById("homepageView");
+  const homeTitleEl = homepageView?.querySelector("h1");
+  const homeSubEl = homepageView?.querySelector(".subtitle");
+  const homeTabsEl = homepageView?.querySelector(".tabs");
+  const homeTableWrapEl = homepageView?.querySelector(".table-wrap");
+  const homePaginationBarEl = document.getElementById("paginationBar");
+
+  // Create Student Login Box
+  const studentLoginGate = document.createElement("div");
+  studentLoginGate.id = "studentLoginGate";
+  studentLoginGate.className = "stu-login-wrap";
+  studentLoginGate.innerHTML = `
+    <span class="stu-login-badge">RSSB LDC 2026 Portal</span>
+    <h2>Student Login</h2>
+    <p class="stu-login-sub">Sign in with your registered Email Address and Password to access the typing tests.</p>
+    <div class="error-msg" id="stuLoginError"></div>
+    <form id="stuLoginForm">
+      <div class="form-group">
+        <label for="stuLoginEmail">Email Address</label>
+        <input type="email" id="stuLoginEmail" placeholder="Enter your email address" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="stuLoginPassword">Password</label>
+        <div class="stu-pass-wrap">
+          <input type="password" id="stuLoginPassword" placeholder="Enter your password" required autocomplete="current-password">
+          <button type="button" class="stu-eye-btn" id="stuTogglePass">Show</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary" id="stuLoginSubmitBtn">Sign In to Tests</button>
+      </div>
+    </form>
+  `;
+
+  // Create Logged-in Student Bar
+  const studentStatusBar = document.createElement("div");
+  studentStatusBar.id = "studentStatusBar";
+  studentStatusBar.className = "stu-status-bar";
+  studentStatusBar.innerHTML = `
+    <div class="stu-status-info">
+      <span class="stu-status-name" id="stuWelcomeName">Welcome, Student</span>
+      <span class="stu-status-meta" id="stuWelcomeMeta"></span>
+    </div>
+    <button type="button" class="stu-logout-btn" id="stuLogoutBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      Student Logout
+    </button>
+  `;
+
+  if (homepageView) {
+    homepageView.prepend(studentStatusBar);
+    homepageView.prepend(studentLoginGate);
+  }
+
+  function setHomepageAccessState(canViewTests, studentProfile = null) {
+    activeStudentProfile = studentProfile;
+
+    if (canViewTests) {
+      studentLoginGate.style.display = "none";
+      if (homeTitleEl) homeTitleEl.style.display = "";
+      if (homeSubEl) homeSubEl.style.display = "";
+      if (homeTabsEl) homeTabsEl.style.display = "";
+      if (homeTableWrapEl) homeTableWrapEl.style.display = "";
+
+      if (studentProfile) {
+        studentStatusBar.style.display = "flex";
+        document.getElementById("stuWelcomeName").textContent = `Welcome, ${studentProfile.fullName}`;
+        document.getElementById("stuWelcomeMeta").textContent = `${studentProfile.email}${studentProfile.mobile ? " • " + studentProfile.mobile : ""}`;
+      } else {
+        studentStatusBar.style.display = "none";
+      }
+    } else {
+      studentLoginGate.style.display = "block";
+      studentStatusBar.style.display = "none";
+      if (homeTitleEl) homeTitleEl.style.display = "none";
+      if (homeSubEl) homeSubEl.style.display = "none";
+      if (homeTabsEl) homeTabsEl.style.display = "none";
+      if (homeTableWrapEl) homeTableWrapEl.style.display = "none";
+      if (homePaginationBarEl) homePaginationBarEl.style.display = "none";
+    }
+  }
+
+  // Default locked state before auth resolves
+  setHomepageAccessState(false, null);
+
+  // Show/Hide Password Toggle on Student Login
+  const stuTogglePass = document.getElementById("stuTogglePass");
+  const stuLoginPassword = document.getElementById("stuLoginPassword");
+  if (stuTogglePass && stuLoginPassword) {
+    stuTogglePass.addEventListener("click", () => {
+      const isHidden = stuLoginPassword.type === "password";
+      stuLoginPassword.type = isHidden ? "text" : "password";
+      stuTogglePass.textContent = isHidden ? "Hide" : "Show";
+    });
+  }
+
+  // Handle Student Login Form Submit
+  const stuLoginForm = document.getElementById("stuLoginForm");
+  const stuLoginError = document.getElementById("stuLoginError");
+  const stuLoginSubmitBtn = document.getElementById("stuLoginSubmitBtn");
+
+  if (stuLoginForm) {
+    stuLoginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      stuLoginError.classList.remove("show");
+      const email = document.getElementById("stuLoginEmail").value.trim().toLowerCase();
+      const password = stuLoginPassword.value;
+
+      if (!email || !password) return;
+
+      stuLoginSubmitBtn.disabled = true;
+      stuLoginSubmitBtn.innerHTML = `<span class="spinner"></span> Signing in...`;
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        if (cred.user.email === ADMIN_EMAIL) {
+          stuLoginForm.reset();
+          showToastMsg("Signed in as Administrator.", "success");
+          return;
+        }
+
+        // Verify that this student still exists in RTDB (not deleted by Admin)
+        try {
+          const stuSnap = await get(ref(db, `students/${cred.user.uid}`));
+          if (!stuSnap.exists()) {
+            await signOut(auth);
+            throw new Error("Your student account is not registered or has been removed by the administrator.");
+          }
+          const profile = stuSnap.val();
+          stuLoginForm.reset();
+          showToastMsg(`Welcome, ${profile.fullName || "Student"}!`, "success");
+        } catch (dbErr) {
+          if (dbErr.code === "PERMISSION_DENIED") {
+            stuLoginForm.reset();
+            showToastMsg("Signed in successfully.", "success");
+          } else {
+            throw dbErr;
+          }
+        }
+      } catch (err) {
+        let msg = "Invalid email address or password.";
+        if (err.code === "auth/too-many-requests") {
+          msg = "Too many failed attempts. Please try again later.";
+        } else if (err.message && !err.code) {
+          msg = err.message;
+        }
+        stuLoginError.textContent = msg;
+        stuLoginError.classList.add("show");
+      } finally {
+        stuLoginSubmitBtn.disabled = false;
+        stuLoginSubmitBtn.textContent = "Sign In to Tests";
+      }
+    });
+  }
+
+  // Handle Student Logout
+  const stuLogoutBtn = document.getElementById("stuLogoutBtn");
+  if (stuLogoutBtn) {
+    stuLogoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showToastMsg("Signed out successfully.", "success");
+      } catch {
+        showToastMsg("Failed to sign out. Please try again.", "error");
+      }
+    });
+  }
+
+  // Sync Auth State for Student vs Admin vs Guest
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      setHomepageAccessState(false, null);
+      return;
+    }
+
+    if (user.email === ADMIN_EMAIL) {
+      setHomepageAccessState(true, null);
+      return;
+    }
+
+    // Student logged in: fetch profile from RTDB
+    try {
+      const snap = await get(ref(db, `students/${user.uid}`));
+      if (!snap.exists()) {
+        await signOut(auth);
+        setHomepageAccessState(false, null);
+        stuLoginError.textContent = "Your student account has been removed by the administrator.";
+        stuLoginError.classList.add("show");
+        return;
+      }
+      const data = snap.val();
+      setHomepageAccessState(true, {
+        uid: user.uid,
+        fullName: data.fullName || user.email.split("@")[0],
+        email: data.email || user.email,
+        mobile: data.mobile || ""
+      });
+    } catch {
+      setHomepageAccessState(true, {
+        uid: user.uid,
+        fullName: user.email.split("@")[0],
+        email: user.email,
+        mobile: ""
+      });
+    }
+  });
+
+  /* ============================================================
+     2. ADMIN CONTROL: STUDENT REGISTRATION & DELETE MANAGEMENT
+     ============================================================ */
+  function initAdminStudentManagement() {
+    const adminTabsBar = document.querySelector("#adminView .admin-tabs");
+    const adminView = document.getElementById("adminView");
+    const fontPanel = document.getElementById("fontPanel");
+    const testPanel = document.getElementById("testPanel");
+    if (!adminTabsBar || !adminView) return;
+
+    // Add "Student Management" Tab
+    if (!adminTabsBar.querySelector('[data-admin-tab="students"]')) {
+      const stuTabBtn = document.createElement("button");
+      stuTabBtn.className = "admin-tab";
+      stuTabBtn.dataset.adminTab = "students";
+      stuTabBtn.textContent = "Student Management";
+      adminTabsBar.appendChild(stuTabBtn);
+    }
+
+    // Create Student Management Panel
+    let studentPanel = document.getElementById("studentPanel");
+    if (!studentPanel) {
+      studentPanel = document.createElement("div");
+      studentPanel.id = "studentPanel";
+      studentPanel.style.display = "none";
+      studentPanel.innerHTML = `
+        <!-- Student List View -->
+        <div id="stuListView">
+          <div class="admin-toolbar">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;flex:1;">
+              <span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;" id="stuCountLabel">0 students</span>
+              <input type="text" class="stu-search-box" id="stuSearchInput" placeholder="Search by full name, email, or mobile...">
+            </div>
+            <div class="stu-toolbar-actions">
+              <button type="button" class="stu-bulk-del-btn" id="stuBulkDeleteBtn">Delete Selected (<span id="stuSelectedCount">0</span>)</button>
+              <button type="button" class="btn-primary" style="flex:none;padding:0.55rem 0.95rem;font-size:0.75rem;" id="openRegisterStuBtn">+ Register New Student</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:2.4rem;"><input type="checkbox" class="stu-chk" id="stuSelectAllChk" title="Select All"></th>
+                  <th class="col-serial">S.No.</th>
+                  <th>Full Name</th>
+                  <th>Email Address</th>
+                  <th>Mobile Number</th>
+                  <th>Password</th>
+                  <th>Registered On</th>
+                  <th class="col-action">Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminStudentTableBody"></tbody>
+            </table>
+            <div class="empty-state" id="stuEmptyState" style="display:none">
+              <div class="icon">🎓</div>
+              <h3>No students registered yet</h3>
+              <p>Click "Register New Student" to create a student login account.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Register New Student Form View -->
+        <div id="stuFormView" style="display:none">
+          <div class="test-form-card">
+            <h2 style="font-size:1.1rem;color:var(--navy);margin-bottom:0.25rem;">Register New Student</h2>
+            <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">Create login credentials so the student can access typing tests on the homepage.</p>
+            <div class="error-msg" id="stuRegError"></div>
+            <form id="stuRegisterForm">
+              <div class="stu-form-grid">
+                <div class="form-group">
+                  <label for="regStuFullName">Full Name</label>
+                  <input type="text" id="regStuFullName" placeholder="e.g., Rahul Kumar Sharma" required maxlength="100">
+                </div>
+                <div class="form-group">
+                  <label for="regStuMobile">Mobile Number</label>
+                  <input type="tel" id="regStuMobile" placeholder="e.g., 9876543210" required maxlength="15">
+                </div>
+                <div class="form-group">
+                  <label for="regStuEmail">Email Address</label>
+                  <input type="email" id="regStuEmail" placeholder="e.g., student@gmail.com" required maxlength="120">
+                </div>
+                <div class="form-group">
+                  <label for="regStuPassword">Password (Min. 6 characters)</label>
+                  <input type="text" id="regStuPassword" placeholder="Create login password" required minlength="6" maxlength="50">
+                </div>
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="cancelStuFormBtn">Cancel</button>
+                <button type="submit" class="btn-primary" id="saveStuBtn">Register Student</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      adminView.appendChild(studentPanel);
+    }
+
+    // Coordinate Admin Tab Switching cleanly across all 4 tabs
+    adminTabsBar.querySelectorAll(".admin-tab").forEach((btn) => {
+      btn.addEventListener(
+        "click",
+        (e) => {
+          const tab = btn.dataset.adminTab;
+          const displayPanel = document.getElementById("displayPanel");
+          if (tab === "students") {
+            e.stopImmediatePropagation();
+            adminTabsBar.querySelectorAll(".admin-tab").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            if (fontPanel) fontPanel.style.display = "none";
+            if (testPanel) testPanel.style.display = "none";
+            if (displayPanel) displayPanel.style.display = "none";
+            studentPanel.style.display = "";
+            closeStudentRegisterForm();
+            loadRegisteredStudents();
+          } else {
+            studentPanel.style.display = "none";
+          }
+        },
+        true
+      );
+    });
+
+    const stuListView = document.getElementById("stuListView");
+    const stuFormView = document.getElementById("stuFormView");
+    const openRegisterStuBtn = document.getElementById("openRegisterStuBtn");
+    const cancelStuFormBtn = document.getElementById("cancelStuFormBtn");
+    const stuRegisterForm = document.getElementById("stuRegisterForm");
+    const stuRegError = document.getElementById("stuRegError");
+    const saveStuBtn = document.getElementById("saveStuBtn");
+    const stuSearchInput = document.getElementById("stuSearchInput");
+    const stuSelectAllChk = document.getElementById("stuSelectAllChk");
+    const stuBulkDeleteBtn = document.getElementById("stuBulkDeleteBtn");
+
+    function openStudentRegisterForm() {
+      stuRegisterForm.reset();
+      stuRegError.classList.remove("show");
+      stuListView.style.display = "none";
+      stuFormView.style.display = "block";
+      setTimeout(() => document.getElementById("regStuFullName").focus(), 50);
+    }
+
+    function closeStudentRegisterForm() {
+      stuListView.style.display = "block";
+      stuFormView.style.display = "none";
+      stuRegisterForm.reset();
+      stuRegError.classList.remove("show");
+    }
+
+    openRegisterStuBtn.addEventListener("click", openStudentRegisterForm);
+    cancelStuFormBtn.addEventListener("click", closeStudentRegisterForm);
+    stuSearchInput.addEventListener("input", () => renderStudentsTable());
+
+    // Register New Student Submit
+    stuRegisterForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      stuRegError.classList.remove("show");
+
+      const fullName = document.getElementById("regStuFullName").value.trim();
+      const mobile = document.getElementById("regStuMobile").value.trim().replace(/\s+/g, "");
+      const email = document.getElementById("regStuEmail").value.trim().toLowerCase();
+      const password = document.getElementById("regStuPassword").value;
+
+      if (!fullName || !mobile || !email || !password) {
+        stuRegError.textContent = "Please fill in all student details.";
+        stuRegError.classList.add("show");
+        return;
+      }
+      if (!/^\+?[0-9]{10,13}$/.test(mobile)) {
+        stuRegError.textContent = "Please enter a valid 10-digit mobile number.";
+        stuRegError.classList.add("show");
+        return;
+      }
+      if (password.length < 6) {
+        stuRegError.textContent = "Password must be at least 6 characters long.";
+        stuRegError.classList.add("show");
+        return;
+      }
+      if (email === ADMIN_EMAIL) {
+        stuRegError.textContent = "Admin email cannot be registered as a student.";
+        stuRegError.classList.add("show");
+        return;
+      }
+      if (registeredStudents.some((s) => (s.email || "").toLowerCase() === email)) {
+        stuRegError.textContent = "A student with this email address is already registered.";
+        stuRegError.classList.add("show");
+        return;
+      }
+
+      saveStuBtn.disabled = true;
+      const origHtml = saveStuBtn.innerHTML;
+      saveStuBtn.innerHTML = `<span class="spinner"></span> Registering...`;
+
+      try {
+        let studentUid = "";
+        try {
+          const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+          studentUid = userCred.user.uid;
+          await signOut(secondaryAuth);
+        } catch (authErr) {
+          if (authErr.code === "auth/email-already-in-use") {
+            // Re-activating a previously deleted student whose Firebase Auth account already existed
+            try {
+              const existingCred = await signInWithEmailAndPassword(secondaryAuth, email, password);
+              studentUid = existingCred.user.uid;
+              await signOut(secondaryAuth);
+            } catch {
+              throw new Error("This email already exists in Firebase Authentication with a different password. Use a new email or the original password.");
+            }
+          } else if (authErr.code === "auth/invalid-email") {
+            throw new Error("Please enter a valid email address.");
+          } else if (authErr.code === "auth/weak-password") {
+            throw new Error("Password should be at least 6 characters.");
+          } else {
+            throw authErr;
+          }
+        }
+
+        const payload = {
+          uid: studentUid,
+          fullName,
+          email,
+          mobile,
+          password,
+          createdAt: Date.now(),
+          createdBy: auth.currentUser?.email || ADMIN_EMAIL
+        };
+
+        await set(ref(db, `students/${studentUid}`), payload);
+        showToastMsg(`Student "${fullName}" registered successfully.`, "success");
+        await loadRegisteredStudents();
+        closeStudentRegisterForm();
+      } catch (err) {
+        console.error("Student registration error:", err);
+        stuRegError.textContent = err.message || "Failed to register student. Please try again.";
+        stuRegError.classList.add("show");
+      } finally {
+        saveStuBtn.disabled = false;
+        saveStuBtn.innerHTML = origHtml;
+      }
+    });
+
+    // Select All Checkbox
+    stuSelectAllChk.addEventListener("change", () => {
+      const visibleIds = getFilteredStudents().map((s) => s.id);
+      if (stuSelectAllChk.checked) {
+        visibleIds.forEach((id) => selectedStudentIds.add(id));
+      } else {
+        visibleIds.forEach((id) => selectedStudentIds.delete(id));
+      }
+      renderStudentsTable();
+    });
+
+    // Bulk Delete Selected Old Students
+    stuBulkDeleteBtn.addEventListener("click", async () => {
+      const ids = Array.from(selectedStudentIds);
+      if (ids.length === 0) return;
+      if (!confirm(`Are you sure you want to delete ${ids.length} selected student(s)?\n\nThey will immediately lose access to the tests.`)) {
+        return;
+      }
+      stuBulkDeleteBtn.disabled = true;
+      try {
+        await Promise.all(ids.map((id) => remove(ref(db, `students/${id}`))));
+        selectedStudentIds.clear();
+        showToastMsg(`${ids.length} student(s) deleted successfully.`, "success");
+        await loadRegisteredStudents();
+      } catch (err) {
+        console.error("Bulk delete error:", err);
+        showToastMsg("Failed to delete selected students.", "error");
+      } finally {
+        stuBulkDeleteBtn.disabled = false;
+      }
+    });
+  }
+
+  async function loadRegisteredStudents() {
+    const tbody = document.getElementById("adminStudentTableBody");
+    const emptyEl = document.getElementById("stuEmptyState");
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Loading registered students...</td></tr>`;
+    }
+    if (emptyEl) emptyEl.style.display = "none";
+
+    try {
+      const snap = await get(ref(db, "students"));
+      registeredStudents = [];
+      if (snap.exists()) {
+        const data = snap.val();
+        registeredStudents = Object.entries(data)
+          .map(([id, s]) => ({
+            id,
+            ...s,
+            createdAt: s.createdAt || 0
+          }))
+          .sort((a, b) => b.createdAt - a.createdAt);
+      }
+      // Clean stale selections
+      const validIds = new Set(registeredStudents.map((s) => s.id));
+      selectedStudentIds.forEach((id) => {
+        if (!validIds.has(id)) selectedStudentIds.delete(id);
+      });
+    } catch (err) {
+      console.error("Load students error:", err);
+      showToastMsg("Unable to load students list.", "error");
+    }
+    renderStudentsTable();
+  }
+
+  function getFilteredStudents() {
+    const q = (document.getElementById("stuSearchInput")?.value || "").trim().toLowerCase();
+    if (!q) return registeredStudents;
+    return registeredStudents.filter(
+      (s) =>
+        (s.fullName || "").toLowerCase().includes(q) ||
+        (s.email || "").toLowerCase().includes(q) ||
+        (s.mobile || "").toLowerCase().includes(q)
+    );
+  }
+
+  function updateBulkDeleteUI(filteredList) {
+    const bulkBtn = document.getElementById("stuBulkDeleteBtn");
+    const countSpan = document.getElementById("stuSelectedCount");
+    const selectAllChk = document.getElementById("stuSelectAllChk");
+
+    if (countSpan) countSpan.textContent = String(selectedStudentIds.size);
+    if (bulkBtn) bulkBtn.classList.toggle("show", selectedStudentIds.size > 0);
+    if (selectAllChk) {
+      selectAllChk.checked =
+        filteredList.length > 0 && filteredList.every((s) => selectedStudentIds.has(s.id));
+    }
+  }
+
+  function renderStudentsTable() {
+    const tbody = document.getElementById("adminStudentTableBody");
+    const emptyEl = document.getElementById("stuEmptyState");
+    const countLabel = document.getElementById("stuCountLabel");
+    if (!tbody || !emptyEl) return;
+
+    const list = getFilteredStudents();
+    if (countLabel) {
+      countLabel.textContent = `${registeredStudents.length} registered student${registeredStudents.length !== 1 ? "s" : ""}`;
+    }
+
+    updateBulkDeleteUI(list);
+
+    if (list.length === 0) {
+      tbody.innerHTML = "";
+      emptyEl.style.display = "block";
+      return;
+    }
+
+    emptyEl.style.display = "none";
+    tbody.innerHTML = list
+      .map((s, idx) => {
+        const regDate = s.createdAt
+          ? new Date(s.createdAt).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric"
+            })
+          : "—";
+        const checked = selectedStudentIds.has(s.id) ? "checked" : "";
+        return `
+          <tr>
+            <td><input type="checkbox" class="stu-chk stu-row-chk" data-id="${escapeHtml(s.id)}" ${checked}></td>
+            <td class="col-serial">${idx + 1}</td>
+            <td class="col-name">${escapeHtml(s.fullName || "—")}</td>
+            <td>${escapeHtml(s.email || "—")}</td>
+            <td class="col-lang">${escapeHtml(s.mobile || "—")}</td>
+            <td><span class="stu-pass-pill">${escapeHtml(s.password || "••••••")}</span></td>
+            <td class="col-date">${regDate}</td>
+            <td class="col-action">
+              <button type="button" class="action-btn delete stu-del-btn" data-id="${escapeHtml(s.id)}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tbody.querySelectorAll(".stu-row-chk").forEach((chk) => {
+      chk.addEventListener("change", () => {
+        if (chk.checked) selectedStudentIds.add(chk.dataset.id);
+        else selectedStudentIds.delete(chk.dataset.id);
+        updateBulkDeleteUI(list);
+      });
+    });
+
+    tbody.querySelectorAll(".stu-del-btn").forEach((btn) => {
+      btn.addEventListener("click", () => deleteSingleStudent(btn.dataset.id));
+    });
+  }
+
+  async function deleteSingleStudent(studentId) {
+    const stu = registeredStudents.find((s) => s.id === studentId);
+    if (!stu) return;
+    if (
+      !confirm(
+        `Are you sure you want to delete student "${stu.fullName}" (${stu.email})?\n\nThey will no longer be able to log in.`
+      )
+    ) {
+      return;
+    }
+    try {
+      await remove(ref(db, `students/${studentId}`));
+      selectedStudentIds.delete(studentId);
+      showToastMsg(`Student "${stu.fullName}" deleted successfully.`, "success");
+      await loadRegisteredStudents();
+    } catch (err) {
+      console.error("Delete student error:", err);
+      showToastMsg("Failed to delete student. Please try again.", "error");
+    }
+  }
+
+  /* ============================================================
+     3. TYPING BOX SCROLL-JUMP FIX (Keeping Backspace Count Untouched)
+     ============================================================ */
+  const tiTypingBox = document.getElementById("tiTypingBox");
+  if (tiTypingBox) {
+    const nativeValDesc = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value");
+    if (nativeValDesc && nativeValDesc.set && nativeValDesc.get) {
+      Object.defineProperty(tiTypingBox, "value", {
+        get() {
+          return nativeValDesc.get.call(this);
+        },
+        set(val) {
+          nativeValDesc.set.call(this, val);
+          this.scrollTop = this.scrollHeight;
+        }
+      });
+    }
+  }
+
+  initAdminStudentManagement();
+</script>
+<!-- ==================== END STUDENT LOGIN SYSTEM & ADMIN STUDENT MANAGEMENT ==================== -->
 
     
 </body>
