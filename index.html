@@ -2508,6 +2508,1393 @@
   });
 </script>
 <!-- ==================== END TYPING TEST INTERFACE ==================== -->
+<!-- ==================== TYPING INTERFACE & ADMIN DISPLAY SETTINGS ==================== -->
+<style>
+  /* Typing Interface Single-Screen Layout */
+  #typingInterface {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: var(--bg);
+    z-index: 2500;
+    display: none;
+    flex-direction: row;
+    overflow: hidden;
+  }
+  #typingInterface.active {
+    display: flex;
+  }
+
+  /* Left Sidebar (Chodi badhi hui) */
+  .ti-sidebar {
+    width: 7.6rem;
+    min-width: 7.6rem;
+    height: 100%;
+    background: var(--navy-dark);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 0.5rem;
+    border-right: 2px solid var(--navy);
+    gap: 0.6rem;
+    user-select: none;
+    overflow: hidden;
+  }
+  .ti-sidebar-top,
+  .ti-sidebar-middle,
+  .ti-sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  /* User Profile Icon */
+  .ti-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    text-align: center;
+  }
+  .ti-avatar {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+  .ti-avatar svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+  .ti-profile-label {
+    font-size: 0.58rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+  }
+
+  /* Sidebar Control Groups */
+  .ti-ctrl-group {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius);
+    padding: 0.42rem 0.32rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.32rem;
+    transition: opacity 0.2s;
+  }
+  .ti-ctrl-group.locked {
+    opacity: 0.45;
+  }
+  .ti-ctrl-title {
+    font-size: 0.54rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 600;
+    text-align: center;
+  }
+  .ti-btn-row {
+    display: flex;
+    gap: 0.25rem;
+    width: 100%;
+    justify-content: center;
+  }
+  .ti-side-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.35rem;
+    padding: 0.35rem 0.2rem;
+    font-family: inherit;
+    font-size: 0.6rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .ti-side-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.24);
+  }
+  .ti-side-btn.active {
+    background: var(--saffron);
+    border-color: var(--saffron);
+    color: #fff;
+  }
+  .ti-side-btn:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Submit Button */
+  .ti-submit-btn {
+    width: 100%;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.55rem 0.3rem;
+    font-family: inherit;
+    font-size: 0.66rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    transition: background 0.15s, transform 0.1s;
+    text-align: center;
+    line-height: 1.25;
+  }
+  .ti-submit-btn:hover {
+    background: var(--green-dark);
+  }
+  .ti-submit-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Right Main Screen (Single Screen, No Page Scroll) */
+  .ti-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 1.2rem 0.85rem;
+    gap: 0.5rem;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Simple Text Header & Remaining Time (Bina kisi alag box ke) */
+  .ti-header-simple {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-shrink: 0;
+    line-height: 1.3;
+    padding: 0.1rem 0;
+  }
+  .ti-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 0;
+  }
+  .ti-timer-text {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 0.1rem;
+  }
+  .ti-timer-text span {
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .ti-timer-text.warning,
+  .ti-timer-text.warning span {
+    color: var(--red);
+  }
+
+  /* Passage Box (Height Typing Box se zyada, No Auto-Scroll) */
+  .ti-passage-box {
+    flex: 1.55;
+    min-height: 0;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1.05rem;
+    overflow-y: auto;
+    line-height: 1.85;
+    font-size: 1.15rem;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    user-select: none;
+    word-spacing: 0.12em;
+  }
+  .ti-passage-box .w-current {
+    background: #fde047;
+    color: #1e293b;
+    border-radius: 0.2rem;
+    padding: 0 0.15rem;
+  }
+  .ti-passage-box .w-current.w-wrong-live {
+    color: #dc2626;
+  }
+  .ti-passage-box .w-correct {
+    color: #16a34a;
+  }
+  .ti-passage-box .w-wrong {
+    color: #dc2626;
+  }
+
+  /* Typing Box */
+  .ti-typing-box {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--navy);
+    border-radius: var(--radius);
+    padding: 0.85rem 1.05rem;
+    line-height: 1.85;
+    font-size: 1.15rem;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    resize: none;
+    outline: none;
+    overflow-y: auto;
+  }
+  .ti-typing-box:focus {
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.14);
+  }
+
+  /* Confirm Modal */
+  .ti-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3200;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+  }
+  .ti-modal-backdrop.show {
+    display: flex;
+  }
+
+  /* Result Page */
+  #tiResultPage {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 3300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    overflow-y: auto;
+  }
+  #tiResultPage.show {
+    display: flex;
+  }
+  .ti-result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 34rem;
+    padding: 1.5rem;
+    animation: popIn 0.2s ease-out;
+  }
+  .ti-result-header {
+    text-align: center;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .ti-result-header h2 {
+    font-size: 1.35rem;
+    color: var(--navy);
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .ti-result-header p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .ti-result-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: var(--bg);
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .ti-result-meta strong {
+    color: var(--text);
+  }
+  .ti-result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+  }
+  .ti-stat-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+  }
+  .ti-stat-card.highlight-card {
+    background: var(--navy-light);
+    border-color: var(--navy);
+  }
+  .ti-stat-val {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .ti-stat-val.green {
+    color: var(--green-dark);
+  }
+  .ti-stat-val.red {
+    color: var(--red);
+  }
+  .ti-stat-lbl {
+    font-size: 0.64rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    font-weight: 500;
+  }
+
+  /* Admin Display Settings Panel CSS */
+  .ds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+    gap: 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+  .ds-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.15rem;
+  }
+  .ds-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ds-sub-section {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    margin-bottom: 0.8rem;
+  }
+  .ds-sub-heading {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.55rem;
+  }
+  .ds-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+  .ds-field label {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+  }
+  .ds-field input {
+    width: 100%;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.75rem;
+    background: var(--card);
+    color: var(--text);
+  }
+  .ds-field input:focus {
+    outline: none;
+    border-color: var(--navy);
+  }
+  .ds-preview-box {
+    background: #f8fafc;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 0.65rem 0.8rem;
+    margin-top: 0.5rem;
+    color: var(--text);
+    word-break: break-word;
+  }
+  .ds-preview-tag {
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    font-family: 'Google Sans', sans-serif !important;
+  }
+  .ds-actions {
+    display: flex;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+  }
+
+  @media (max-width: 600px) {
+    .ti-sidebar {
+      width: 6.3rem;
+      min-width: 6.3rem;
+      padding: 0.65rem 0.35rem;
+    }
+    .ti-main {
+      padding: 0.5rem 0.65rem 0.65rem;
+    }
+    .ti-result-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+
+<!-- Typing Test Single-Screen Interface -->
+<section id="typingInterface" aria-label="Typing Test Interface">
+  <aside class="ti-sidebar">
+    <div class="ti-sidebar-top">
+      <div class="ti-profile" title="Candidate Profile">
+        <div class="ti-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <span class="ti-profile-label">Candidate</span>
+      </div>
+    </div>
+
+    <div class="ti-sidebar-middle">
+      <!-- Highlight Enable / Disable (By Default Disable) -->
+      <div class="ti-ctrl-group" id="tiGroupHighlight">
+        <span class="ti-ctrl-title">Highlight</span>
+        <div class="ti-btn-row">
+          <button type="button" class="ti-side-btn active" id="tiHlDisable">Disable</button>
+          <button type="button" class="ti-side-btn" id="tiHlEnable">Enable</button>
+        </div>
+      </div>
+
+      <!-- Regular / Bold Selector (By Default Regular) -->
+      <div class="ti-ctrl-group" id="tiGroupStyle">
+        <span class="ti-ctrl-title">Font Style</span>
+        <div class="ti-btn-row">
+          <button type="button" class="ti-side-btn active" id="tiStyleRegular">Regular</button>
+          <button type="button" class="ti-side-btn" id="tiStyleBold">Bold</button>
+        </div>
+      </div>
+
+      <!-- Font Size Increase / Decrease -->
+      <div class="ti-ctrl-group" id="tiGroupSize">
+        <span class="ti-ctrl-title">Font Size</span>
+        <div class="ti-btn-row">
+          <button type="button" class="ti-side-btn" id="tiFontDec" title="Decrease Font Size">A-</button>
+          <button type="button" class="ti-side-btn" id="tiFontInc" title="Increase Font Size">A+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ti-sidebar-bottom">
+      <button type="button" class="ti-submit-btn" id="tiSubmitBtn">Submit Test</button>
+    </div>
+  </aside>
+
+  <div class="ti-main">
+    <div class="ti-header-simple">
+      <div class="ti-heading" id="tiHeading">English Typing Speed Test</div>
+      <div class="ti-timer-text" id="tiTimerWrap">Remaining Time: <span id="tiCountdown">10:00</span></div>
+    </div>
+
+    <div class="ti-passage-box" id="tiPassageBox">Loading test passage...</div>
+
+    <textarea
+      id="tiTypingBox"
+      class="ti-typing-box"
+      placeholder="Start typing here..."
+      spellcheck="false"
+      autocorrect="off"
+      autocapitalize="off"
+      autocomplete="off"
+    ></textarea>
+  </div>
+</section>
+
+<!-- Submit Confirmation Modal -->
+<div class="ti-modal-backdrop" id="tiConfirmModal">
+  <div class="modal">
+    <h2>Submit Test?</h2>
+    <p class="modal-sub">Are you sure you want to submit your typing test now?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" id="tiCancelSubmit">Continue Typing</button>
+      <button type="button" class="btn-primary" id="tiConfirmSubmitBtn" style="background:var(--green);">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Test Result Page -->
+<section id="tiResultPage" aria-label="Test Result">
+  <div class="ti-result-card">
+    <div class="ti-result-header">
+      <h2>Typing Test Result</h2>
+      <p id="tiResultSub">Test performance summary</p>
+    </div>
+    <div class="ti-result-meta">
+      <span>Test: <strong id="resTestName">-</strong></span>
+      <span>Language: <strong id="resLang">-</strong></span>
+      <span>Time Taken: <strong id="resTimeTaken">00:00</strong></span>
+    </div>
+    <div class="ti-result-grid">
+      <div class="ti-stat-card highlight-card">
+        <div class="ti-stat-val" id="resNetWpm">0</div>
+        <div class="ti-stat-lbl">Net Speed (WPM)</div>
+      </div>
+      <div class="ti-stat-card">
+        <div class="ti-stat-val" id="resGrossWpm">0</div>
+        <div class="ti-stat-lbl">Gross Speed (WPM)</div>
+      </div>
+      <div class="ti-stat-card">
+        <div class="ti-stat-val" id="resAccuracy">0%</div>
+        <div class="ti-stat-lbl">Accuracy</div>
+      </div>
+      <div class="ti-stat-card">
+        <div class="ti-stat-val" id="resTotalWords">0</div>
+        <div class="ti-stat-lbl">Total Typed Words</div>
+      </div>
+      <div class="ti-stat-card">
+        <div class="ti-stat-val green" id="resCorrectWords">0</div>
+        <div class="ti-stat-lbl">Correct Words</div>
+      </div>
+      <div class="ti-stat-card">
+        <div class="ti-stat-val red" id="resWrongWords">0</div>
+        <div class="ti-stat-lbl">Wrong Words</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-primary" id="tiBackHomeBtn">Back to Home</button>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const app = getApp();
+  const db = getDatabase(app);
+
+  const TEST_DURATION_SECONDS = 10 * 60; // 10 minutes
+  const TARGET_WORDS = { hindi: 400, english: 500 };
+
+  const DEFAULT_DISPLAY_SETTINGS = {
+    hindi: {
+      passageFontSize: 1.25,
+      passageLineHeight: 1.9,
+      typingFontSize: 1.25,
+      typingLineHeight: 1.9
+    },
+    english: {
+      passageFontSize: 1.15,
+      passageLineHeight: 1.85,
+      typingFontSize: 1.15,
+      typingLineHeight: 1.85
+    }
+  };
+
+  let displaySettings = JSON.parse(JSON.stringify(DEFAULT_DISPLAY_SETTINGS));
+
+  /* ============================================================
+     1. ADMIN PANEL: LANGUAGE-WISE FONT SIZE & LINE SPACING CONTROL
+     ============================================================ */
+  function initAdminDisplayControl() {
+    const adminTabsBar = document.querySelector("#adminView .admin-tabs");
+    const adminView = document.getElementById("adminView");
+    const fontPanel = document.getElementById("fontPanel");
+    const testPanel = document.getElementById("testPanel");
+    if (!adminTabsBar || !adminView) return;
+
+    // Add 3rd Tab: "Display Settings"
+    if (!adminTabsBar.querySelector('[data-admin-tab="display"]')) {
+      const tabBtn = document.createElement("button");
+      tabBtn.className = "admin-tab";
+      tabBtn.dataset.adminTab = "display";
+      tabBtn.textContent = "Display Settings";
+      adminTabsBar.appendChild(tabBtn);
+    }
+
+    // Create Display Settings Panel
+    let displayPanel = document.getElementById("displayPanel");
+    if (!displayPanel) {
+      displayPanel = document.createElement("div");
+      displayPanel.id = "displayPanel";
+      displayPanel.style.display = "none";
+      displayPanel.innerHTML = `
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">
+          Set default Font Size (rem) and Line Spacing for Passage Box and Typing Box in the Typing Interface (Language-wise).
+        </p>
+        <div class="ds-grid">
+          ${buildLanguageSettingsCard("hindi", "Hindi Typing Settings")}
+          ${buildLanguageSettingsCard("english", "English Typing Settings")}
+        </div>
+      `;
+      adminView.appendChild(displayPanel);
+    }
+
+    // Handle Tab Switching cleanly alongside existing tabs
+    adminTabsBar.querySelectorAll(".admin-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tab = btn.dataset.adminTab;
+        if (tab === "display") {
+          adminTabsBar.querySelectorAll(".admin-tab").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          if (fontPanel) fontPanel.style.display = "none";
+          if (testPanel) testPanel.style.display = "none";
+          displayPanel.style.display = "";
+          loadDisplaySettingsFromDB().then(() => {
+            populateDisplaySettingsForm("hindi");
+            populateDisplaySettingsForm("english");
+          });
+        } else {
+          displayPanel.style.display = "none";
+        }
+      });
+    });
+
+    // Attach Input Live Preview + Save + Reset listeners for Hindi & English
+    ["hindi", "english"].forEach((lang) => {
+      ["passageFontSize", "passageLineHeight", "typingFontSize", "typingLineHeight"].forEach((field) => {
+        const inp = document.getElementById(`ds-${lang}-${field}`);
+        if (inp) {
+          inp.addEventListener("input", () => updateAdminPreview(lang));
+        }
+      });
+
+      document.getElementById(`ds-save-${lang}`).addEventListener("click", () => saveLanguageDisplaySettings(lang));
+      document.getElementById(`ds-reset-${lang}`).addEventListener("click", () => resetLanguageDisplaySettings(lang));
+    });
+
+    loadDisplaySettingsFromDB().then(() => {
+      populateDisplaySettingsForm("hindi");
+      populateDisplaySettingsForm("english");
+    });
+  }
+
+  function buildLanguageSettingsCard(lang, title) {
+    const sample =
+      lang === "hindi"
+        ? "नमूना पाठ — टाइपिंग इंटरफ़ेस में पैराग्राफ़ और टाइपिंग बॉक्स का फ़ॉन्ट साइज़ और लाइन स्पेसिंग यहाँ से नियंत्रित करें।"
+        : "Sample passage — Control the default font size and line spacing of the Passage box and Typing box from here.";
+
+    return `
+      <div class="ds-card">
+        <div class="ds-card-title">
+          <span>${title}</span>
+          <span class="status-badge published">${lang.toUpperCase()}</span>
+        </div>
+
+        <div class="ds-sub-section">
+          <div class="ds-sub-heading">Passage Box (Default)</div>
+          <div class="ds-row">
+            <div class="ds-field">
+              <label for="ds-${lang}-passageFontSize">Font Size (rem)</label>
+              <input type="number" id="ds-${lang}-passageFontSize" step="0.05" min="0.75" max="2.5">
+            </div>
+            <div class="ds-field">
+              <label for="ds-${lang}-passageLineHeight">Line Spacing</label>
+              <input type="number" id="ds-${lang}-passageLineHeight" step="0.05" min="1.0" max="3.2">
+            </div>
+          </div>
+          <div class="ds-preview-box" id="ds-prev-passage-${lang}">
+            <div class="ds-preview-tag">Passage Box Preview</div>
+            <div class="ds-prev-text">${sample}</div>
+          </div>
+        </div>
+
+        <div class="ds-sub-section">
+          <div class="ds-sub-heading">Typing Box (Default)</div>
+          <div class="ds-row">
+            <div class="ds-field">
+              <label for="ds-${lang}-typingFontSize">Font Size (rem)</label>
+              <input type="number" id="ds-${lang}-typingFontSize" step="0.05" min="0.75" max="2.5">
+            </div>
+            <div class="ds-field">
+              <label for="ds-${lang}-typingLineHeight">Line Spacing</label>
+              <input type="number" id="ds-${lang}-typingLineHeight" step="0.05" min="1.0" max="3.2">
+            </div>
+          </div>
+          <div class="ds-preview-box" id="ds-prev-typing-${lang}">
+            <div class="ds-preview-tag">Typing Box Preview</div>
+            <div class="ds-prev-text">${sample}</div>
+          </div>
+        </div>
+
+        <div class="ds-actions">
+          <button type="button" class="btn-secondary" id="ds-reset-${lang}">Reset Default</button>
+          <button type="button" class="btn-primary" id="ds-save-${lang}">Save ${lang.charAt(0).toUpperCase() + lang.slice(1)} Settings</button>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadDisplaySettingsFromDB() {
+    try {
+      const snap = await get(ref(db, "fonts/displaySettings"));
+      if (snap.exists()) {
+        const val = snap.val();
+        ["hindi", "english"].forEach((lang) => {
+          if (val[lang]) {
+            displaySettings[lang] = {
+              ...DEFAULT_DISPLAY_SETTINGS[lang],
+              ...val[lang]
+            };
+          }
+        });
+        localStorage.setItem("typingx_display_settings", JSON.stringify(displaySettings));
+        return;
+      }
+    } catch (e) {
+      console.warn("Display settings fetch fallback:", e);
+    }
+    try {
+      const cached = localStorage.getItem("typingx_display_settings");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        displaySettings = {
+          hindi: { ...DEFAULT_DISPLAY_SETTINGS.hindi, ...(parsed.hindi || {}) },
+          english: { ...DEFAULT_DISPLAY_SETTINGS.english, ...(parsed.english || {}) }
+        };
+      }
+    } catch {}
+  }
+
+  function populateDisplaySettingsForm(lang) {
+    const cfg = displaySettings[lang] || DEFAULT_DISPLAY_SETTINGS[lang];
+    const pFs = document.getElementById(`ds-${lang}-passageFontSize`);
+    const pLh = document.getElementById(`ds-${lang}-passageLineHeight`);
+    const tFs = document.getElementById(`ds-${lang}-typingFontSize`);
+    const tLh = document.getElementById(`ds-${lang}-typingLineHeight`);
+    if (!pFs) return;
+
+    pFs.value = cfg.passageFontSize;
+    pLh.value = cfg.passageLineHeight;
+    tFs.value = cfg.typingFontSize;
+    tLh.value = cfg.typingLineHeight;
+    updateAdminPreview(lang);
+  }
+
+  async function updateAdminPreview(lang) {
+    const pFs = parseFloat(document.getElementById(`ds-${lang}-passageFontSize`).value) || DEFAULT_DISPLAY_SETTINGS[lang].passageFontSize;
+    const pLh = parseFloat(document.getElementById(`ds-${lang}-passageLineHeight`).value) || DEFAULT_DISPLAY_SETTINGS[lang].passageLineHeight;
+    const tFs = parseFloat(document.getElementById(`ds-${lang}-typingFontSize`).value) || DEFAULT_DISPLAY_SETTINGS[lang].typingFontSize;
+    const tLh = parseFloat(document.getElementById(`ds-${lang}-typingLineHeight`).value) || DEFAULT_DISPLAY_SETTINGS[lang].typingLineHeight;
+
+    const fam = await loadLanguageFontVersion(lang, "regular");
+    const fontStack = fam ? `'${fam}', 'Google Sans', sans-serif` : `'Google Sans', sans-serif`;
+
+    const prevP = document.querySelector(`#ds-prev-passage-${lang} .ds-prev-text`);
+    const prevT = document.querySelector(`#ds-prev-typing-${lang} .ds-prev-text`);
+    if (prevP) {
+      prevP.style.fontFamily = fontStack;
+      prevP.style.fontSize = `${pFs}rem`;
+      prevP.style.lineHeight = `${pLh}`;
+    }
+    if (prevT) {
+      prevT.style.fontFamily = fontStack;
+      prevT.style.fontSize = `${tFs}rem`;
+      prevT.style.lineHeight = `${tLh}`;
+    }
+  }
+
+  function showQuickToast(msg, isError = false) {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.className = "toast show " + (isError ? "error" : "success");
+    setTimeout(() => toast.classList.remove("show"), 3200);
+  }
+
+  async function saveLanguageDisplaySettings(lang) {
+    const btn = document.getElementById(`ds-save-${lang}`);
+    const pFs = Math.min(2.5, Math.max(0.75, parseFloat(document.getElementById(`ds-${lang}-passageFontSize`).value) || DEFAULT_DISPLAY_SETTINGS[lang].passageFontSize));
+    const pLh = Math.min(3.2, Math.max(1.0, parseFloat(document.getElementById(`ds-${lang}-passageLineHeight`).value) || DEFAULT_DISPLAY_SETTINGS[lang].passageLineHeight));
+    const tFs = Math.min(2.5, Math.max(0.75, parseFloat(document.getElementById(`ds-${lang}-typingFontSize`).value) || DEFAULT_DISPLAY_SETTINGS[lang].typingFontSize));
+    const tLh = Math.min(3.2, Math.max(1.0, parseFloat(document.getElementById(`ds-${lang}-typingLineHeight`).value) || DEFAULT_DISPLAY_SETTINGS[lang].typingLineHeight));
+
+    const payload = {
+      passageFontSize: Number(pFs.toFixed(2)),
+      passageLineHeight: Number(pLh.toFixed(2)),
+      typingFontSize: Number(tFs.toFixed(2)),
+      typingLineHeight: Number(tLh.toFixed(2)),
+      updatedAt: Date.now()
+    };
+
+    btn.disabled = true;
+    const origText = btn.textContent;
+    btn.textContent = "Saving...";
+    try {
+      await set(ref(db, `fonts/displaySettings/${lang}`), payload);
+      displaySettings[lang] = payload;
+      localStorage.setItem("typingx_display_settings", JSON.stringify(displaySettings));
+      populateDisplaySettingsForm(lang);
+      showQuickToast(`${lang.charAt(0).toUpperCase() + lang.slice(1)} display settings saved.`);
+    } catch (err) {
+      console.error("Save display settings failed:", err);
+      showQuickToast("Failed to save settings.", true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  }
+
+  async function resetLanguageDisplaySettings(lang) {
+    displaySettings[lang] = { ...DEFAULT_DISPLAY_SETTINGS[lang] };
+    populateDisplaySettingsForm(lang);
+    await saveLanguageDisplaySettings(lang);
+  }
+
+  /* ============================================================
+     2. TYPING INTERFACE LOGIC
+     ============================================================ */
+  const tiEl = document.getElementById("typingInterface");
+  const tiHeading = document.getElementById("tiHeading");
+  const tiCountdown = document.getElementById("tiCountdown");
+  const tiTimerWrap = document.getElementById("tiTimerWrap");
+  const tiPassageBox = document.getElementById("tiPassageBox");
+  const tiTypingBox = document.getElementById("tiTypingBox");
+
+  const tiGroupHighlight = document.getElementById("tiGroupHighlight");
+  const tiGroupStyle = document.getElementById("tiGroupStyle");
+  const tiGroupSize = document.getElementById("tiGroupSize");
+
+  const tiHlDisable = document.getElementById("tiHlDisable");
+  const tiHlEnable = document.getElementById("tiHlEnable");
+  const tiStyleRegular = document.getElementById("tiStyleRegular");
+  const tiStyleBold = document.getElementById("tiStyleBold");
+  const tiFontDec = document.getElementById("tiFontDec");
+  const tiFontInc = document.getElementById("tiFontInc");
+  const tiSubmitBtn = document.getElementById("tiSubmitBtn");
+
+  const tiConfirmModal = document.getElementById("tiConfirmModal");
+  const tiCancelSubmit = document.getElementById("tiCancelSubmit");
+  const tiConfirmSubmitBtn = document.getElementById("tiConfirmSubmitBtn");
+  const tiResultPage = document.getElementById("tiResultPage");
+  const tiBackHomeBtn = document.getElementById("tiBackHomeBtn");
+
+  let currentTestName = "";
+  let currentLang = "english";
+  let highlightEnabled = false;
+  let currentWeight = "regular";
+  let currentPassageFontSize = 1.15;
+  let currentTypingFontSize = 1.15;
+
+  let passageWords = [];
+  let remainingSeconds = TEST_DURATION_SECONDS;
+  let timerInterval = null;
+  let timerStarted = false;
+  let isTestActive = false;
+  let lockedPrefix = "";
+  let loadedTestFonts = { regular: null, bold: null };
+
+  /* IndexedDB Helpers */
+  function readCachedFont(lang, ver) {
+    return new Promise((resolve) => {
+      try {
+        const req = indexedDB.open("TypingXFontCache", 1);
+        req.onupgradeneeded = (e) => {
+          const idb = e.target.result;
+          if (!idb.objectStoreNames.contains("fonts")) {
+            idb.createObjectStore("fonts", { keyPath: "key" });
+          }
+        };
+        req.onsuccess = () => {
+          const tx = req.result.transaction("fonts", "readonly");
+          const getReq = tx.objectStore("fonts").get(`${lang}-${ver}`);
+          getReq.onsuccess = () => resolve(getReq.result || null);
+          getReq.onerror = () => resolve(null);
+        };
+        req.onerror = () => resolve(null);
+      } catch {
+        resolve(null);
+      }
+    });
+  }
+
+  function writeCachedFont(lang, ver, data) {
+    return new Promise((resolve) => {
+      try {
+        const req = indexedDB.open("TypingXFontCache", 1);
+        req.onsuccess = () => {
+          const tx = req.result.transaction("fonts", "readwrite");
+          tx.objectStore("fonts").put({ key: `${lang}-${ver}`, ...data });
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        };
+        req.onerror = () => resolve();
+      } catch {
+        resolve();
+      }
+    });
+  }
+
+  async function loadLanguageFontVersion(lang, ver) {
+    try {
+      const metaSnap = await get(ref(db, `fonts/${lang}/${ver}/meta`));
+      if (!metaSnap.exists()) return null;
+      const meta = metaSnap.val();
+
+      const cached = await readCachedFont(lang, ver);
+      let dataUrl = null;
+      if (cached && cached.uploadedAt === meta.uploadedAt && cached.dataUrl) {
+        dataUrl = cached.dataUrl;
+      } else {
+        const dataSnap = await get(ref(db, `fonts/${lang}/${ver}/dataUrl`));
+        if (dataSnap.exists()) {
+          dataUrl = dataSnap.val();
+          await writeCachedFont(lang, ver, { ...meta, dataUrl });
+        }
+      }
+      if (!dataUrl) return null;
+
+      const familyName = `TypingTestFont-${lang}-${ver}`;
+      const styleId = `ti-fontface-${lang}-${ver}`;
+      let styleEl = document.getElementById(styleId);
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        document.head.appendChild(styleEl);
+      }
+      styleEl.textContent = `@font-face { font-family: '${familyName}'; src: url('${dataUrl}'); font-weight: ${ver === "bold" ? 700 : 400}; font-display: swap; }`;
+      return familyName;
+    } catch {
+      return null;
+    }
+  }
+
+  function setSidebarLocked(locked) {
+    [tiGroupHighlight, tiGroupStyle, tiGroupSize].forEach((grp) => {
+      grp.classList.toggle("locked", locked);
+    });
+    [tiHlDisable, tiHlEnable, tiStyleRegular, tiStyleBold, tiFontDec, tiFontInc].forEach((btn) => {
+      btn.disabled = locked;
+    });
+  }
+
+  function applyHighlightMode(enable) {
+    if (timerStarted) return;
+    highlightEnabled = enable;
+    tiHlDisable.classList.toggle("active", !enable);
+    tiHlEnable.classList.toggle("active", enable);
+    renderPassage();
+  }
+
+  function applyFontStyle(weight) {
+    if (timerStarted) return;
+    currentWeight = weight;
+    tiStyleRegular.classList.toggle("active", weight === "regular");
+    tiStyleBold.classList.toggle("active", weight === "bold");
+
+    const chosenFamily =
+      weight === "bold"
+        ? (loadedTestFonts.bold || loadedTestFonts.regular)
+        : loadedTestFonts.regular;
+
+    const fontStack = chosenFamily
+      ? `'${chosenFamily}', 'Google Sans', sans-serif`
+      : `'Google Sans', sans-serif`;
+
+    const fontWeightVal = weight === "bold" ? "700" : "400";
+
+    tiPassageBox.style.fontFamily = fontStack;
+    tiPassageBox.style.fontWeight = fontWeightVal;
+
+    tiTypingBox.style.fontFamily = fontStack;
+    tiTypingBox.style.fontWeight = fontWeightVal;
+  }
+
+  function applyDefaultLayoutFromAdmin(lang) {
+    const cfg = displaySettings[lang] || DEFAULT_DISPLAY_SETTINGS[lang];
+    currentPassageFontSize = Number(cfg.passageFontSize) || 1.15;
+    currentTypingFontSize = Number(cfg.typingFontSize) || 1.15;
+
+    tiPassageBox.style.fontSize = `${currentPassageFontSize}rem`;
+    tiPassageBox.style.lineHeight = `${cfg.passageLineHeight || 1.85}`;
+
+    tiTypingBox.style.fontSize = `${currentTypingFontSize}rem`;
+    tiTypingBox.style.lineHeight = `${cfg.typingLineHeight || 1.85}`;
+  }
+
+  function adjustFontSizeByDelta(delta) {
+    if (timerStarted) return;
+    currentPassageFontSize = Math.min(2.5, Math.max(0.75, Number((currentPassageFontSize + delta).toFixed(2))));
+    currentTypingFontSize = Math.min(2.5, Math.max(0.75, Number((currentTypingFontSize + delta).toFixed(2))));
+
+    tiPassageBox.style.fontSize = `${currentPassageFontSize}rem`;
+    tiTypingBox.style.fontSize = `${currentTypingFontSize}rem`;
+  }
+
+  function preparePassageWords(rawContent, lang) {
+    const baseWords = (rawContent || "").trim().split(/\s+/).filter(Boolean);
+    if (baseWords.length === 0) return [];
+    const target = TARGET_WORDS[lang] || 500;
+    const result = [];
+    while (result.length < target) {
+      for (let i = 0; i < baseWords.length && result.length < target; i++) {
+        result.push(baseWords[i]);
+      }
+    }
+    return result;
+  }
+
+  function escapeHtmlSafe(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function renderPassage() {
+    if (!highlightEnabled) {
+      tiPassageBox.textContent = passageWords.join(" ");
+      return;
+    }
+
+    const rawTyped = tiTypingBox.value;
+    const endsWithSpace = rawTyped.endsWith(" ");
+    const typedWords = rawTyped.trim() ? rawTyped.trim().split(/\s+/) : [];
+    const activeIndex = endsWithSpace ? typedWords.length : Math.max(0, typedWords.length - 1);
+    const currentTypedWord = endsWithSpace ? "" : (typedWords[activeIndex] || "");
+
+    tiPassageBox.innerHTML = passageWords
+      .map((word, idx) => {
+        let cls = "";
+        if (idx < activeIndex) {
+          cls = typedWords[idx] === word ? "w-correct" : "w-wrong";
+        } else if (idx === activeIndex) {
+          const isWrongLive = currentTypedWord.length > 0 && !word.startsWith(currentTypedWord);
+          cls = isWrongLive ? "w-current w-wrong-live" : "w-current";
+        }
+        return cls
+          ? `<span class="${cls}">${escapeHtmlSafe(word)}</span>`
+          : escapeHtmlSafe(word);
+      })
+      .join(" ");
+  }
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  function triggerTimerOnFirstKeystroke() {
+    if (timerStarted || !isTestActive) return;
+    timerStarted = true;
+    setSidebarLocked(true);
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      remainingSeconds--;
+      if (remainingSeconds < 0) remainingSeconds = 0;
+      tiCountdown.textContent = formatTime(remainingSeconds);
+
+      if (remainingSeconds <= 60) {
+        tiTimerWrap.classList.add("warning");
+      }
+      if (remainingSeconds === 0) {
+        clearInterval(timerInterval);
+        finishAndShowResult(true);
+      }
+    }, 1000);
+  }
+
+  function finishAndShowResult(autoSubmitted = false) {
+    if (!isTestActive) return;
+    isTestActive = false;
+    clearInterval(timerInterval);
+    tiConfirmModal.classList.remove("show");
+    tiTypingBox.disabled = true;
+
+    const elapsedSeconds = timerStarted
+      ? Math.max(1, TEST_DURATION_SECONDS - remainingSeconds)
+      : 0;
+    const elapsedMinutes = Math.max(elapsedSeconds / 60, 1 / 60);
+
+    const typedWords = tiTypingBox.value.trim()
+      ? tiTypingBox.value.trim().split(/\s+/)
+      : [];
+
+    let correctWords = 0;
+    let wrongWords = 0;
+    typedWords.forEach((w, i) => {
+      if (passageWords[i] && w === passageWords[i]) {
+        correctWords++;
+      } else {
+        wrongWords++;
+      }
+    });
+
+    const totalTyped = typedWords.length;
+    const grossWpm = elapsedSeconds > 0 ? Math.round(totalTyped / elapsedMinutes) : 0;
+    const netWpm = elapsedSeconds > 0 ? Math.round(correctWords / elapsedMinutes) : 0;
+    const accuracy = totalTyped > 0 ? Math.round((correctWords / totalTyped) * 100) : 0;
+
+    document.getElementById("tiResultSub").textContent = autoSubmitted
+      ? "Time is up! Your test was submitted automatically."
+      : "Your test has been submitted.";
+    document.getElementById("resTestName").textContent = currentTestName || "Typing Test";
+    document.getElementById("resLang").textContent =
+      currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
+    document.getElementById("resTimeTaken").textContent = formatTime(elapsedSeconds);
+
+    document.getElementById("resNetWpm").textContent = netWpm;
+    document.getElementById("resGrossWpm").textContent = grossWpm;
+    document.getElementById("resAccuracy").textContent = `${accuracy}%`;
+    document.getElementById("resTotalWords").textContent = totalTyped;
+    document.getElementById("resCorrectWords").textContent = correctWords;
+    document.getElementById("resWrongWords").textContent = wrongWords;
+
+    tiResultPage.classList.add("show");
+  }
+
+  async function openTypingTest(testId) {
+    document.body.style.overflow = "hidden";
+    tiEl.classList.add("active");
+    tiResultPage.classList.remove("show");
+    tiConfirmModal.classList.remove("show");
+
+    tiPassageBox.textContent = "Loading test content and fonts...";
+    tiPassageBox.scrollTop = 0;
+    tiTypingBox.value = "";
+    tiTypingBox.disabled = true;
+
+    clearInterval(timerInterval);
+    timerStarted = false;
+    isTestActive = false;
+    lockedPrefix = "";
+    remainingSeconds = TEST_DURATION_SECONDS;
+    tiCountdown.textContent = "10:00";
+    tiTimerWrap.classList.remove("warning");
+    setSidebarLocked(false);
+
+    try {
+      const [snap] = await Promise.all([
+        get(ref(db, `tests/${testId}`)),
+        loadDisplaySettingsFromDB()
+      ]);
+
+      if (!snap.exists()) {
+        tiEl.classList.remove("active");
+        document.body.style.overflow = "";
+        alert("Test not found.");
+        return;
+      }
+      const testData = snap.val();
+      currentTestName = testData.name || "Typing Test";
+      currentLang = (testData.language || "english").toLowerCase();
+
+      tiHeading.textContent =
+        currentLang === "hindi"
+          ? "Hindi Typing Speed Test"
+          : "English Typing Speed Test";
+
+      const [regFont, boldFont] = await Promise.all([
+        loadLanguageFontVersion(currentLang, "regular"),
+        loadLanguageFontVersion(currentLang, "bold")
+      ]);
+      loadedTestFonts = { regular: regFont, bold: boldFont };
+
+      // Apply Admin's Language-wise Default Font Size & Line Spacing
+      applyDefaultLayoutFromAdmin(currentLang);
+      applyHighlightMode(false);
+      applyFontStyle("regular");
+
+      passageWords = preparePassageWords(testData.content, currentLang);
+      renderPassage();
+
+      isTestActive = true;
+      tiTypingBox.disabled = false;
+      tiTypingBox.focus();
+    } catch (err) {
+      console.error("Failed to start test:", err);
+      tiEl.classList.remove("active");
+      document.body.style.overflow = "";
+      alert("Unable to load test. Please check your internet connection.");
+    }
+  }
+
+  /* Start Button Click Intercept */
+  document.addEventListener(
+    "click",
+    (e) => {
+      const btn = e.target.closest(".start-btn");
+      if (!btn) return;
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      openTypingTest(btn.dataset.id);
+    },
+    true
+  );
+
+  /* Sidebar Controls */
+  tiHlDisable.addEventListener("click", () => applyHighlightMode(false));
+  tiHlEnable.addEventListener("click", () => applyHighlightMode(true));
+
+  tiStyleRegular.addEventListener("click", () => applyFontStyle("regular"));
+  tiStyleBold.addEventListener("click", () => applyFontStyle("bold"));
+
+  tiFontDec.addEventListener("click", () => adjustFontSizeByDelta(-0.1));
+  tiFontInc.addEventListener("click", () => adjustFontSizeByDelta(0.1));
+
+  /* Submit & Result Navigation */
+  tiSubmitBtn.addEventListener("click", () => {
+    if (!isTestActive) return;
+    tiConfirmModal.classList.add("show");
+  });
+  tiCancelSubmit.addEventListener("click", () => {
+    tiConfirmModal.classList.remove("show");
+    tiTypingBox.focus();
+  });
+  tiConfirmSubmitBtn.addEventListener("click", () => finishAndShowResult(false));
+
+  tiBackHomeBtn.addEventListener("click", () => {
+    tiResultPage.classList.remove("show");
+    tiEl.classList.remove("active");
+    document.body.style.overflow = "";
+  });
+
+  /* Cut, Copy, Paste, Drop, Contextmenu Block */
+  ["cut", "copy", "paste", "drop", "contextmenu"].forEach((evt) => {
+    tiTypingBox.addEventListener(evt, (e) => e.preventDefault());
+  });
+
+  /* Block Tab key during active test */
+  document.addEventListener("keydown", (e) => {
+    if (isTestActive && e.key === "Tab") {
+      e.preventDefault();
+    }
+  });
+
+  /* Prevent cursor from moving into locked words */
+  function enforceCursorAfterLock() {
+    const minPos = lockedPrefix.length;
+    if (tiTypingBox.selectionStart < minPos || tiTypingBox.selectionEnd < minPos) {
+      tiTypingBox.setSelectionRange(tiTypingBox.value.length, tiTypingBox.value.length);
+    }
+  }
+  ["click", "mouseup", "keyup", "select"].forEach((evt) => {
+    tiTypingBox.addEventListener(evt, enforceCursorAfterLock);
+  });
+
+  /* Typing Box Keydown: Block Enter/Tab/Shortcuts + One-Word Backspace Lock + 1st Keystroke Timer */
+  tiTypingBox.addEventListener("keydown", (e) => {
+    if (!isTestActive) {
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      return;
+    }
+
+    if (e.ctrlKey || e.metaKey) {
+      const k = e.key.toLowerCase();
+      if (["c", "v", "x", "a", "z", "y"].includes(k)) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    const minPos = lockedPrefix.length;
+
+    if (e.key === "Backspace") {
+      if (tiTypingBox.selectionStart <= minPos && tiTypingBox.selectionEnd <= minPos) {
+        e.preventDefault();
+        return;
+      }
+      if (tiTypingBox.selectionStart < minPos) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    if (e.key === "Delete" && tiTypingBox.selectionStart < minPos) {
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Home") {
+      e.preventDefault();
+      tiTypingBox.setSelectionRange(minPos, minPos);
+      return;
+    }
+    if (e.key === "ArrowLeft" && tiTypingBox.selectionStart <= minPos) {
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key === " ") {
+      const currentWordPart = tiTypingBox.value.slice(minPos);
+      if (currentWordPart.trim().length === 0) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    if (!timerStarted && e.key.length === 1 && !e.altKey) {
+      triggerTimerOnFirstKeystroke();
+    }
+  });
+
+  /* Typing Box Input: Lock Word on Space + Highlight Update */
+  tiTypingBox.addEventListener("input", () => {
+    if (!isTestActive) return;
+
+    if (!timerStarted && tiTypingBox.value.length > 0) {
+      triggerTimerOnFirstKeystroke();
+    }
+
+    if (!tiTypingBox.value.startsWith(lockedPrefix)) {
+      const currentPart = tiTypingBox.value.slice(lockedPrefix.length).replace(/\s+/g, "");
+      tiTypingBox.value = lockedPrefix + currentPart;
+    }
+
+    const afterLock = tiTypingBox.value.slice(lockedPrefix.length);
+    if (afterLock.includes(" ")) {
+      const cleanWord = afterLock.replace(/\s+/g, "");
+      if (cleanWord.length > 0) {
+        lockedPrefix = lockedPrefix + cleanWord + " ";
+        tiTypingBox.value = lockedPrefix;
+      } else {
+        tiTypingBox.value = lockedPrefix;
+      }
+    }
+
+    renderPassage();
+  });
+
+  // Initialize Admin Display Settings Tab
+  initAdminDisplayControl();
+</script>
+<!-- ==================== END TYPING INTERFACE & ADMIN DISPLAY SETTINGS ==================== -->
 
 </body>
 </html>
