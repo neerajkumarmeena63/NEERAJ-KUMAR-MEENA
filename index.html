@@ -2907,6 +2907,64 @@
     updateBilingualHeading();
   })();
 </script>
+<style>
+  /* 1. Heading ka font size kam karna */
+  #tiHeading {
+    font-size: 0.85rem !important;
+  }
+
+  /* 2. Passage Box aur Typing Box: Pure Black font, Justify alignment, 0 border-radius, 1px Pure Black border */
+  #tiPassageBox,
+  #tiTypingBox,
+  #tiTypingBox:focus {
+    color: #000000 !important;
+    text-align: justify !important;
+    border-radius: 0 !important;
+    border: 1px solid #000000 !important;
+  }
+
+  /* 3. Remaining Time ke aage likhe time ka colour Red */
+  #tiCountdown {
+    color: #ff0000 !important;
+  }
+
+  /* 4. Sidebar me RSSB LDC 2026 Yellow colour me */
+  .ti-profile-label {
+    color: #fde047 !important;
+    font-weight: 700 !important;
+  }
+</style>
+
+<script>
+  (function () {
+    // Sidebar me Candidate ki jagah RSSB LDC 2026 set karna
+    const profileLabel = document.querySelector(".ti-profile-label");
+    if (profileLabel) {
+      profileLabel.textContent = "RSSB LDC 2026";
+    }
+
+    // Language ke hisab se bilingual heading set karna
+    const headingEl = document.getElementById("tiHeading");
+    if (headingEl) {
+      function updateBilingualHeading() {
+        const text = headingEl.textContent.trim();
+        if (text === "English Typing Speed Test") {
+          headingEl.textContent = "English Typing Speed Test/अंग्रेजी टंकण गति परीक्षा";
+        } else if (text === "Hindi Typing Speed Test") {
+          headingEl.textContent = "Hindi Typing Speed Test/हिंदी टंकण गति परीक्षा";
+        }
+      }
+
+      new MutationObserver(updateBilingualHeading).observe(headingEl, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+
+      updateBilingualHeading();
+    }
+  })();
+</script>
 
 </body>
 </html>
