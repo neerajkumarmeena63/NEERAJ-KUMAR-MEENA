@@ -3875,6 +3875,258 @@
   
 
 
+<!-- ==================== SMOOTH PERFORMANCE OPTIMIZER & RESULT LOADING SCREEN ==================== -->
+<style>
+  /* 1. Smooth Rendering & Zero-Lag Containment for Passage & Typing Boxes */
+  #tiPassageBox,
+  #tiTypingBox {
+    contain: layout style;
+    will-change: scroll-position;
+    transform: translateZ(0);
+  }
+
+  /* 2. Result Preparing Full-Screen Loading Overlay */
+  #trPreparingOverlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 3450;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+  #trPreparingOverlay.show {
+    display: flex;
+    opacity: 1;
+  }
+  .tr-prep-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    padding: 2rem 2.25rem;
+    width: 100%;
+    max-width: 24rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    animation: popIn 0.2s ease-out;
+  }
+  .tr-prep-spinner {
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 3.5px solid var(--navy-light);
+    border-top-color: var(--navy);
+    border-right-color: var(--saffron);
+    border-radius: 50%;
+    animation: txSpin 0.75s linear infinite;
+  }
+  .tr-prep-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 0;
+  }
+  .tr-prep-sub {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .tr-prep-bar {
+    width: 100%;
+    height: 0.3rem;
+    background: var(--navy-light);
+    border-radius: 1rem;
+    overflow: hidden;
+    margin-top: 0.25rem;
+  }
+  .tr-prep-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--navy), var(--saffron));
+    border-radius: 1rem;
+    transition: width 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+</style>
+
+<!-- Standard English Result Preparing Screen -->
+<div id="trPreparingOverlay" aria-live="polite" aria-label="Preparing Test Result">
+  <div class="tr-prep-card">
+    <div class="tr-prep-spinner"></div>
+    <h3 class="tr-prep-title">Preparing Your Result...</h3>
+    <p class="tr-prep-sub">Evaluating your typing speed, accuracy, and word alignment. Please wait...</p>
+    <div class="tr-prep-bar">
+      <div class="tr-prep-bar-fill" id="trPrepBarFill"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const tiPassageBox = document.getElementById("tiPassageBox");
+    const tiTypingBox = document.getElementById("tiTypingBox");
+    const tiResultPage = document.getElementById("tiResultPage");
+    const prepOverlay = document.getElementById("trPreparingOverlay");
+    const prepBarFill = document.getElementById("trPrepBarFill");
+
+    /* ============================================================
+       1. ZERO-HANG TYPING OPTIMIZER (Prevents 500-word DOM reflow per keystroke)
+       ============================================================ */
+    if (tiPassageBox && tiTypingBox) {
+      const nativeTextDesc = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
+      const nativeHtmlDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
+
+      let lastPlainText = "";
+      let cachedWords = [];
+      let cachedSpans = null;
+      let prevActiveIdx = -1;
+
+      function buildWordSpansOnce(words) {
+        const frag = document.createDocumentFragment();
+        const spans = new Array(words.length);
+        for (let i = 0; i < words.length; i++) {
+          const sp = document.createElement("span");
+          sp.textContent = words[i];
+          spans[i] = sp;
+          frag.appendChild(sp);
+          if (i < words.length - 1) {
+            frag.appendChild(document.createTextNode(" "));
+          }
+        }
+        nativeHtmlDesc.set.call(tiPassageBox, "");
+        tiPassageBox.appendChild(frag);
+        cachedSpans = spans;
+        prevActiveIdx = -1;
+      }
+
+      // Override textContent on #tiPassageBox: Skip redundant identical re-renders during typing
+      Object.defineProperty(tiPassageBox, "textContent", {
+        get() {
+          return nativeTextDesc.get.call(this);
+        },
+        set(val) {
+          const str = String(val ?? "");
+          if (str === lastPlainText && this.childElementCount === 0) {
+            return; // Zero DOM work if passage text hasn't changed
+          }
+          lastPlainText = str;
+          cachedWords = str.trim() ? str.trim().split(/\s+/) : [];
+          cachedSpans = null;
+          prevActiveIdx = -1;
+          nativeTextDesc.set.call(this, str);
+        }
+      });
+
+      // Override innerHTML on #tiPassageBox: Update only 1-2 active word spans instead of rebuilding 500 spans
+      Object.defineProperty(tiPassageBox, "innerHTML", {
+        get() {
+          return nativeHtmlDesc.get.call(this);
+        },
+        set(htmlStr) {
+          if (!cachedWords.length) {
+            const plain = nativeTextDesc.get.call(this).trim();
+            if (plain) cachedWords = plain.split(/\s+/);
+          }
+          if (!cachedWords.length) {
+            nativeHtmlDesc.set.call(this, htmlStr);
+            return;
+          }
+
+          if (!cachedSpans || cachedSpans.length !== cachedWords.length) {
+            buildWordSpansOnce(cachedWords);
+          }
+
+          const rawTyped = tiTypingBox.value;
+          const endsWithSpace = rawTyped.endsWith(" ");
+          const typedWords = rawTyped.trim() ? rawTyped.trim().split(/\s+/) : [];
+          const activeIndex = endsWithSpace
+            ? typedWords.length
+            : Math.max(0, typedWords.length - 1);
+          const currentTypedWord = endsWithSpace ? "" : (typedWords[activeIndex] || "");
+
+          // Update range between previous active index and current active index (O(1) operation)
+          const startIdx = prevActiveIdx === -1 ? 0 : Math.max(0, Math.min(prevActiveIdx, activeIndex) - 1);
+          const endIdx = prevActiveIdx === -1
+            ? cachedSpans.length - 1
+            : Math.min(cachedSpans.length - 1, Math.max(prevActiveIdx, activeIndex) + 1);
+
+          for (let idx = startIdx; idx <= endIdx; idx++) {
+            const word = cachedWords[idx];
+            let cls = "";
+            if (idx < activeIndex) {
+              cls = typedWords[idx] === word ? "w-correct" : "w-wrong";
+            } else if (idx === activeIndex) {
+              const isWrongLive = currentTypedWord.length > 0 && !word.startsWith(currentTypedWord);
+              cls = isWrongLive ? "w-current w-wrong-live" : "w-current";
+            }
+            if (cachedSpans[idx].className !== cls) {
+              cachedSpans[idx].className = cls;
+            }
+          }
+
+          prevActiveIdx = activeIndex;
+        }
+      });
+    }
+
+    /* ============================================================
+       2. SUBMIT LOADING ANIMATION ("Preparing Your Result...")
+       ============================================================ */
+    if (tiResultPage && prepOverlay) {
+      let isTransitioning = false;
+
+      function showPreparingAnimationThenResult() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        // Keep result page invisible behind overlay while it calculates
+        tiResultPage.style.visibility = "hidden";
+
+        // Show loading overlay immediately
+        prepBarFill.style.transition = "none";
+        prepBarFill.style.width = "12%";
+        prepOverlay.classList.add("show");
+
+        // Animate progress bar smoothly on next frame
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            prepBarFill.style.transition = "width 0.85s cubic-bezier(0.22, 1, 0.36, 1)";
+            prepBarFill.style.width = "100%";
+          });
+        });
+
+        // Reveal the fully prepared Result Page after smooth 950ms animation
+        setTimeout(() => {
+          tiResultPage.style.visibility = "visible";
+          prepOverlay.classList.remove("show");
+          isTransitioning = false;
+        }, 950);
+      }
+
+      // Trigger automatically whenever test is submitted (Manual Submit or Time-Up Auto Submit)
+      new MutationObserver(() => {
+        if (tiResultPage.classList.contains("show")) {
+          showPreparingAnimationThenResult();
+        } else {
+          tiResultPage.style.visibility = "";
+          prepOverlay.classList.remove("show");
+          isTransitioning = false;
+        }
+      }).observe(tiResultPage, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+    }
+  })();
+</script>
+<!-- ==================== END SMOOTH PERFORMANCE OPTIMIZER & RESULT LOADING SCREEN ==================== -->
 
 
 
