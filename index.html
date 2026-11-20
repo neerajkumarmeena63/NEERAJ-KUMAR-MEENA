@@ -1415,5 +1415,35 @@
   if (!location.hash) location.hash = "#/";
   route();
 </script>
+  <script>
+  (function () {
+    const ta = document.getElementById("testContent");
+    const langSelect = document.getElementById("testLanguage");
+    const formView = document.getElementById("testFormView");
+
+    // 1. Test Content box ka font size aur height badhana
+    ta.style.fontSize = "1.1rem";
+    ta.style.lineHeight = "1.8";
+    ta.style.minHeight = "12rem";
+
+    // 2. Hindi select hone par grammar/spellcheck band karna
+    function updateSpellCheck() {
+      const isHindi = langSelect.value === "hindi";
+      ta.spellcheck = !isHindi;
+      ta.setAttribute("spellcheck", isHindi ? "false" : "true");
+      ta.setAttribute("autocorrect", isHindi ? "off" : "on");
+      ta.setAttribute("autocapitalize", isHindi ? "off" : "sentences");
+    }
+
+    langSelect.addEventListener("change", updateSpellCheck);
+
+    // Naya test banate ya purana test Edit karte waqt bhi automatic check karega
+    new MutationObserver(updateSpellCheck).observe(formView, {
+      attributes: true,
+      attributeFilter: ["style"]
+    });
+  })();
+</script>
+
 </body>
 </html>
