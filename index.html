@@ -4525,6 +4525,387 @@
 </script>
 <!-- ==================== END STUDENT LOGIN SYSTEM & ADMIN STUDENT MANAGEMENT ==================== -->
 
-    
+    <!-- ==================== STUDENT LOGIN & ADMIN STUDENT MANAGEMENT ==================== -->
+<style>
+  /* 1. Homepage Locked State (Login se pehle tests aur pagination puri tarah hide rahenge) */
+  #homepageView.stu-locked > h1,
+  #homepageView.stu-locked > .subtitle,
+  #homepageView.stu-locked > .tabs,
+  #homepageView.stu-locked > .table-wrap,
+  #homepageView.stu-locked > .pagination-bar {
+    display: none !important;
+  }
+
+  /* 2. Admin Tabs Wrap Fix (Taaki 4th tab 'Student Management' har screen par saaf dikhe) */
+  .admin-tabs {
+    flex-wrap: wrap !important;
+    gap: 0.25rem;
+  }
+
+  /* 3. Homepage Student Login Card */
+  .stu-login-wrap {
+    max-width: 25rem;
+    margin: 1.5rem auto 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    padding: 1.75rem 1.65rem;
+    animation: popIn 0.2s ease-out;
+  }
+  .stu-login-badge {
+    display: inline-block;
+    background: var(--navy-light);
+    color: var(--navy);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    margin-bottom: 0.55rem;
+  }
+  .stu-login-wrap h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.25rem;
+  }
+  .stu-login-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+  }
+  .stu-pass-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .stu-pass-wrap input {
+    padding-right: 3.2rem;
+  }
+  .stu-eye-btn {
+    position: absolute;
+    right: 0.55rem;
+    background: transparent;
+    border: none;
+    color: var(--navy);
+    font-family: inherit;
+    font-size: 0.64rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.2rem 0.35rem;
+  }
+  .stu-eye-btn:hover {
+    text-decoration: underline;
+  }
+
+  /* 4. Logged-in Student Welcome Banner */
+  .stu-status-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--green);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 0.7rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .stu-status-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+  .stu-status-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .stu-status-meta {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+  .stu-logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--red-light);
+    color: var(--red);
+    border: 1px solid var(--red-border);
+    border-radius: var(--radius);
+    padding: 0.42rem 0.8rem;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .stu-logout-btn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+  }
+
+  /* 5. Admin Student Management Panel */
+  .stu-search-box {
+    flex: 1;
+    min-width: 13rem;
+    max-width: 22rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.74rem;
+    background: var(--card);
+    color: var(--text);
+  }
+  .stu-search-box:focus {
+    outline: none;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+  }
+  .stu-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .stu-bulk-del-btn {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.52rem 0.85rem;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .stu-bulk-del-btn.show {
+    display: inline-flex;
+  }
+  .stu-bulk-del-btn:hover {
+    background: var(--red-hover);
+  }
+  .stu-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+  .stu-pass-pill {
+    display: inline-block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 0.3rem;
+    padding: 0.15rem 0.45rem;
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--text);
+  }
+  .stu-chk {
+    width: 0.9rem;
+    height: 0.9rem;
+    accent-color: var(--navy);
+    cursor: pointer;
+  }
+
+  /* Result Review Wrong Word pair wrap fix */
+  #trReviewBox span[title^="Wrong Word"] {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 650px) {
+    .stu-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script type="module">
+  import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    get,
+    set,
+    remove
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  function bootStudentSystem() {
+    const primaryApp = getApp();
+    const auth = getAuth(primaryApp);
+    const db = getDatabase(primaryApp);
+    const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+    // Secondary Auth instance so Admin stays logged in while registering students
+    const SECONDARY_APP_NAME = "TypingXStudentRegistrar";
+    let secondaryApp = getApps().find((a) => a.name === SECONDARY_APP_NAME);
+    if (!secondaryApp) {
+      secondaryApp = initializeApp(primaryApp.options, SECONDARY_APP_NAME);
+    }
+    const secondaryAuth = getAuth(secondaryApp);
+
+    let registeredStudents = [];
+    let selectedStudentIds = new Set();
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function showToastMsg(msg, type = "success") {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.className = "toast show " + type;
+      setTimeout(() => toast.classList.remove("show"), 3600);
+    }
+
+    /* ============================================================
+       1. HOMEPAGE: STUDENT LOGIN GATE
+       ============================================================ */
+    const homepageView = document.getElementById("homepageView");
+    let studentLoginGate = document.getElementById("studentLoginGate");
+    let studentStatusBar = document.getElementById("studentStatusBar");
+
+    if (homepageView && !studentLoginGate) {
+      studentLoginGate = document.createElement("div");
+      studentLoginGate.id = "studentLoginGate";
+      studentLoginGate.className = "stu-login-wrap";
+      studentLoginGate.innerHTML = `
+        <span class="stu-login-badge">RSSB LDC 2026 Portal</span>
+        <h2>Student Login</h2>
+        <p class="stu-login-sub">Sign in with your registered Email Address and Password to access the typing tests.</p>
+        <div class="error-msg" id="stuLoginError"></div>
+        <form id="stuLoginForm">
+          <div class="form-group">
+            <label for="stuLoginEmail">Email Address</label>
+            <input type="email" id="stuLoginEmail" placeholder="Enter your email address" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="stuLoginPassword">Password</label>
+            <div class="stu-pass-wrap">
+              <input type="password" id="stuLoginPassword" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="stu-eye-btn" id="stuTogglePass">Show</button>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn-primary" id="stuLoginSubmitBtn">Sign In to Tests</button>
+          </div>
+        </form>
+      `;
+
+      studentStatusBar = document.createElement("div");
+      studentStatusBar.id = "studentStatusBar";
+      studentStatusBar.className = "stu-status-bar";
+      studentStatusBar.innerHTML = `
+        <div class="stu-status-info">
+          <span class="stu-status-name" id="stuWelcomeName">Welcome, Student</span>
+          <span class="stu-status-meta" id="stuWelcomeMeta"></span>
+        </div>
+        <button type="button" class="stu-logout-btn" id="stuLogoutBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Student Logout
+        </button>
+      `;
+
+      homepageView.prepend(studentStatusBar);
+      homepageView.prepend(studentLoginGate);
+    }
+
+    function setHomepageAccessState(canViewTests, studentProfile = null) {
+      if (!homepageView) return;
+      if (canViewTests) {
+        homepageView.classList.remove("stu-locked");
+        if (studentLoginGate) studentLoginGate.style.display = "none";
+        if (studentStatusBar) {
+          if (studentProfile) {
+            studentStatusBar.style.display = "flex";
+            document.getElementById("stuWelcomeName").textContent = `Welcome, ${studentProfile.fullName}`;
+            document.getElementById("stuWelcomeMeta").textContent = `${studentProfile.email}${studentProfile.mobile ? " • " + studentProfile.mobile : ""}`;
+          } else {
+            studentStatusBar.style.display = "none";
+          }
+        }
+      } else {
+        homepageView.classList.add("stu-locked");
+        if (studentLoginGate) studentLoginGate.style.display = "block";
+        if (studentStatusBar) studentStatusBar.style.display = "none";
+      }
+    }
+
+    // Lock homepage by default until login is verified
+    setHomepageAccessState(false, null);
+
+    // Password Show/Hide
+    const stuTogglePass = document.getElementById("stuTogglePass");
+    const stuLoginPassword = document.getElementById("stuLoginPassword");
+    if (stuTogglePass && stuLoginPassword) {
+      stuTogglePass.addEventListener("click", () => {
+        const isHidden = stuLoginPassword.type === "password";
+        stuLoginPassword.type = isHidden ? "text" : "password";
+        stuTogglePass.textContent = isHidden ? "Hide" : "Show";
+      });
+    }
+
+    // Student Login Submit
+    const stuLoginForm = document.getElementById("stuLoginForm");
+    const stuLoginError = document.getElementById("stuLoginError");
+    const stuLoginSubmitBtn = document.getElementById("stuLoginSubmitBtn");
+
+    if (stuLoginForm) {
+      stuLoginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        stuLoginError.classList.remove("show");
+        const email = document.getElementById("stuLoginEmail").value.trim().toLowerCase();
+        const password = stuLoginPassword.value;
+        if (!email || !password) return;
+
+        stuLoginSubmitBtn.disabled = true;
+        stuLoginSubmitBtn.innerHTML = `<span class="spinner"></span> Signing in...`;
+
+        try {
+          const cred = await signInWithEmailAndPassword(auth, email, password);
+          if (cred.user.email === ADMIN_EMAIL) {
+            stuLoginForm.reset();
+            showToastMsg("Signed in as Administrator.", "success");
+            return;
+          }
+
+          try {
+            const stuSnap = await get(ref(db, `students/${cred.user.uid}`));
+            if (!stuSnap.exists()) {
+              await signOut(auth);
+              throw new Error("Your student account is not registered or has been deleted by the administrator.");
+            }
+            const profile = stuSnap.val();
+            stuLoginForm.reset();
+            showToastMsg(`Welcome, ${profile.fullName || "Student"}!`, "success");
+          } catch (dbErr) {
+            if (dbErr.code === "PERMISSION_DENIED") {
+
 </body>
 </html>
