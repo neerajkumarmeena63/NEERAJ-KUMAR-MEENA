@@ -4326,6 +4326,94 @@
   })();
 </script>
 <!-- ==================== END HIGHLIGHT DISABLE FIX ==================== -->
+<!-- ==================== EXACT 400/500 PASSAGE WORDS FIX ==================== -->
+<script>
+  (function () {
+    const tiPassageBox = document.getElementById("tiPassageBox");
+    const tiHeading = document.getElementById("tiHeading");
+    const tiHlEnable = document.getElementById("tiHlEnable");
+    if (!tiPassageBox || !tiHeading) return;
+
+    let cachedExactKey = "";
+    let cachedNodes = null;
+
+    function getExactTargetCount() {
+      return tiHeading.textContent.toLowerCase().includes("hindi") ? 400 : 500;
+    }
+
+    function buildExactNodes(words) {
+      const nodes = [];
+      for (let i = 0; i < words.length; i++) {
+        const sp = document.createElement("span");
+        sp.textContent = words[i];
+        nodes.push(sp);
+        if (i < words.length - 1) {
+          nodes.push(document.createTextNode(" "));
+        }
+      }
+      return nodes;
+    }
+
+    function enforceExactPassageWords() {
+      const rawText = tiPassageBox.textContent.trim();
+      if (!rawText || rawText.toLowerCase().startsWith("loading test content")) {
+        cachedExactKey = "";
+        cachedNodes = null;
+        return;
+      }
+
+      const targetCount = getExactTargetCount();
+
+      // Agar pehle se exact 400 (Hindi) ya 500 (English) word spans lage hain toh kuch na karein
+      if (tiPassageBox.children.length === targetCount) {
+        return;
+      }
+
+      let words = [];
+
+      // Agar duplicate spans (799/999) ban gaye hon toh pehle exact 400/500 spans hi lein
+      if (tiPassageBox.children.length > targetCount) {
+        words = Array.from(tiPassageBox.children)
+          .slice(0, targetCount)
+          .map((el) => el.textContent.trim())
+          .filter(Boolean);
+      } else {
+        const baseWords = rawText.split(/\s+/).filter(Boolean);
+        if (baseWords.length === 0) return;
+        while (words.length < targetCount) {
+          for (let i = 0; i < baseWords.length && words.length < targetCount; i++) {
+            words.push(baseWords[i]);
+          }
+        }
+      }
+
+      const key = `${targetCount}:${words[0] || ""}:${words[words.length - 1] || ""}:${words.length}`;
+      if (key !== cachedExactKey || !cachedNodes) {
+        cachedExactKey = key;
+        cachedNodes = buildExactNodes(words);
+      }
+
+      // Highlight state ke hisab se class sync karein
+      const isHighlightOn = tiHlEnable && tiHlEnable.classList.contains("active");
+      tiPassageBox.classList.toggle("ti-no-highlight", !isHighlightOn);
+      if (!isHighlightOn) {
+        for (let i = 0; i < cachedNodes.length; i += 2) {
+          if (cachedNodes[i].className) cachedNodes[i].className = "";
+        }
+      }
+
+      // Bina innerHTML trigger kiye exact 400/500 nodes lagayein
+      Element.prototype.replaceChildren.apply(tiPassageBox, cachedNodes);
+    }
+
+    new MutationObserver(enforceExactPassageWords).observe(tiPassageBox, {
+      childList: true
+    });
+
+    enforceExactPassageWords();
+  })();
+</script>
+<!-- ==================== END EXACT 400/500 PASSAGE WORDS FIX ==================== -->
 
 </body>
 </html>
