@@ -3571,6 +3571,64 @@
 </script>
 <!-- ==================== END UNIFIED TYPING PLATFORM ==================== -->
   
+<!-- ==================== SCROLL-JUMP FIX, REVIEW WRAP & SAFETY GUARD ==================== -->
+<style>
+  /* Result Review me Wrong Word aur [Expected Word] ek hi line me saath rahein */
+  #trReviewBox span[title^="Wrong Word"] {
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  (function () {
+    const tiInterface = document.getElementById("typingInterface");
+    const tiTypingBox = document.getElementById("tiTypingBox");
+    const tiConfirmModal = document.getElementById("tiConfirmModal");
+    if (!tiInterface || !tiTypingBox) return;
+
+    /* 1. TYPING BOX SCROLL-JUMP FIX (Space dabane par active line hamesha neeche dikhegi) */
+    const nativeValDesc = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value");
+    if (nativeValDesc && nativeValDesc.set && nativeValDesc.get) {
+      Object.defineProperty(tiTypingBox, "value", {
+        get() {
+          return nativeValDesc.get.call(this);
+        },
+        set(val) {
+          nativeValDesc.set.call(this, val);
+          this.scrollTop = this.scrollHeight;
+        }
+      });
+    }
+
+    /* 2. ESCAPE KEY SE SUBMIT MODAL BAND KARNA AUR FOCUS WAPAS TYPING BOX PAR LANA */
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && tiConfirmModal && tiConfirmModal.classList.contains("show")) {
+        tiConfirmModal.classList.remove("show");
+        if (!tiTypingBox.disabled) tiTypingBox.focus();
+      }
+    });
+
+    /* 3. TYPING SCREEN KE KHALI HISSE PAR CLICK HONE PAR FOCUS TYPING BOX PAR RAKHNA */
+    tiInterface.addEventListener("click", function (e) {
+      if (tiTypingBox.disabled) return;
+      if (e.target.closest("button, .ti-modal-backdrop, #tiPassageBox")) return;
+      tiTypingBox.focus();
+    });
+
+    /* 4. CHALTE TEST ME GALTI SE TAB CLOSE/REFRESH ROKNA */
+    window.addEventListener("beforeunload", function (e) {
+      if (
+        tiInterface.classList.contains("active") &&
+        !tiTypingBox.disabled &&
+        tiTypingBox.value.length > 0
+      ) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+  })();
+</script>
+<!-- ==================== END SCROLL-JUMP FIX, REVIEW WRAP & SAFETY GUARD ==================== -->
 
     
 </body>
