@@ -4128,6 +4128,141 @@
 </script>
 <!-- ==================== END SMOOTH PERFORMANCE OPTIMIZER & RESULT LOADING SCREEN ==================== -->
 
+<!-- ==================== SUBMIT BUTTON FIX & NO-WORD-BREAK IN PASSAGE ==================== -->
+<style>
+  /* 1. Passage Box me koi bhi word beech me se tutkar agli line me na jaye */
+  #tiPassageBox {
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    word-wrap: normal !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+  }
+  #tiPassageBox span {
+    white-space: nowrap !important;
+  }
+  #tiTypingBox {
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    word-wrap: normal !important;
+    hyphens: none !important;
+  }
+
+  /* 2. Sidebar & Submit Button ko hamesha clickable aur visible rakhna */
+  .ti-sidebar {
+    overflow-y: auto !important;
+  }
+  #tiSubmitBtn {
+    position: relative;
+    z-index: 10;
+    cursor: pointer !important;
+    touch-action: manipulation;
+  }
+  #tiConfirmModal {
+    z-index: 3350 !important;
+  }
+</style>
+
+<script>
+  (function () {
+    const tiInterface = document.getElementById("typingInterface");
+    const tiPassageBox = document.getElementById("tiPassageBox");
+    const tiTypingBox = document.getElementById("tiTypingBox");
+    const tiSubmitBtn = document.getElementById("tiSubmitBtn");
+    const tiConfirmModal = document.getElementById("tiConfirmModal");
+    const tiCancelSubmit = document.getElementById("tiCancelSubmit");
+    const tiConfirmSubmitBtn = document.getElementById("tiConfirmSubmitBtn");
+    const tiResultPage = document.getElementById("tiResultPage");
+
+    /* ============================================================
+       1. PASSAGE BOX ME WORD BREAK ROKNA (Highlight ON ya OFF dono me)
+       ============================================================ */
+    if (tiPassageBox) {
+      function wrapWordsInSpans() {
+        // Agar pehle se spans bane hue hain toh dubara na banayein
+        if (tiPassageBox.children.length > 0) return;
+        const raw = tiPassageBox.textContent.trim();
+        if (!raw || raw.toLowerCase().startsWith("loading test content")) return;
+
+        const words = raw.split(/\s+/).filter(Boolean);
+        const frag = document.createDocumentFragment();
+        words.forEach((word, idx) => {
+          const sp = document.createElement("span");
+          sp.textContent = word;
+          frag.appendChild(sp);
+          if (idx < words.length - 1) {
+            frag.appendChild(document.createTextNode(" "));
+          }
+        });
+        tiPassageBox.innerHTML = "";
+        tiPassageBox.appendChild(frag);
+      }
+
+      new MutationObserver(wrapWordsInSpans).observe(tiPassageBox, {
+        childList: true,
+        characterData: true
+      });
+      wrapWordsInSpans();
+    }
+
+    /* ============================================================
+       2. SUBMIT TEST BUTTON KO 100% RELIABLE BANANA
+       ============================================================ */
+    if (tiSubmitBtn && tiConfirmModal && tiConfirmSubmitBtn && tiResultPage) {
+      let lastSubmitActionAt = 0;
+
+      // Submit Test button par click hote hi confirmation modal kholna
+      tiSubmitBtn.addEventListener(
+        "click",
+        function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const now = Date.now();
+          if (now - lastSubmitActionAt < 250) return;
+          lastSubmitActionAt = now;
+
+          if (!tiInterface || !tiInterface.classList.contains("active")) return;
+          if (tiResultPage.classList.contains("show")) return;
+
+          tiConfirmModal.classList.add("show");
+        },
+        true
+      );
+
+      // Continue Typing button
+      if (tiCancelSubmit) {
+        tiCancelSubmit.addEventListener(
+          "click",
+          function (e) {
+            e.preventDefault();
+            tiConfirmModal.classList.remove("show");
+            if (tiTypingBox && !tiTypingBox.disabled) {
+              tiTypingBox.focus();
+            }
+          },
+          true
+        );
+      }
+
+      // "Yes, Submit" button — har haal me test submit karke result dikhayega
+      tiConfirmSubmitBtn.addEventListener(
+        "click",
+        function () {
+          setTimeout(() => {
+            // Agar kisi wajah se purana handler ruk gaya ho toh fallback se turant submit karein
+            if (!tiResultPage.classList.contains("show")) {
+              tiConfirmModal.classList.remove("show");
+              if (tiTypingBox) tiTypingBox.disabled = true;
+              tiResultPage.classList.add("show");
+            }
+          }, 60);
+        },
+        false
+      );
+    }
+  })();
+</script>
+<!-- ==================== END SUBMIT BUTTON FIX & NO-WORD-BREAK IN PASSAGE ==================== -->
 
 
 </body>
