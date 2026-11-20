@@ -4264,6 +4264,68 @@
 </script>
 <!-- ==================== END SUBMIT BUTTON FIX & NO-WORD-BREAK IN PASSAGE ==================== -->
 
+<!-- ==================== HIGHLIGHT DISABLE FIX ==================== -->
+<style>
+  /* Highlight Disable hone par paragraph box me kisi bhi tarah ka highlight (yellow/green/red) na dikhe */
+  #tiPassageBox.ti-no-highlight span,
+  #tiPassageBox.ti-no-highlight .w-current,
+  #tiPassageBox.ti-no-highlight .w-current.w-wrong-live,
+  #tiPassageBox.ti-no-highlight .w-correct,
+  #tiPassageBox.ti-no-highlight .w-wrong {
+    background: transparent !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    text-decoration: none !important;
+  }
+</style>
+
+<script>
+  (function () {
+    const tiPassageBox = document.getElementById("tiPassageBox");
+    const tiHlDisable = document.getElementById("tiHlDisable");
+    const tiHlEnable = document.getElementById("tiHlEnable");
+    if (!tiPassageBox || !tiHlDisable || !tiHlEnable) return;
+
+    function syncHighlightState() {
+      const isEnabled = tiHlEnable.classList.contains("active");
+      tiPassageBox.classList.toggle("ti-no-highlight", !isEnabled);
+
+      if (!isEnabled) {
+        const highlighted = tiPassageBox.querySelectorAll(".w-current, .w-correct, .w-wrong, .w-wrong-live");
+        highlighted.forEach((el) => el.removeAttribute("class"));
+      }
+    }
+
+    // Highlight Enable / Disable buttons aur Test Start par turant sync karein
+    tiHlDisable.addEventListener("click", syncHighlightState);
+    tiHlEnable.addEventListener("click", syncHighlightState);
+    document.addEventListener(
+      "click",
+      function (e) {
+        if (e.target.closest(".start-btn")) {
+          setTimeout(syncHighlightState, 0);
+        }
+      },
+      true
+    );
+
+    // Button class ya passage box me badlav hote hi state check karein
+    new MutationObserver(syncHighlightState).observe(tiHlEnable, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+
+    new MutationObserver(function () {
+      if (!tiHlEnable.classList.contains("active")) {
+        tiPassageBox.classList.add("ti-no-highlight");
+      }
+    }).observe(tiPassageBox, { childList: true });
+
+    syncHighlightState();
+  })();
+</script>
+<!-- ==================== END HIGHLIGHT DISABLE FIX ==================== -->
 
 </body>
 </html>
