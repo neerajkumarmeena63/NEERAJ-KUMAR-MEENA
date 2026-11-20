@@ -2235,17 +2235,17 @@
 
   async function loadDisplaySettingsFromDB() {
     try {
-      const snap = await get(ref(db, "fonts/displaySettings"));
-      if (snap.exists()) {
-        const val = snap.val();
-        ["hindi", "english"].forEach((lang) => {
-          if (val[lang]) {
-            displaySettings[lang] = {
-              ...DEFAULT_DISPLAY_SETTINGS[lang],
-              ...val[lang]
-            };
-          }
-        });
+      const [hSnap, eSnap] = await Promise.all([
+        get(ref(db, "fonts/hindi/displaySettings")),
+        get(ref(db, "fonts/english/displaySettings"))
+      ]);
+      if (hSnap.exists()) {
+        displaySettings.hindi = { ...DEFAULT_DISPLAY_SETTINGS.hindi, ...hSnap.val() };
+      }
+      if (eSnap.exists()) {
+        displaySettings.english = { ...DEFAULT_DISPLAY_SETTINGS.english, ...eSnap.val() };
+      }
+      if (hSnap.exists() || eSnap.exists()) {
         localStorage.setItem("typingx_display_settings", JSON.stringify(displaySettings));
         return;
       }
@@ -2307,7 +2307,7 @@
     if (!toast) return;
     toast.textContent = msg;
     toast.className = "toast show " + (isError ? "error" : "success");
-    setTimeout(() => toast.classList.remove("show"), 3200);
+    setTimeout(() => toast.classList.remove("show"), 3400);
   }
 
   async function saveLanguageDisplaySettings(lang) {
@@ -2328,15 +2328,18 @@
     btn.disabled = true;
     const origText = btn.textContent;
     btn.textContent = "Saving...";
+
+    // Local browser me turant save karein
+    displaySettings[lang] = payload;
+    localStorage.setItem("typingx_display_settings", JSON.stringify(displaySettings));
+    populateDisplaySettingsForm(lang);
+
     try {
-      await set(ref(db, `fonts/displaySettings/${lang}`), payload);
-      displaySettings[lang] = payload;
-      localStorage.setItem("typingx_display_settings", JSON.stringify(displaySettings));
-      populateDisplaySettingsForm(lang);
+      await set(ref(db, `fonts/${lang}/displaySettings`), payload);
       showQuickToast(`${lang.charAt(0).toUpperCase() + lang.slice(1)} display settings saved.`);
     } catch (err) {
-      console.error("Save display settings failed:", err);
-      showQuickToast("Failed to save settings.", true);
+      console.error("Firebase save error:", err);
+      showQuickToast("Saved locally. Firebase Rule update required for all devices.", true);
     } finally {
       btn.disabled = false;
       btn.textContent = origText;
@@ -2348,6 +2351,7 @@
     populateDisplaySettingsForm(lang);
     await saveLanguageDisplaySettings(lang);
   }
+
 
   /* ============================================================
      2. TYPING INTERFACE LOGIC
