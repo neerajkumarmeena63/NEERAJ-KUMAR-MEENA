@@ -1487,9 +1487,43 @@
 
 
 
-<!-- ==================== TYPING INTERFACE & ADMIN DISPLAY SETTINGS ==================== -->
+      <!-- ==================== UNIFIED TYPING PLATFORM (TYPING, ADMIN DISPLAY, ANIMATIONS & RESULT) ==================== -->
 <style>
-  /* Typing Interface Single-Screen Layout */
+  /* ==================== 1. LOADING ANIMATIONS ==================== */
+  .tx-spinner {
+    width: 2.3rem;
+    height: 2.3rem;
+    border: 3.5px solid var(--navy-light);
+    border-top-color: var(--navy);
+    border-right-color: var(--saffron);
+    border-radius: 50%;
+    animation: txSpin 0.75s linear infinite;
+  }
+  @keyframes txSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  .tx-loader-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 2.6rem 1rem;
+    background: var(--card);
+    text-align: center;
+  }
+  .tx-loader-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .tx-loader-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  /* ==================== 2. TYPING INTERFACE SINGLE-SCREEN LAYOUT ==================== */
   #typingInterface {
     position: fixed;
     inset: 0;
@@ -1505,7 +1539,7 @@
     display: flex;
   }
 
-  /* Left Sidebar (Chodi badhi hui) */
+  /* Left Sidebar */
   .ti-sidebar {
     width: 7.6rem;
     min-width: 7.6rem;
@@ -1520,7 +1554,7 @@
     border-right: 2px solid var(--navy);
     gap: 0.6rem;
     user-select: none;
-    overflow: hidden;
+    overflow-y: auto;
   }
   .ti-sidebar-top,
   .ti-sidebar-middle,
@@ -1532,7 +1566,6 @@
     width: 100%;
   }
 
-  /* User Profile Icon */
   .ti-profile {
     display: flex;
     flex-direction: column;
@@ -1557,11 +1590,11 @@
   }
   .ti-profile-label {
     font-size: 0.58rem;
-    color: rgba(255, 255, 255, 0.85);
-    font-weight: 500;
+    color: #fde047;
+    font-weight: 700;
+    letter-spacing: 0.02em;
   }
 
-  /* Sidebar Control Groups */
   .ti-ctrl-group {
     width: 100%;
     background: rgba(255, 255, 255, 0.08);
@@ -1581,7 +1614,7 @@
     font-size: 0.54rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 600;
     text-align: center;
   }
@@ -1617,14 +1650,13 @@
     cursor: not-allowed;
   }
 
-  /* Submit Button */
   .ti-submit-btn {
     width: 100%;
     background: var(--green);
     color: #fff;
     border: none;
     border-radius: var(--radius);
-    padding: 0.55rem 0.3rem;
+    padding: 0.58rem 0.3rem;
     font-family: inherit;
     font-size: 0.66rem;
     font-weight: 700;
@@ -1633,6 +1665,7 @@
     transition: background 0.15s, transform 0.1s;
     text-align: center;
     line-height: 1.25;
+    touch-action: manipulation;
   }
   .ti-submit-btn:hover {
     background: var(--green-dark);
@@ -1641,8 +1674,9 @@
     transform: scale(0.97);
   }
 
-  /* Right Main Screen (Single Screen, No Page Scroll) */
+  /* Right Main Area */
   .ti-main {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1653,7 +1687,33 @@
     overflow: hidden;
   }
 
-  /* Simple Text Header & Remaining Time (Bina kisi alag box ke) */
+  .ti-loader-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    z-index: 60;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .ti-loader-overlay.show {
+    display: flex;
+  }
+  .ti-loader-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    padding: 1.75rem 2.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    text-align: center;
+  }
+
   .ti-header-simple {
     display: flex;
     flex-direction: column;
@@ -1665,7 +1725,7 @@
     padding: 0.1rem 0;
   }
   .ti-heading {
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--navy);
     margin: 0;
@@ -1674,68 +1734,80 @@
     font-size: 0.82rem;
     font-weight: 600;
     color: var(--text);
-    margin-top: 0.1rem;
+    margin-top: 0.12rem;
   }
-  .ti-timer-text span {
+  #tiCountdown {
     font-weight: 700;
-    color: var(--navy);
-  }
-  .ti-timer-text.warning,
-  .ti-timer-text.warning span {
-    color: var(--red);
+    color: #ff0000;
   }
 
-  /* Passage Box (Height Typing Box se zyada, No Auto-Scroll) */
-  .ti-passage-box {
+  /* Passage Box & Typing Box (Pure Black font, Justify, 0 radius, 1px Pure Black border, No word break) */
+  #tiPassageBox {
     flex: 1.55;
     min-height: 0;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
+    background: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 0;
     padding: 0.85rem 1.05rem;
     overflow-y: auto;
     line-height: 1.85;
     font-size: 1.15rem;
-    color: var(--text);
+    color: #000000;
+    text-align: justify;
     box-shadow: var(--shadow);
     user-select: none;
     word-spacing: 0.12em;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    word-wrap: normal;
+    hyphens: none;
+    contain: layout style;
   }
-  .ti-passage-box .w-current {
+  #tiPassageBox span {
+    white-space: nowrap;
+  }
+
+  /* Highlight Classes (Active ONLY when Highlight is Enabled) */
+  #tiPassageBox.hl-active span.w-current {
     background: #fde047;
-    color: #1e293b;
-    border-radius: 0.2rem;
+    color: #000000;
     padding: 0 0.15rem;
   }
-  .ti-passage-box .w-current.w-wrong-live {
+  #tiPassageBox.hl-active span.w-current.w-wrong-live {
+    background: #fde047;
     color: #dc2626;
   }
-  .ti-passage-box .w-correct {
-    color: #16a34a;
+  #tiPassageBox.hl-active span.w-correct {
+    color: #15803d;
   }
-  .ti-passage-box .w-wrong {
+  #tiPassageBox.hl-active span.w-wrong {
     color: #dc2626;
   }
 
-  /* Typing Box */
-  .ti-typing-box {
+  #tiTypingBox {
     flex: 1;
     min-height: 0;
     width: 100%;
-    background: var(--card);
-    border: 1.5px solid var(--navy);
-    border-radius: var(--radius);
+    background: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 0;
     padding: 0.85rem 1.05rem;
     line-height: 1.85;
     font-size: 1.15rem;
-    color: var(--text);
+    color: #000000;
+    text-align: justify;
     box-shadow: var(--shadow);
     resize: none;
     outline: none;
     overflow-y: auto;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    hyphens: none;
+    contain: layout style;
   }
-  .ti-typing-box:focus {
-    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.14);
+  #tiTypingBox:focus {
+    border: 1px solid #000000;
+    box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.16);
   }
 
   /* Confirm Modal */
@@ -1746,7 +1818,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 3200;
+    z-index: 3350;
     padding: 1rem;
     backdrop-filter: blur(2px);
   }
@@ -1754,99 +1826,321 @@
     display: flex;
   }
 
-  /* Result Page */
+  /* ==================== 3. PREPARING RESULT LOADING SCREEN ==================== */
+  #trPreparingOverlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 3450;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+  }
+  #trPreparingOverlay.show {
+    display: flex;
+  }
+  .tr-prep-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    padding: 2rem 2.25rem;
+    width: 100%;
+    max-width: 24rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    animation: popIn 0.2s ease-out;
+  }
+  .tr-prep-spinner {
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 3.5px solid var(--navy-light);
+    border-top-color: var(--navy);
+    border-right-color: var(--saffron);
+    border-radius: 50%;
+    animation: txSpin 0.75s linear infinite;
+  }
+  .tr-prep-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 0;
+  }
+  .tr-prep-sub {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .tr-prep-bar {
+    width: 100%;
+    height: 0.32rem;
+    background: var(--navy-light);
+    border-radius: 1rem;
+    overflow: hidden;
+    margin-top: 0.25rem;
+  }
+  .tr-prep-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--navy), var(--saffron));
+    border-radius: 1rem;
+  }
+
+  /* ==================== 4. PROFESSIONAL ENGLISH RESULT PAGE ==================== */
   #tiResultPage {
     position: fixed;
     inset: 0;
     background: var(--bg);
     z-index: 3300;
     display: none;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    padding: 1.25rem;
+    padding: 1.25rem 0 0;
     overflow-y: auto;
   }
   #tiResultPage.show {
     display: flex;
   }
-  .ti-result-card {
+
+  .tr-wrapper {
+    width: calc(100% - 2rem);
+    max-width: 54rem;
+    margin: 0 auto;
     background: var(--card);
     border: 1px solid var(--border);
     border-top: 4px solid var(--navy);
     border-radius: 0.75rem;
     box-shadow: var(--shadow-lg);
-    width: 100%;
-    max-width: 34rem;
-    padding: 1.5rem;
+    padding: 1.35rem 1.5rem;
     animation: popIn 0.2s ease-out;
   }
-  .ti-result-header {
-    text-align: center;
-    margin-bottom: 1.1rem;
-    padding-bottom: 0.85rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .ti-result-header h2 {
-    font-size: 1.35rem;
-    color: var(--navy);
-    font-weight: 700;
-    margin-bottom: 0.2rem;
-  }
-  .ti-result-header p {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-  .ti-result-meta {
+
+  .tr-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    background: var(--bg);
-    padding: 0.55rem 0.85rem;
-    border-radius: var(--radius);
-    font-size: 0.72rem;
-    color: var(--text-muted);
+    gap: 0.75rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1.5px solid var(--border);
     margin-bottom: 1rem;
   }
-  .ti-result-meta strong {
-    color: var(--text);
+  .tr-title-block h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 0;
   }
-  .ti-result-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.65rem;
-    margin-bottom: 1.25rem;
+  .tr-title-block p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
   }
-  .ti-stat-card {
+  .tr-meta-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .tr-pill {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 0.75rem 0.5rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .tr-pill strong {
+    color: var(--navy);
+    font-weight: 700;
+  }
+
+  .tr-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+  }
+  .tr-metric-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem 0.6rem;
     text-align: center;
   }
-  .ti-stat-card.highlight-card {
+  .tr-metric-card.marks-card {
     background: var(--navy-light);
     border-color: var(--navy);
   }
-  .ti-stat-val {
-    font-size: 1.2rem;
+  .tr-metric-val {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+  .tr-metric-sub {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-top: 0.12rem;
+  }
+  .tr-metric-lbl {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 0.25rem;
+  }
+
+  .tr-counts-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.85rem;
+    margin-bottom: 1rem;
+    font-size: 0.7rem;
+  }
+  .tr-count-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+  }
+  .tr-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .tr-dot.right { background: #15803d; }
+  .tr-dot.wrong { background: #dc2626; }
+  .tr-dot.skip { background: #d97706; }
+  .tr-dot.extra { background: #7c3aed; }
+
+  .tr-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .tr-review-title {
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--navy);
   }
-  .ti-stat-val.green {
-    color: var(--green-dark);
+  .tr-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
   }
-  .ti-stat-val.red {
-    color: var(--red);
-  }
-  .ti-stat-lbl {
+  .tr-filter-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 0.22rem 0.65rem;
+    font-family: inherit;
     font-size: 0.64rem;
+    font-weight: 600;
     color: var(--text-muted);
-    margin-top: 0.2rem;
-    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tr-filter-btn:hover {
+    border-color: var(--navy);
+    color: var(--navy);
+  }
+  .tr-filter-btn.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
   }
 
-  /* Admin Display Settings Panel CSS */
+  .tr-review-box {
+    background: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 0;
+    padding: 0.9rem 1rem;
+    max-height: 18rem;
+    overflow-y: auto;
+    text-align: justify;
+    color: #000000;
+    word-spacing: 0.14em;
+    word-break: keep-all;
+  }
+
+  .rw-right {
+    color: #15803d;
+  }
+  .rw-wrong-typed {
+    color: #dc2626;
+    text-decoration: line-through;
+  }
+  .rw-wrong-expected {
+    color: #15803d;
+  }
+  .rw-bracket {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.85em;
+    color: #64748b;
+  }
+  .rw-skip {
+    color: #d97706;
+  }
+  .rw-extra {
+    color: #7c3aed;
+  }
+
+  .tr-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.66rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+  .tr-actions {
+    display: flex;
+    gap: 0.65rem;
+    margin-top: 1.15rem;
+    flex-wrap: wrap;
+  }
+
+  .tr-footer {
+    width: 100%;
+    background: var(--navy);
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    padding: 1.1rem 1rem;
+    font-size: 0.65rem;
+    line-height: 1.7;
+    margin-top: 2rem;
+  }
+  .tr-footer strong {
+    color: #fff;
+  }
+  .tr-footer a {
+    color: #fbbf24;
+    text-decoration: none;
+  }
+  .tr-footer a:hover {
+    text-decoration: underline;
+  }
+  .tr-footer .sep {
+    margin: 0 0.5rem;
+    opacity: 0.45;
+  }
+
+  /* ==================== 5. ADMIN DISPLAY SETTINGS PANEL ==================== */
   .ds-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
@@ -1933,7 +2227,7 @@
     margin-top: 0.85rem;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 650px) {
     .ti-sidebar {
       width: 6.3rem;
       min-width: 6.3rem;
@@ -1942,7 +2236,10 @@
     .ti-main {
       padding: 0.5rem 0.65rem 0.65rem;
     }
-    .ti-result-grid {
+    .tr-wrapper {
+      padding: 1rem;
+    }
+    .tr-metrics-grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
@@ -1952,19 +2249,18 @@
 <section id="typingInterface" aria-label="Typing Test Interface">
   <aside class="ti-sidebar">
     <div class="ti-sidebar-top">
-      <div class="ti-profile" title="Candidate Profile">
+      <div class="ti-profile" title="Exam Batch">
         <div class="ti-avatar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
         </div>
-        <span class="ti-profile-label">Candidate</span>
+        <span class="ti-profile-label">RSSB LDC 2026</span>
       </div>
     </div>
 
     <div class="ti-sidebar-middle">
-      <!-- Highlight Enable / Disable (By Default Disable) -->
       <div class="ti-ctrl-group" id="tiGroupHighlight">
         <span class="ti-ctrl-title">Highlight</span>
         <div class="ti-btn-row">
@@ -1973,7 +2269,6 @@
         </div>
       </div>
 
-      <!-- Regular / Bold Selector (By Default Regular) -->
       <div class="ti-ctrl-group" id="tiGroupStyle">
         <span class="ti-ctrl-title">Font Style</span>
         <div class="ti-btn-row">
@@ -1982,7 +2277,6 @@
         </div>
       </div>
 
-      <!-- Font Size Increase / Decrease -->
       <div class="ti-ctrl-group" id="tiGroupSize">
         <span class="ti-ctrl-title">Font Size</span>
         <div class="ti-btn-row">
@@ -1998,16 +2292,24 @@
   </aside>
 
   <div class="ti-main">
+    <!-- Loading Overlay inside Typing Interface -->
+    <div class="ti-loader-overlay" id="tiLoaderOverlay">
+      <div class="ti-loader-card">
+        <div class="tx-spinner"></div>
+        <div class="tx-loader-title">Preparing Typing Test...</div>
+        <div class="tx-loader-sub">Loading passage and language fonts</div>
+      </div>
+    </div>
+
     <div class="ti-header-simple">
-      <div class="ti-heading" id="tiHeading">English Typing Speed Test</div>
+      <div class="ti-heading" id="tiHeading">English Typing Speed Test/अंग्रेजी टंकण गति परीक्षा</div>
       <div class="ti-timer-text" id="tiTimerWrap">Remaining Time: <span id="tiCountdown">10:00</span></div>
     </div>
 
-    <div class="ti-passage-box" id="tiPassageBox">Loading test passage...</div>
+    <div class="ti-passage-box" id="tiPassageBox"></div>
 
     <textarea
       id="tiTypingBox"
-      class="ti-typing-box"
       placeholder="Start typing here..."
       spellcheck="false"
       autocorrect="off"
@@ -2029,49 +2331,20 @@
   </div>
 </div>
 
-<!-- Test Result Page -->
-<section id="tiResultPage" aria-label="Test Result">
-  <div class="ti-result-card">
-    <div class="ti-result-header">
-      <h2>Typing Test Result</h2>
-      <p id="tiResultSub">Test performance summary</p>
-    </div>
-    <div class="ti-result-meta">
-      <span>Test: <strong id="resTestName">-</strong></span>
-      <span>Language: <strong id="resLang">-</strong></span>
-      <span>Time Taken: <strong id="resTimeTaken">00:00</strong></span>
-    </div>
-    <div class="ti-result-grid">
-      <div class="ti-stat-card highlight-card">
-        <div class="ti-stat-val" id="resNetWpm">0</div>
-        <div class="ti-stat-lbl">Net Speed (WPM)</div>
-      </div>
-      <div class="ti-stat-card">
-        <div class="ti-stat-val" id="resGrossWpm">0</div>
-        <div class="ti-stat-lbl">Gross Speed (WPM)</div>
-      </div>
-      <div class="ti-stat-card">
-        <div class="ti-stat-val" id="resAccuracy">0%</div>
-        <div class="ti-stat-lbl">Accuracy</div>
-      </div>
-      <div class="ti-stat-card">
-        <div class="ti-stat-val" id="resTotalWords">0</div>
-        <div class="ti-stat-lbl">Total Typed Words</div>
-      </div>
-      <div class="ti-stat-card">
-        <div class="ti-stat-val green" id="resCorrectWords">0</div>
-        <div class="ti-stat-lbl">Correct Words</div>
-      </div>
-      <div class="ti-stat-card">
-        <div class="ti-stat-val red" id="resWrongWords">0</div>
-        <div class="ti-stat-lbl">Wrong Words</div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button type="button" class="btn-primary" id="tiBackHomeBtn">Back to Home</button>
+<!-- Preparing Result Loading Screen -->
+<div id="trPreparingOverlay" aria-live="polite" aria-label="Preparing Test Result">
+  <div class="tr-prep-card">
+    <div class="tr-prep-spinner"></div>
+    <h3 class="tr-prep-title">Preparing Your Result...</h3>
+    <p class="tr-prep-sub">Evaluating your typing speed, accuracy, and word alignment. Please wait...</p>
+    <div class="tr-prep-bar">
+      <div class="tr-prep-bar-fill" id="trPrepBarFill"></div>
     </div>
   </div>
-</section>
+</div>
+
+<!-- Exam Result Page -->
+<section id="tiResultPage" aria-label="Test Result"></section>
 
 <script type="module">
   import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -2080,7 +2353,7 @@
   const app = getApp();
   const db = getDatabase(app);
 
-  const TEST_DURATION_SECONDS = 10 * 60; // 10 minutes
+  const TEST_DURATION_SECONDS = 10 * 60;
   const TARGET_WORDS = { hindi: 400, english: 500 };
 
   const DEFAULT_DISPLAY_SETTINGS = {
@@ -2101,7 +2374,82 @@
   let displaySettings = JSON.parse(JSON.stringify(DEFAULT_DISPLAY_SETTINGS));
 
   /* ============================================================
-     1. ADMIN PANEL: LANGUAGE-WISE FONT SIZE & LINE SPACING CONTROL
+     1. HOMEPAGE & ADMIN PANEL LOADING ANIMATIONS
+     ============================================================ */
+  function initLoaders() {
+    // Homepage Table Loader
+    const homeTableWrap = document.querySelector("#homepageView .table-wrap");
+    const testTableBody = document.getElementById("testTableBody");
+    const emptyState = document.getElementById("emptyState");
+
+    if (homeTableWrap && testTableBody && emptyState) {
+      const homeLoader = document.createElement("div");
+      homeLoader.id = "homeLoader";
+      homeLoader.className = "tx-loader-box";
+      homeLoader.innerHTML = `
+        <div class="tx-spinner"></div>
+        <div class="tx-loader-title">Loading Typing Tests...</div>
+        <div class="tx-loader-sub">Please wait while tests are being fetched</div>
+      `;
+      homeTableWrap.appendChild(homeLoader);
+
+      const syncHomeLoader = () => {
+        const hasTests = testTableBody.children.length > 0;
+        const isEmpty = emptyState.style.display !== "none";
+        homeLoader.style.display = hasTests || isEmpty ? "none" : "flex";
+      };
+
+      new MutationObserver(syncHomeLoader).observe(testTableBody, { childList: true });
+      new MutationObserver(syncHomeLoader).observe(emptyState, {
+        attributes: true,
+        attributeFilter: ["style"]
+      });
+      syncHomeLoader();
+    }
+
+    // Admin Panel Loader
+    const adminView = document.getElementById("adminView");
+    const adminTabs = document.querySelector("#adminView .admin-tabs");
+    const hindiFontGrid = document.getElementById("hindiFontGrid");
+    const fontPanel = document.getElementById("fontPanel");
+
+    if (adminView && adminTabs && hindiFontGrid && fontPanel) {
+      const adminLoader = document.createElement("div");
+      adminLoader.id = "adminLoader";
+      adminLoader.className = "tx-loader-box";
+      adminLoader.style.border = "1px solid var(--border)";
+      adminLoader.style.borderRadius = "var(--radius)";
+      adminLoader.innerHTML = `
+        <div class="tx-spinner"></div>
+        <div class="tx-loader-title">Loading Admin Panel...</div>
+        <div class="tx-loader-sub">Fetching fonts and tests</div>
+      `;
+      adminTabs.insertAdjacentElement("afterend", adminLoader);
+
+      const syncAdminLoader = () => {
+        const loaded = hindiFontGrid.children.length > 0;
+        adminLoader.style.display = loaded ? "none" : "flex";
+        if (!loaded) {
+          fontPanel.style.display = "none";
+        } else {
+          const activeTab = adminTabs.querySelector(".admin-tab.active");
+          if (activeTab && activeTab.dataset.adminTab === "fonts") {
+            fontPanel.style.display = "";
+          }
+        }
+      };
+
+      new MutationObserver(syncAdminLoader).observe(hindiFontGrid, { childList: true });
+      new MutationObserver(syncAdminLoader).observe(adminView, {
+        attributes: true,
+        attributeFilter: ["style"]
+      });
+      syncAdminLoader();
+    }
+  }
+
+  /* ============================================================
+     2. ADMIN PANEL: LANGUAGE-WISE DISPLAY SETTINGS
      ============================================================ */
   function initAdminDisplayControl() {
     const adminTabsBar = document.querySelector("#adminView .admin-tabs");
@@ -2110,7 +2458,6 @@
     const testPanel = document.getElementById("testPanel");
     if (!adminTabsBar || !adminView) return;
 
-    // Add 3rd Tab: "Display Settings"
     if (!adminTabsBar.querySelector('[data-admin-tab="display"]')) {
       const tabBtn = document.createElement("button");
       tabBtn.className = "admin-tab";
@@ -2119,7 +2466,6 @@
       adminTabsBar.appendChild(tabBtn);
     }
 
-    // Create Display Settings Panel
     let displayPanel = document.getElementById("displayPanel");
     if (!displayPanel) {
       displayPanel = document.createElement("div");
@@ -2137,7 +2483,6 @@
       adminView.appendChild(displayPanel);
     }
 
-    // Handle Tab Switching cleanly alongside existing tabs
     adminTabsBar.querySelectorAll(".admin-tab").forEach((btn) => {
       btn.addEventListener("click", () => {
         const tab = btn.dataset.adminTab;
@@ -2157,15 +2502,11 @@
       });
     });
 
-    // Attach Input Live Preview + Save + Reset listeners for Hindi & English
     ["hindi", "english"].forEach((lang) => {
       ["passageFontSize", "passageLineHeight", "typingFontSize", "typingLineHeight"].forEach((field) => {
         const inp = document.getElementById(`ds-${lang}-${field}`);
-        if (inp) {
-          inp.addEventListener("input", () => updateAdminPreview(lang));
-        }
+        if (inp) inp.addEventListener("input", () => updateAdminPreview(lang));
       });
-
       document.getElementById(`ds-save-${lang}`).addEventListener("click", () => saveLanguageDisplaySettings(lang));
       document.getElementById(`ds-reset-${lang}`).addEventListener("click", () => resetLanguageDisplaySettings(lang));
     });
@@ -2329,7 +2670,6 @@
     const origText = btn.textContent;
     btn.textContent = "Saving...";
 
-    // Local browser me turant save karein
     displaySettings[lang] = payload;
     localStorage.setItem("typingx_display_settings", JSON.stringify(displaySettings));
     populateDisplaySettingsForm(lang);
@@ -2352,14 +2692,13 @@
     await saveLanguageDisplaySettings(lang);
   }
 
-
   /* ============================================================
-     2. TYPING INTERFACE LOGIC
+     3. TYPING INTERFACE & ROCK-SOLID HIGHLIGHT SYSTEM
      ============================================================ */
   const tiEl = document.getElementById("typingInterface");
+  const tiLoaderOverlay = document.getElementById("tiLoaderOverlay");
   const tiHeading = document.getElementById("tiHeading");
   const tiCountdown = document.getElementById("tiCountdown");
-  const tiTimerWrap = document.getElementById("tiTimerWrap");
   const tiPassageBox = document.getElementById("tiPassageBox");
   const tiTypingBox = document.getElementById("tiTypingBox");
 
@@ -2378,9 +2717,11 @@
   const tiConfirmModal = document.getElementById("tiConfirmModal");
   const tiCancelSubmit = document.getElementById("tiCancelSubmit");
   const tiConfirmSubmitBtn = document.getElementById("tiConfirmSubmitBtn");
+  const prepOverlay = document.getElementById("trPreparingOverlay");
+  const prepBarFill = document.getElementById("trPrepBarFill");
   const tiResultPage = document.getElementById("tiResultPage");
-  const tiBackHomeBtn = document.getElementById("tiBackHomeBtn");
 
+  let currentTestId = null;
   let currentTestName = "";
   let currentLang = "english";
   let highlightEnabled = false;
@@ -2389,6 +2730,9 @@
   let currentTypingFontSize = 1.15;
 
   let passageWords = [];
+  let passageWordSpans = [];
+  let prevRenderedIndex = -1;
+
   let remainingSeconds = TEST_DURATION_SECONDS;
   let timerInterval = null;
   let timerStarted = false;
@@ -2396,7 +2740,11 @@
   let lockedPrefix = "";
   let loadedTestFonts = { regular: null, bold: null };
 
-  /* IndexedDB Helpers */
+  let firstKeystrokeTs = null;
+  let lastKeystrokeTs = null;
+  let backspaceCount = 0;
+
+  /* IndexedDB Font Cache */
   function readCachedFont(lang, ver) {
     return new Promise((resolve) => {
       try {
@@ -2480,12 +2828,88 @@
     });
   }
 
+  /* Build Exact 400 (Hindi) / 500 (English) Word Spans Once */
+  function buildPassageSpans(words) {
+    const frag = document.createDocumentFragment();
+    const spans = new Array(words.length);
+
+    for (let i = 0; i < words.length; i++) {
+      const sp = document.createElement("span");
+      sp.textContent = words[i];
+      spans[i] = sp;
+      frag.appendChild(sp);
+      if (i < words.length - 1) {
+        frag.appendChild(document.createTextNode(" "));
+      }
+    }
+
+    tiPassageBox.innerHTML = "";
+    tiPassageBox.appendChild(frag);
+    passageWordSpans = spans;
+    prevRenderedIndex = -1;
+  }
+
+  /* O(1) Direct Span Highlight Update (Zero Lag, Zero DOM Rebuild) */
+  function updatePassageHighlight(forceFull = false) {
+    if (!passageWordSpans.length) return;
+
+    if (!highlightEnabled) {
+      tiPassageBox.classList.remove("hl-active");
+      for (let i = 0; i < passageWordSpans.length; i++) {
+        if (passageWordSpans[i].className !== "") {
+          passageWordSpans[i].className = "";
+        }
+      }
+      prevRenderedIndex = -1;
+      return;
+    }
+
+    tiPassageBox.classList.add("hl-active");
+
+    const rawTyped = tiTypingBox.value;
+    const endsWithSpace = rawTyped.endsWith(" ");
+    const typedWords = rawTyped.trim() ? rawTyped.trim().split(/\s+/) : [];
+    const activeIndex = endsWithSpace
+      ? typedWords.length
+      : Math.max(0, typedWords.length - 1);
+    const currentTypedWord = endsWithSpace ? "" : (typedWords[activeIndex] || "");
+
+    const startIdx =
+      forceFull || prevRenderedIndex === -1
+        ? 0
+        : Math.max(0, Math.min(prevRenderedIndex, activeIndex) - 1);
+    const endIdx =
+      forceFull || prevRenderedIndex === -1
+        ? passageWordSpans.length - 1
+        : Math.min(passageWordSpans.length - 1, Math.max(prevRenderedIndex, activeIndex) + 1);
+
+    for (let idx = startIdx; idx <= endIdx; idx++) {
+      const expectedNorm = passageWords[idx].normalize("NFC");
+      let cls = "";
+
+      if (idx < activeIndex) {
+        const typedNorm = (typedWords[idx] || "").normalize("NFC");
+        cls = typedNorm === expectedNorm ? "w-correct" : "w-wrong";
+      } else if (idx === activeIndex) {
+        const currentNorm = currentTypedWord.normalize("NFC");
+        const isWrongLive = currentNorm.length > 0 && !expectedNorm.startsWith(currentNorm);
+        cls = isWrongLive ? "w-current w-wrong-live" : "w-current";
+      }
+
+      if (passageWordSpans[idx].className !== cls) {
+        passageWordSpans[idx].className = cls;
+      }
+    }
+
+    prevRenderedIndex = activeIndex;
+  }
+
   function applyHighlightMode(enable) {
     if (timerStarted) return;
-    highlightEnabled = enable;
-    tiHlDisable.classList.toggle("active", !enable);
-    tiHlEnable.classList.toggle("active", enable);
-    renderPassage();
+    highlightEnabled = Boolean(enable);
+    tiHlDisable.classList.toggle("active", !highlightEnabled);
+    tiHlEnable.classList.toggle("active", highlightEnabled);
+    updatePassageHighlight(true);
   }
 
   function applyFontStyle(weight) {
@@ -2533,7 +2957,7 @@
     tiTypingBox.style.fontSize = `${currentTypingFontSize}rem`;
   }
 
-  function preparePassageWords(rawContent, lang) {
+  function prepareExactPassageWords(rawContent, lang) {
     const baseWords = (rawContent || "").trim().split(/\s+/).filter(Boolean);
     if (baseWords.length === 0) return [];
     const target = TARGET_WORDS[lang] || 500;
@@ -2544,41 +2968,6 @@
       }
     }
     return result;
-  }
-
-  function escapeHtmlSafe(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  function renderPassage() {
-    if (!highlightEnabled) {
-      tiPassageBox.textContent = passageWords.join(" ");
-      return;
-    }
-
-    const rawTyped = tiTypingBox.value;
-    const endsWithSpace = rawTyped.endsWith(" ");
-    const typedWords = rawTyped.trim() ? rawTyped.trim().split(/\s+/) : [];
-    const activeIndex = endsWithSpace ? typedWords.length : Math.max(0, typedWords.length - 1);
-    const currentTypedWord = endsWithSpace ? "" : (typedWords[activeIndex] || "");
-
-    tiPassageBox.innerHTML = passageWords
-      .map((word, idx) => {
-        let cls = "";
-        if (idx < activeIndex) {
-          cls = typedWords[idx] === word ? "w-correct" : "w-wrong";
-        } else if (idx === activeIndex) {
-          const isWrongLive = currentTypedWord.length > 0 && !word.startsWith(currentTypedWord);
-          cls = isWrongLive ? "w-current w-wrong-live" : "w-current";
-        }
-        return cls
-          ? `<span class="${cls}">${escapeHtmlSafe(word)}</span>`
-          : escapeHtmlSafe(word);
-      })
-      .join(" ");
   }
 
   function formatTime(sec) {
@@ -2598,83 +2987,377 @@
       if (remainingSeconds < 0) remainingSeconds = 0;
       tiCountdown.textContent = formatTime(remainingSeconds);
 
-      if (remainingSeconds <= 60) {
-        tiTimerWrap.classList.add("warning");
-      }
       if (remainingSeconds === 0) {
         clearInterval(timerInterval);
-        finishAndShowResult(true);
+        submitAndPrepareResult();
       }
     }, 1000);
   }
 
-  function finishAndShowResult(autoSubmitted = false) {
+  /* ============================================================
+     4. SUBMIT ANIMATION + RESULT PAGE & SMART WORD ALIGNMENT
+     ============================================================ */
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function formatExamDate(dateObj) {
+    return dateObj.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  function alignTypedWithPassage(pWords, tWords) {
+    const M = pWords.length;
+    const N = tWords.length;
+
+    if (N === 0) {
+      return { items: [], rightCount: 0, wrongCount: 0, skipCount: 0, extraCount: 0 };
+    }
+
+    const MATCH_SCORE = 10;
+    const SUB_PENALTY = -2;
+    const SKIP_PENALTY = -2;
+    const EXTRA_PENALTY = -2;
+
+    const cols = M + 1;
+    const dp = new Int32Array((N + 1) * cols);
+    const dir = new Uint8Array((N + 1) * cols);
+
+    for (let j = 1; j <= M; j++) {
+      dp[j] = j * SKIP_PENALTY;
+      dir[j] = 2;
+    }
+    for (let i = 1; i <= N; i++) {
+      dp[i * cols] = i * EXTRA_PENALTY;
+      dir[i * cols] = 3;
+    }
+
+    const pNorm = pWords.map((w) => w.normalize("NFC"));
+    const tNorm = tWords.map((w) => w.normalize("NFC"));
+
+    for (let i = 1; i <= N; i++) {
+      const tw = tNorm[i - 1];
+      const rowOffset = i * cols;
+      const prevRowOffset = (i - 1) * cols;
+
+      for (let j = 1; j <= M; j++) {
+        const isMatch = tw === pNorm[j - 1];
+        const diagScore = dp[prevRowOffset + (j - 1)] + (isMatch ? MATCH_SCORE : SUB_PENALTY);
+        const skipScore = dp[rowOffset + (j - 1)] + SKIP_PENALTY;
+        const extraScore = dp[prevRowOffset + j] + EXTRA_PENALTY;
+
+        if (diagScore >= skipScore && diagScore >= extraScore) {
+          dp[rowOffset + j] = diagScore;
+          dir[rowOffset + j] = 1;
+        } else if (skipScore >= extraScore) {
+          dp[rowOffset + j] = skipScore;
+          dir[rowOffset + j] = 2;
+        } else {
+          dp[rowOffset + j] = extraScore;
+          dir[rowOffset + j] = 3;
+        }
+      }
+    }
+
+    let bestJ = 0;
+    let bestScore = -Infinity;
+    const lastRow = N * cols;
+    for (let j = 0; j <= M; j++) {
+      if (dp[lastRow + j] >= bestScore) {
+        bestScore = dp[lastRow + j];
+        bestJ = j;
+      }
+    }
+
+    const items = [];
+    let i = N;
+    let j = bestJ;
+    let rightCount = 0;
+    let wrongCount = 0;
+    let skipCount = 0;
+    let extraCount = 0;
+
+    while (i > 0 || j > 0) {
+      const step = dir[i * cols + j];
+      if (step === 1 && i > 0 && j > 0) {
+        if (tNorm[i - 1] === pNorm[j - 1]) {
+          items.push({ type: "right", typed: tWords[i - 1], expected: pWords[j - 1] });
+          rightCount++;
+        } else {
+          items.push({ type: "wrong", typed: tWords[i - 1], expected: pWords[j - 1] });
+          wrongCount++;
+        }
+        i--;
+        j--;
+      } else if (step === 2 && j > 0) {
+        items.push({ type: "skip", expected: pWords[j - 1] });
+        skipCount++;
+        j--;
+      } else if (i > 0) {
+        items.push({ type: "extra", typed: tWords[i - 1] });
+        extraCount++;
+        i--;
+      } else {
+        break;
+      }
+    }
+
+    items.reverse();
+    return { items, rightCount, wrongCount, skipCount, extraCount };
+  }
+
+  function buildReviewHtml(items, filter = "all") {
+    if (!items || items.length === 0) {
+      return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No words were typed during this test.</span>`;
+    }
+
+    const filtered = filter === "all" ? items : items.filter((item) => item.type === filter);
+    if (filtered.length === 0) {
+      const labelMap = { right: "correct", wrong: "wrong", skip: "skipped", extra: "extra" };
+      return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No ${labelMap[filter] || filter} words found.</span>`;
+    }
+
+    return filtered
+      .map((item) => {
+        if (item.type === "right") {
+          return `<span class="rw-right" title="Correct Word">${escapeHtml(item.typed)}</span>`;
+        }
+        if (item.type === "wrong") {
+          return `<span title="Wrong Word (Expected: ${escapeHtml(item.expected)})"><span class="rw-wrong-typed">${escapeHtml(item.typed)}</span> <span class="rw-bracket">[</span><span class="rw-wrong-expected">${escapeHtml(item.expected)}</span><span class="rw-bracket">]</span></span>`;
+        }
+        if (item.type === "skip") {
+          return `<span class="rw-skip" title="Skipped Word">${escapeHtml(item.expected)}</span>`;
+        }
+        if (item.type === "extra") {
+          return `<span class="rw-extra" title="Extra Word">${escapeHtml(item.typed)}</span>`;
+        }
+        return "";
+      })
+      .join(" ");
+  }
+
+  function renderResultPage() {
+    const langLabel = currentLang === "hindi" ? "Hindi" : "English";
+    const totalPassageWords = passageWords.length || (currentLang === "hindi" ? 400 : 500);
+    const typedWords = tiTypingBox.value.trim() ? tiTypingBox.value.trim().split(/\s+/) : [];
+    const totalTypedWords = typedWords.length;
+
+    let elapsedMs = 0;
+    if (firstKeystrokeTs !== null && lastKeystrokeTs !== null) {
+      elapsedMs = Math.max(1000, lastKeystrokeTs - firstKeystrokeTs);
+    }
+    const elapsedSecondsDisplay = Math.round(elapsedMs / 1000);
+    const elapsedMinutesExact = elapsedMs > 0 ? elapsedMs / 60000 : 0;
+
+    const alignment = alignTypedWithPassage(passageWords, typedWords);
+    const correctWords = alignment.rightCount;
+
+    const marksPerWord = 25 / totalPassageWords;
+    const obtainedMarks = Math.min(25, correctWords * marksPerWord);
+    const accuracyPct = totalTypedWords > 0 ? (correctWords / totalTypedWords) * 100 : 0;
+    const grossWpm = elapsedMinutesExact > 0 ? totalTypedWords / elapsedMinutesExact : 0;
+    const netWpm = elapsedMinutesExact > 0 ? correctWords / elapsedMinutesExact : 0;
+
+    const computedTypingStyle = window.getComputedStyle(tiTypingBox);
+    const testFontFamily = tiTypingBox.style.fontFamily || computedTypingStyle.fontFamily;
+    const testFontSize = tiTypingBox.style.fontSize || computedTypingStyle.fontSize;
+    const testFontWeight = tiTypingBox.style.fontWeight || computedTypingStyle.fontWeight;
+    const testLineHeight = tiTypingBox.style.lineHeight || computedTypingStyle.lineHeight;
+    const examDateStr = formatExamDate(new Date());
+
+    tiResultPage.innerHTML = `
+      <div class="tr-wrapper">
+        <div class="tr-header">
+          <div class="tr-title-block">
+            <h2>${escapeHtml(currentTestName || "Typing Speed Test")}</h2>
+            <p>RSSB LDC 2026 — ${langLabel} Typing Speed Test Assessment</p>
+          </div>
+          <div class="tr-meta-pills">
+            <div class="tr-pill">Exam Date: <strong>${escapeHtml(examDateStr)}</strong></div>
+            <div class="tr-pill">Language: <strong>${langLabel}</strong></div>
+            <div class="tr-pill">Total Passage Words: <strong>${totalPassageWords}</strong></div>
+          </div>
+        </div>
+
+        <div class="tr-metrics-grid">
+          <div class="tr-metric-card marks-card">
+            <div class="tr-metric-val">${obtainedMarks.toFixed(2)} / 25</div>
+            <div class="tr-metric-sub">${marksPerWord.toFixed(4)} marks per correct word</div>
+            <div class="tr-metric-lbl">Obtained Marks</div>
+          </div>
+
+          <div class="tr-metric-card">
+            <div class="tr-metric-val" style="color:var(--green-dark);">${netWpm.toFixed(2)} <span style="font-size:0.75rem;">WPM</span></div>
+            <div class="tr-metric-sub">${correctWords} correct words</div>
+            <div class="tr-metric-lbl">Net Speed</div>
+          </div>
+
+          <div class="tr-metric-card">
+            <div class="tr-metric-val">${grossWpm.toFixed(2)} <span style="font-size:0.75rem;">WPM</span></div>
+            <div class="tr-metric-sub">${totalTypedWords} total typed words</div>
+            <div class="tr-metric-lbl">Gross Speed</div>
+          </div>
+
+          <div class="tr-metric-card">
+            <div class="tr-metric-val">${accuracyPct.toFixed(2)}%</div>
+            <div class="tr-metric-sub">Correct to typed words ratio</div>
+            <div class="tr-metric-lbl">Accuracy</div>
+          </div>
+
+          <div class="tr-metric-card">
+            <div class="tr-metric-val">${formatTime(elapsedSecondsDisplay)}</div>
+            <div class="tr-metric-sub">First keystroke to last keystroke</div>
+            <div class="tr-metric-lbl">Time Taken</div>
+          </div>
+
+          <div class="tr-metric-card">
+            <div class="tr-metric-val" style="color:var(--saffron);">${backspaceCount}</div>
+            <div class="tr-metric-sub">Total backspace keystrokes</div>
+            <div class="tr-metric-lbl">Backspace Count</div>
+          </div>
+        </div>
+
+        <div class="tr-counts-bar">
+          <span class="tr-count-item"><span class="tr-dot right"></span> Correct Words: <strong>${alignment.rightCount}</strong></span>
+          <span class="tr-count-item"><span class="tr-dot wrong"></span> Wrong Words: <strong>${alignment.wrongCount}</strong></span>
+          <span class="tr-count-item"><span class="tr-dot skip"></span> Skipped Words: <strong>${alignment.skipCount}</strong></span>
+          <span class="tr-count-item"><span class="tr-dot extra"></span> Extra Words: <strong>${alignment.extraCount}</strong></span>
+        </div>
+
+        <div class="tr-review-header">
+          <div class="tr-review-title">Typed Content Review</div>
+          <div class="tr-filter-group" id="trFilterGroup">
+            <button type="button" class="tr-filter-btn active" data-filter="all">All (${alignment.items.length})</button>
+            <button type="button" class="tr-filter-btn" data-filter="right">Correct (${alignment.rightCount})</button>
+            <button type="button" class="tr-filter-btn" data-filter="wrong">Wrong (${alignment.wrongCount})</button>
+            <button type="button" class="tr-filter-btn" data-filter="skip">Skipped (${alignment.skipCount})</button>
+            <button type="button" class="tr-filter-btn" data-filter="extra">Extra (${alignment.extraCount})</button>
+          </div>
+        </div>
+
+        <div class="tr-review-box" id="trReviewBox">
+          ${buildReviewHtml(alignment.items, "all")}
+        </div>
+
+        <div class="tr-legend">
+          <span><strong style="color:#15803d;">Green:</strong> Correct Word</span>
+          <span><strong style="color:#dc2626;text-decoration:line-through;">Red</strong> <strong style="color:#15803d;">[Green]:</strong> Wrong Word [Expected Word]</span>
+          <span><strong style="color:#d97706;">Amber:</strong> Skipped Word</span>
+          <span><strong style="color:#7c3aed;">Purple:</strong> Extra Word</span>
+        </div>
+
+        <div class="tr-actions">
+          ${currentTestId ? `<button type="button" class="btn-secondary" id="trRetakeBtn">Retake Test</button>` : ""}
+          <button type="button" class="btn-primary" id="trHomeBtn">Back to Home</button>
+        </div>
+      </div>
+
+      <footer class="tr-footer">
+        <strong>Design &amp; Developed By Neeraj Kumar Meena</strong>
+        <span class="sep">|</span>
+        Any help: <a href="tel:+916378562616">+91 63785 62616</a>
+        <span class="sep">|</span>
+        <a href="mailto:neerajmeenatonk1@gmail.com">neerajmeenatonk1@gmail.com</a>
+      </footer>
+    `;
+
+    const reviewBox = document.getElementById("trReviewBox");
+    if (reviewBox) {
+      reviewBox.style.fontFamily = testFontFamily;
+      reviewBox.style.fontSize = testFontSize;
+      reviewBox.style.fontWeight = testFontWeight;
+      reviewBox.style.lineHeight = testLineHeight;
+    }
+
+    const filterGroup = document.getElementById("trFilterGroup");
+    if (filterGroup && reviewBox) {
+      filterGroup.querySelectorAll(".tr-filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filterGroup.querySelectorAll(".tr-filter-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          reviewBox.innerHTML = buildReviewHtml(alignment.items, btn.dataset.filter);
+        });
+      });
+    }
+
+    document.getElementById("trHomeBtn").addEventListener("click", () => {
+      tiResultPage.classList.remove("show");
+      tiEl.classList.remove("active");
+      document.body.style.overflow = "";
+    });
+
+    const retakeBtn = document.getElementById("trRetakeBtn");
+    if (retakeBtn && currentTestId) {
+      retakeBtn.addEventListener("click", () => {
+        tiResultPage.classList.remove("show");
+        openTypingTest(currentTestId);
+      });
+    }
+  }
+
+  function submitAndPrepareResult() {
     if (!isTestActive) return;
     isTestActive = false;
     clearInterval(timerInterval);
     tiConfirmModal.classList.remove("show");
     tiTypingBox.disabled = true;
 
-    const elapsedSeconds = timerStarted
-      ? Math.max(1, TEST_DURATION_SECONDS - remainingSeconds)
-      : 0;
-    const elapsedMinutes = Math.max(elapsedSeconds / 60, 1 / 60);
+    // Show "Preparing Your Result..." loading screen first
+    prepBarFill.style.transition = "none";
+    prepBarFill.style.width = "10%";
+    prepOverlay.classList.add("show");
 
-    const typedWords = tiTypingBox.value.trim()
-      ? tiTypingBox.value.trim().split(/\s+/)
-      : [];
-
-    let correctWords = 0;
-    let wrongWords = 0;
-    typedWords.forEach((w, i) => {
-      if (passageWords[i] && w === passageWords[i]) {
-        correctWords++;
-      } else {
-        wrongWords++;
-      }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        prepBarFill.style.transition = "width 0.85s cubic-bezier(0.22, 1, 0.36, 1)";
+        prepBarFill.style.width = "100%";
+      });
     });
 
-    const totalTyped = typedWords.length;
-    const grossWpm = elapsedSeconds > 0 ? Math.round(totalTyped / elapsedMinutes) : 0;
-    const netWpm = elapsedSeconds > 0 ? Math.round(correctWords / elapsedMinutes) : 0;
-    const accuracy = totalTyped > 0 ? Math.round((correctWords / totalTyped) * 100) : 0;
-
-    document.getElementById("tiResultSub").textContent = autoSubmitted
-      ? "Time is up! Your test was submitted automatically."
-      : "Your test has been submitted.";
-    document.getElementById("resTestName").textContent = currentTestName || "Typing Test";
-    document.getElementById("resLang").textContent =
-      currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
-    document.getElementById("resTimeTaken").textContent = formatTime(elapsedSeconds);
-
-    document.getElementById("resNetWpm").textContent = netWpm;
-    document.getElementById("resGrossWpm").textContent = grossWpm;
-    document.getElementById("resAccuracy").textContent = `${accuracy}%`;
-    document.getElementById("resTotalWords").textContent = totalTyped;
-    document.getElementById("resCorrectWords").textContent = correctWords;
-    document.getElementById("resWrongWords").textContent = wrongWords;
-
-    tiResultPage.classList.add("show");
+    setTimeout(() => {
+      renderResultPage();
+      prepOverlay.classList.remove("show");
+      tiResultPage.classList.add("show");
+      tiResultPage.scrollTop = 0;
+    }, 900);
   }
 
+  /* ============================================================
+     5. OPEN TYPING TEST
+     ============================================================ */
   async function openTypingTest(testId) {
+    currentTestId = testId;
     document.body.style.overflow = "hidden";
     tiEl.classList.add("active");
+    tiLoaderOverlay.classList.add("show");
     tiResultPage.classList.remove("show");
     tiConfirmModal.classList.remove("show");
 
-    tiPassageBox.textContent = "Loading test content and fonts...";
-    tiPassageBox.scrollTop = 0;
-    tiTypingBox.value = "";
-    tiTypingBox.disabled = true;
-
+    // Cleanly reset all state before fetching
     clearInterval(timerInterval);
     timerStarted = false;
     isTestActive = false;
     lockedPrefix = "";
+    passageWords = [];
+    passageWordSpans = [];
+    prevRenderedIndex = -1;
+    firstKeystrokeTs = null;
+    lastKeystrokeTs = null;
+    backspaceCount = 0;
+
+    tiPassageBox.innerHTML = "";
+    tiPassageBox.scrollTop = 0;
+    tiTypingBox.value = "";
+    tiTypingBox.disabled = true;
     remainingSeconds = TEST_DURATION_SECONDS;
     tiCountdown.textContent = "10:00";
-    tiTimerWrap.classList.remove("warning");
     setSidebarLocked(false);
 
     try {
@@ -2684,19 +3367,21 @@
       ]);
 
       if (!snap.exists()) {
+        tiLoaderOverlay.classList.remove("show");
         tiEl.classList.remove("active");
         document.body.style.overflow = "";
         alert("Test not found.");
         return;
       }
+
       const testData = snap.val();
-      currentTestName = testData.name || "Typing Test";
+      currentTestName = testData.name || "Typing Speed Test";
       currentLang = (testData.language || "english").toLowerCase();
 
       tiHeading.textContent =
         currentLang === "hindi"
-          ? "Hindi Typing Speed Test"
-          : "English Typing Speed Test";
+          ? "Hindi Typing Speed Test/हिंदी टंकण गति परीक्षा"
+          : "English Typing Speed Test/अंग्रेजी टंकण गति परीक्षा";
 
       const [regFont, boldFont] = await Promise.all([
         loadLanguageFontVersion(currentLang, "regular"),
@@ -2704,26 +3389,29 @@
       ]);
       loadedTestFonts = { regular: regFont, bold: boldFont };
 
-      // Apply Admin's Language-wise Default Font Size & Line Spacing
       applyDefaultLayoutFromAdmin(currentLang);
-      applyHighlightMode(false);
       applyFontStyle("regular");
 
-      passageWords = preparePassageWords(testData.content, currentLang);
-      renderPassage();
+      passageWords = prepareExactPassageWords(testData.content, currentLang);
+      buildPassageSpans(passageWords);
+      applyHighlightMode(false);
 
+      tiLoaderOverlay.classList.remove("show");
       isTestActive = true;
       tiTypingBox.disabled = false;
       tiTypingBox.focus();
     } catch (err) {
       console.error("Failed to start test:", err);
+      tiLoaderOverlay.classList.remove("show");
       tiEl.classList.remove("active");
       document.body.style.overflow = "";
       alert("Unable to load test. Please check your internet connection.");
     }
   }
 
-  /* Start Button Click Intercept */
+  /* ============================================================
+     6. EVENT LISTENERS (CONTROLS, SUBMIT & KEYBOARD RULES)
+     ============================================================ */
   document.addEventListener(
     "click",
     (e) => {
@@ -2736,46 +3424,33 @@
     true
   );
 
-  /* Sidebar Controls */
   tiHlDisable.addEventListener("click", () => applyHighlightMode(false));
   tiHlEnable.addEventListener("click", () => applyHighlightMode(true));
-
   tiStyleRegular.addEventListener("click", () => applyFontStyle("regular"));
   tiStyleBold.addEventListener("click", () => applyFontStyle("bold"));
-
   tiFontDec.addEventListener("click", () => adjustFontSizeByDelta(-0.1));
   tiFontInc.addEventListener("click", () => adjustFontSizeByDelta(0.1));
 
-  /* Submit & Result Navigation */
   tiSubmitBtn.addEventListener("click", () => {
     if (!isTestActive) return;
     tiConfirmModal.classList.add("show");
   });
   tiCancelSubmit.addEventListener("click", () => {
     tiConfirmModal.classList.remove("show");
-    tiTypingBox.focus();
+    if (isTestActive && !tiTypingBox.disabled) tiTypingBox.focus();
   });
-  tiConfirmSubmitBtn.addEventListener("click", () => finishAndShowResult(false));
+  tiConfirmSubmitBtn.addEventListener("click", () => submitAndPrepareResult());
 
-  tiBackHomeBtn.addEventListener("click", () => {
-    tiResultPage.classList.remove("show");
-    tiEl.classList.remove("active");
-    document.body.style.overflow = "";
-  });
-
-  /* Cut, Copy, Paste, Drop, Contextmenu Block */
   ["cut", "copy", "paste", "drop", "contextmenu"].forEach((evt) => {
     tiTypingBox.addEventListener(evt, (e) => e.preventDefault());
   });
 
-  /* Block Tab key during active test */
   document.addEventListener("keydown", (e) => {
     if (isTestActive && e.key === "Tab") {
       e.preventDefault();
     }
   });
 
-  /* Prevent cursor from moving into locked words */
   function enforceCursorAfterLock() {
     const minPos = lockedPrefix.length;
     if (tiTypingBox.selectionStart < minPos || tiTypingBox.selectionEnd < minPos) {
@@ -2786,7 +3461,6 @@
     tiTypingBox.addEventListener(evt, enforceCursorAfterLock);
   });
 
-  /* Typing Box Keydown: Block Enter/Tab/Shortcuts + One-Word Backspace Lock + 1st Keystroke Timer */
   tiTypingBox.addEventListener("keydown", (e) => {
     if (!isTestActive) {
       e.preventDefault();
@@ -2809,6 +3483,12 @@
     const minPos = lockedPrefix.length;
 
     if (e.key === "Backspace") {
+      if (!e.repeat) {
+        backspaceCount++;
+        if (firstKeystrokeTs !== null) {
+          lastKeystrokeTs = Date.now();
+        }
+      }
       if (tiTypingBox.selectionStart <= minPos && tiTypingBox.selectionEnd <= minPos) {
         e.preventDefault();
         return;
@@ -2817,6 +3497,7 @@
         e.preventDefault();
         return;
       }
+      return;
     }
 
     if (e.key === "Delete" && tiTypingBox.selectionStart < minPos) {
@@ -2842,15 +3523,24 @@
       }
     }
 
-    if (!timerStarted && e.key.length === 1 && !e.altKey) {
-      triggerTimerOnFirstKeystroke();
+    if (e.key.length === 1 && !e.altKey) {
+      const now = Date.now();
+      if (firstKeystrokeTs === null) firstKeystrokeTs = now;
+      lastKeystrokeTs = now;
+      if (!timerStarted) triggerTimerOnFirstKeystroke();
     }
   });
 
-  /* Typing Box Input: Lock Word on Space + Highlight Update */
   tiTypingBox.addEventListener("input", () => {
     if (!isTestActive) return;
 
+    const now = Date.now();
+    if (firstKeystrokeTs === null && tiTypingBox.value.length > 0) {
+      firstKeystrokeTs = now;
+    }
+    if (firstKeystrokeTs !== null) {
+      lastKeystrokeTs = now;
+    }
     if (!timerStarted && tiTypingBox.value.length > 0) {
       triggerTimerOnFirstKeystroke();
     }
@@ -2860,1560 +3550,28 @@
       tiTypingBox.value = lockedPrefix + currentPart;
     }
 
+    // Properly lock every completed space-separated word without merging fast words
     const afterLock = tiTypingBox.value.slice(lockedPrefix.length);
     if (afterLock.includes(" ")) {
-      const cleanWord = afterLock.replace(/\s+/g, "");
-      if (cleanWord.length > 0) {
-        lockedPrefix = lockedPrefix + cleanWord + " ";
-        tiTypingBox.value = lockedPrefix;
-      } else {
-        tiTypingBox.value = lockedPrefix;
+      const parts = afterLock.split(/ +/);
+      const trailingPartial = parts.pop() || "";
+      const completedWords = parts.filter(Boolean);
+      if (completedWords.length > 0) {
+        lockedPrefix = lockedPrefix + completedWords.join(" ") + " ";
       }
+      tiTypingBox.value = lockedPrefix + trailingPartial;
     }
 
-    renderPassage();
+    updatePassageHighlight(false);
   });
 
-  // Initialize Admin Display Settings Tab
+  // Initialize loaders and Admin Display Settings
+  initLoaders();
   initAdminDisplayControl();
 </script>
-<!-- ==================== END TYPING INTERFACE & ADMIN DISPLAY SETTINGS ==================== -->
-<style>
-  #tiHeading {
-    font-size: 0.85rem !important; /* Zaroorat ke hisab se 0.8rem ya 0.9rem kar sakte hain */
-  }
-</style>
-
-<script>
-  (function () {
-    const headingEl = document.getElementById("tiHeading");
-    if (!headingEl) return;
-
-    function updateBilingualHeading() {
-      const text = headingEl.textContent.trim();
-      if (text === "English Typing Speed Test") {
-        headingEl.textContent = "English Typing Speed Test/अंग्रेजी टंकण गति परीक्षा";
-      } else if (text === "Hindi Typing Speed Test") {
-        headingEl.textContent = "Hindi Typing Speed Test/हिंदी टंकण गति परीक्षा";
-      }
-    }
-
-    new MutationObserver(updateBilingualHeading).observe(headingEl, {
-      childList: true,
-      characterData: true,
-      subtree: true
-    });
-
-    updateBilingualHeading();
-  })();
-</script>
-<style>
-  /* 1. Heading ka font size kam karna */
-  #tiHeading {
-    font-size: 0.85rem !important;
-  }
-
-  /* 2. Passage Box aur Typing Box: Pure Black font, Justify alignment, 0 border-radius, 1px Pure Black border */
-  #tiPassageBox,
-  #tiTypingBox,
-  #tiTypingBox:focus {
-    color: #000000 !important;
-    text-align: justify !important;
-    border-radius: 0 !important;
-    border: 1px solid #000000 !important;
-  }
-
-  /* 3. Remaining Time ke aage likhe time ka colour Red */
-  #tiCountdown {
-    color: #ff0000 !important;
-  }
-
-  /* 4. Sidebar me RSSB LDC 2026 Yellow colour me */
-  .ti-profile-label {
-    color: #fde047 !important;
-    font-weight: 700 !important;
-  }
-</style>
-
-<script>
-  (function () {
-    // Sidebar me Candidate ki jagah RSSB LDC 2026 set karna
-    const profileLabel = document.querySelector(".ti-profile-label");
-    if (profileLabel) {
-      profileLabel.textContent = "RSSB LDC 2026";
-    }
-
-    // Language ke hisab se bilingual heading set karna
-    const headingEl = document.getElementById("tiHeading");
-    if (headingEl) {
-      function updateBilingualHeading() {
-        const text = headingEl.textContent.trim();
-        if (text === "English Typing Speed Test") {
-          headingEl.textContent = "English Typing Speed Test/अंग्रेजी टंकण गति परीक्षा";
-        } else if (text === "Hindi Typing Speed Test") {
-          headingEl.textContent = "Hindi Typing Speed Test/हिंदी टंकण गति परीक्षा";
-        }
-      }
-
-      new MutationObserver(updateBilingualHeading).observe(headingEl, {
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-
-      updateBilingualHeading();
-    }
-  })();
-</script>
-<!-- ==================== LOADING ANIMATIONS (HOMEPAGE, TYPING INTERFACE & ADMIN) ==================== -->
-<style>
-  /* Smooth Dual-Ring Spinner */
-  .tx-spinner {
-    width: 2.2rem;
-    height: 2.2rem;
-    border: 3px solid var(--navy-light);
-    border-top-color: var(--navy);
-    border-right-color: var(--saffron);
-    border-radius: 50%;
-    animation: txSpin 0.75s linear infinite;
-  }
-  @keyframes txSpin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Homepage & Admin Table Loader */
-  .tx-loader-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.65rem;
-    padding: 2.6rem 1rem;
-    background: var(--card);
-    text-align: center;
-  }
-  .tx-loader-title {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--navy);
-  }
-  .tx-loader-sub {
-    font-size: 0.68rem;
-    color: var(--text-muted);
-  }
-
-  /* Typing Interface Full Main-Area Loader */
-  .ti-main {
-    position: relative;
-  }
-  .ti-loader-overlay {
-    position: absolute;
-    inset: 0;
-    background: var(--bg);
-    z-index: 50;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    text-align: center;
-    padding: 1rem;
-  }
-  .ti-loader-overlay.show {
-    display: flex;
-  }
-  .ti-loader-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--navy);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    padding: 1.5rem 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.65rem;
-  }
-</style>
-
-<script>
-  (function () {
-    /* 1. HOMEPAGE LOADING ANIMATION */
-    const homeTableWrap = document.querySelector("#homepageView .table-wrap");
-    const testTableBody = document.getElementById("testTableBody");
-    const emptyState = document.getElementById("emptyState");
-
-    if (homeTableWrap && testTableBody && emptyState) {
-      const homeLoader = document.createElement("div");
-      homeLoader.id = "homeLoader";
-      homeLoader.className = "tx-loader-box";
-      homeLoader.innerHTML = `
-        <div class="tx-spinner"></div>
-        <div class="tx-loader-title">Loading Typing Tests...</div>
-        <div class="tx-loader-sub">Please wait while tests are being fetched</div>
-      `;
-      homeTableWrap.appendChild(homeLoader);
-
-      function syncHomeLoader() {
-        const hasTests = testTableBody.children.length > 0;
-        const isEmptyVisible = emptyState.style.display !== "none";
-        homeLoader.style.display = hasTests || isEmptyVisible ? "none" : "flex";
-      }
-
-      new MutationObserver(syncHomeLoader).observe(testTableBody, { childList: true });
-      new MutationObserver(syncHomeLoader).observe(emptyState, {
-        attributes: true,
-        attributeFilter: ["style"]
-      });
-
-      syncHomeLoader();
-    }
-
-    /* 2. TYPING INTERFACE LOADING ANIMATION (Bina "Loading test content..." text dikhaye) */
-    const typingInterface = document.getElementById("typingInterface");
-    const tiMain = document.querySelector("#typingInterface .ti-main");
-    const tiPassageBox = document.getElementById("tiPassageBox");
-
-    if (typingInterface && tiMain && tiPassageBox) {
-      const tiLoader = document.createElement("div");
-      tiLoader.id = "tiLoaderOverlay";
-      tiLoader.className = "ti-loader-overlay";
-      tiLoader.innerHTML = `
-        <div class="ti-loader-card">
-          <div class="tx-spinner"></div>
-          <div class="tx-loader-title">Preparing Typing Test...</div>
-          <div class="tx-loader-sub">Loading passage and language fonts</div>
-        </div>
-      `;
-      tiMain.appendChild(tiLoader);
-
-      function syncTypingLoader() {
-        if (!typingInterface.classList.contains("active")) {
-          tiLoader.classList.remove("show");
-          return;
-        }
-        const txt = tiPassageBox.textContent.trim();
-        const isStillLoading =
-          !txt || txt.toLowerCase().startsWith("loading test content");
-        tiLoader.classList.toggle("show", isStillLoading);
-      }
-
-      // Start button click hote hi turant animation dikhayein
-      document.addEventListener(
-        "click",
-        function (e) {
-          if (e.target.closest(".start-btn")) {
-            tiLoader.classList.add("show");
-          }
-        },
-        true
-      );
-
-      new MutationObserver(syncTypingLoader).observe(tiPassageBox, {
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-      new MutationObserver(syncTypingLoader).observe(typingInterface, {
-        attributes: true,
-        attributeFilter: ["class"]
-      });
-    }
-
-    /* 3. ADMIN PANEL LOADING ANIMATION */
-    const adminView = document.getElementById("adminView");
-    const adminTabs = document.querySelector("#adminView .admin-tabs");
-    const hindiFontGrid = document.getElementById("hindiFontGrid");
-    const fontPanel = document.getElementById("fontPanel");
-
-    if (adminView && adminTabs && hindiFontGrid && fontPanel) {
-      const adminLoader = document.createElement("div");
-      adminLoader.id = "adminLoader";
-      adminLoader.className = "tx-loader-box";
-      adminLoader.style.border = "1px solid var(--border)";
-      adminLoader.style.borderRadius = "var(--radius)";
-      adminLoader.innerHTML = `
-        <div class="tx-spinner"></div>
-        <div class="tx-loader-title">Loading Admin Panel...</div>
-        <div class="tx-loader-sub">Fetching fonts and tests</div>
-      `;
-      adminTabs.insertAdjacentElement("afterend", adminLoader);
-
-      function syncAdminLoader() {
-        const loaded = hindiFontGrid.children.length > 0;
-        adminLoader.style.display = loaded ? "none" : "flex";
-        if (!loaded) {
-          fontPanel.style.display = "none";
-        } else {
-          const activeTab = adminTabs.querySelector(".admin-tab.active");
-          if (activeTab && activeTab.dataset.adminTab === "fonts") {
-            fontPanel.style.display = "";
-          }
-        }
-      }
-
-      new MutationObserver(syncAdminLoader).observe(hindiFontGrid, { childList: true });
-      new MutationObserver(syncAdminLoader).observe(adminView, {
-        attributes: true,
-        attributeFilter: ["style"]
-      });
-
-      syncAdminLoader();
-    }
-  })();
-</script>
-<!-- ==================== END LOADING ANIMATIONS ==================== -->
-
-<!-- ==================== COMPLETE EXAM RESULT PAGE & WORD ALIGNMENT ==================== -->
-<style>
-  #tiResultPage.show {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 1.25rem 0 0 !important;
-    overflow-y: auto !important;
-  }
-
-  .tr-wrapper {
-    width: calc(100% - 2rem);
-    max-width: 54rem;
-    margin: 0 auto;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: 4px solid var(--navy);
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow-lg);
-    padding: 1.35rem 1.5rem;
-    animation: popIn 0.2s ease-out;
-  }
-
-  /* Header & Exam Info */
-  .tr-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    padding-bottom: 0.9rem;
-    border-bottom: 1.5px solid var(--border);
-    margin-bottom: 1rem;
-  }
-  .tr-title-block h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--navy);
-    margin: 0;
-  }
-  .tr-title-block p {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    margin-top: 0.15rem;
-  }
-  .tr-meta-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-  }
-  .tr-pill {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.35rem 0.7rem;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-  }
-  .tr-pill strong {
-    color: var(--navy);
-    font-weight: 700;
-  }
-
-  /* Primary Metrics Grid (6 Cards) */
-  .tr-metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.65rem;
-    margin-bottom: 0.85rem;
-  }
-  .tr-metric-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.75rem 0.6rem;
-    text-align: center;
-  }
-  .tr-metric-card.marks-card {
-    background: var(--navy-light);
-    border-color: var(--navy);
-  }
-  .tr-metric-val {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--navy);
-    line-height: 1.2;
-  }
-  .tr-metric-sub {
-    font-size: 0.6rem;
-    color: var(--text-muted);
-    margin-top: 0.12rem;
-  }
-  .tr-metric-lbl {
-    font-size: 0.66rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-top: 0.25rem;
-  }
-
-  /* Word Breakdown Strip */
-  .tr-counts-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: space-between;
-    background: #f8fafc;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.55rem 0.85rem;
-    margin-bottom: 1rem;
-    font-size: 0.7rem;
-  }
-  .tr-count-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-weight: 600;
-  }
-  .tr-dot {
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .tr-dot.right { background: #15803d; }
-  .tr-dot.wrong { background: #dc2626; }
-  .tr-dot.skip { background: #d97706; }
-  .tr-dot.extra { background: #7c3aed; }
-
-  /* Content Review Section */
-  .tr-review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-  .tr-review-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--navy);
-  }
-  .tr-filter-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-  }
-  .tr-filter-btn {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    padding: 0.22rem 0.65rem;
-    font-family: inherit;
-    font-size: 0.64rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tr-filter-btn:hover {
-    border-color: var(--navy);
-    color: var(--navy);
-  }
-  .tr-filter-btn.active {
-    background: var(--navy);
-    border-color: var(--navy);
-    color: #fff;
-  }
-
-  /* Typed Content Review Box (Same font & font-size as Typing Test) */
-  .tr-review-box {
-    background: #ffffff;
-    border: 1px solid #000000;
-    border-radius: 0;
-    padding: 0.9rem 1rem;
-    max-height: 18rem;
-    overflow-y: auto;
-    text-align: justify;
-    color: #000000;
-    word-spacing: 0.14em;
-  }
-
-  /* Color-Only Word Review Styling (No Boxes/Borders) */
-  .rw-right {
-    color: #15803d;
-  }
-  .rw-wrong-typed {
-    color: #dc2626;
-    text-decoration: line-through;
-  }
-  .rw-wrong-expected {
-    color: #15803d;
-  }
-  .rw-bracket {
-    font-family: 'Google Sans', sans-serif;
-    font-size: 0.85em;
-    color: #64748b;
-  }
-  .rw-skip {
-    color: #d97706;
-  }
-  .rw-extra {
-    color: #7c3aed;
-  }
-
-  /* Color Legend & Actions */
-  .tr-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    font-size: 0.66rem;
-    color: var(--text-muted);
-    margin-top: 0.6rem;
-  }
-  .tr-actions {
-    display: flex;
-    gap: 0.65rem;
-    margin-top: 1.15rem;
-    flex-wrap: wrap;
-  }
-
-  /* Result Page Footer */
-  .tr-footer {
-    width: 100%;
-    background: var(--navy);
-    color: rgba(255, 255, 255, 0.9);
-    text-align: center;
-    padding: 1.1rem 1rem;
-    font-size: 0.65rem;
-    line-height: 1.7;
-    margin-top: 2rem;
-  }
-  .tr-footer strong {
-    color: #fff;
-  }
-  .tr-footer a {
-    color: #fbbf24;
-    text-decoration: none;
-  }
-  .tr-footer a:hover {
-    text-decoration: underline;
-  }
-  .tr-footer .sep {
-    margin: 0 0.5rem;
-    opacity: 0.45;
-  }
-
-  @media (max-width: 650px) {
-    .tr-wrapper {
-      padding: 1rem;
-    }
-    .tr-metrics-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-</style>
-
-<script>
-  (function () {
-    const tiInterface = document.getElementById("typingInterface");
-    const tiPassageBox = document.getElementById("tiPassageBox");
-    const tiTypingBox = document.getElementById("tiTypingBox");
-    const tiHeading = document.getElementById("tiHeading");
-    const tiResultPage = document.getElementById("tiResultPage");
-    if (!tiInterface || !tiPassageBox || !tiTypingBox || !tiResultPage) return;
-
-    let currentTestId = null;
-    let selectedTestTitle = "";
-    let firstKeystrokeTs = null;
-    let lastKeystrokeTs = null;
-    let backspaceCount = 0;
-
-    // 1. Capture test info & reset tracking on Start button click
-    document.addEventListener(
-      "click",
-      function (e) {
-        const startBtn = e.target.closest(".start-btn");
-        if (!startBtn) return;
-        currentTestId = startBtn.dataset.id || null;
-        const rowNameEl = startBtn.closest("tr")?.querySelector(".col-name");
-        selectedTestTitle = rowNameEl ? rowNameEl.textContent.trim() : "";
-        firstKeystrokeTs = null;
-        lastKeystrokeTs = null;
-        backspaceCount = 0;
-      },
-      true
-    );
-
-    // 2. Track Backspace count & exact time from 1st keystroke to last keystroke
-    tiTypingBox.addEventListener(
-      "keydown",
-      function (e) {
-        if (tiTypingBox.disabled || !tiInterface.classList.contains("active")) return;
-
-        if (e.key === "Backspace") {
-          backspaceCount++;
-          if (firstKeystrokeTs !== null) {
-            lastKeystrokeTs = Date.now();
-          }
-          return;
-        }
-
-        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-          const now = Date.now();
-          if (firstKeystrokeTs === null) {
-            firstKeystrokeTs = now;
-          }
-          lastKeystrokeTs = now;
-        }
-      },
-      true
-    );
-
-    tiTypingBox.addEventListener(
-      "input",
-      function () {
-        if (tiTypingBox.disabled || !tiInterface.classList.contains("active")) return;
-        const now = Date.now();
-        if (firstKeystrokeTs === null && tiTypingBox.value.length > 0) {
-          firstKeystrokeTs = now;
-        }
-        if (firstKeystrokeTs !== null) {
-          lastKeystrokeTs = now;
-        }
-      },
-      true
-    );
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function formatDuration(totalSec) {
-      const m = Math.floor(totalSec / 60);
-      const s = totalSec % 60;
-      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-    }
-
-    function formatExamDate(dateObj) {
-      return dateObj.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-      });
-    }
-
-    // 3. Smart Sequence Alignment (Matches only exact right words; unaffected by skips/extras/wrongs)
-    function alignTypedWithPassage(passageWords, typedWords) {
-      const M = passageWords.length;
-      const N = typedWords.length;
-
-      if (N === 0) {
-        return {
-          items: [],
-          rightCount: 0,
-          wrongCount: 0,
-          skipCount: 0,
-          extraCount: 0
-        };
-      }
-
-      const MATCH_SCORE = 10;
-      const SUB_PENALTY = -2;
-      const SKIP_PENALTY = -2;
-      const EXTRA_PENALTY = -2;
-
-      const cols = M + 1;
-      const dp = new Int32Array((N + 1) * cols);
-      // 1 = diag (right/wrong), 2 = left (skip passage word), 3 = up (extra typed word)
-      const dir = new Uint8Array((N + 1) * cols);
-
-      for (let j = 1; j <= M; j++) {
-        dp[j] = j * SKIP_PENALTY;
-        dir[j] = 2;
-      }
-      for (let i = 1; i <= N; i++) {
-        dp[i * cols] = i * EXTRA_PENALTY;
-        dir[i * cols] = 3;
-      }
-
-      for (let i = 1; i <= N; i++) {
-        const tWord = typedWords[i - 1];
-        const rowOffset = i * cols;
-        const prevRowOffset = (i - 1) * cols;
-
-        for (let j = 1; j <= M; j++) {
-          const isMatch = tWord === passageWords[j - 1];
-          const diagScore = dp[prevRowOffset + (j - 1)] + (isMatch ? MATCH_SCORE : SUB_PENALTY);
-          const skipScore = dp[rowOffset + (j - 1)] + SKIP_PENALTY;
-          const extraScore = dp[prevRowOffset + j] + EXTRA_PENALTY;
-
-          if (diagScore >= skipScore && diagScore >= extraScore) {
-            dp[rowOffset + j] = diagScore;
-            dir[rowOffset + j] = 1;
-          } else if (skipScore >= extraScore) {
-            dp[rowOffset + j] = skipScore;
-            dir[rowOffset + j] = 2;
-          } else {
-            dp[rowOffset + j] = extraScore;
-            dir[rowOffset + j] = 3;
-          }
-        }
-      }
-
-      // Free end-gap on passage so unreached words at the end are not counted as skipped
-      let bestJ = 0;
-      let bestScore = -Infinity;
-      const lastRow = N * cols;
-      for (let j = 0; j <= M; j++) {
-        if (dp[lastRow + j] >= bestScore) {
-          bestScore = dp[lastRow + j];
-          bestJ = j;
-        }
-      }
-
-      const items = [];
-      let i = N;
-      let j = bestJ;
-      let rightCount = 0;
-      let wrongCount = 0;
-      let skipCount = 0;
-      let extraCount = 0;
-
-      while (i > 0 || j > 0) {
-        const step = dir[i * cols + j];
-        if (step === 1 && i > 0 && j > 0) {
-          const tW = typedWords[i - 1];
-          const pW = passageWords[j - 1];
-          if (tW === pW) {
-            items.push({ type: "right", typed: tW, expected: pW });
-            rightCount++;
-          } else {
-            items.push({ type: "wrong", typed: tW, expected: pW });
-            wrongCount++;
-          }
-          i--;
-          j--;
-        } else if (step === 2 && j > 0) {
-          items.push({ type: "skip", expected: passageWords[j - 1] });
-          skipCount++;
-          j--;
-        } else if (i > 0) {
-          items.push({ type: "extra", typed: typedWords[i - 1] });
-          extraCount++;
-          i--;
-        } else {
-          break;
-        }
-      }
-
-      items.reverse();
-      return { items, rightCount, wrongCount, skipCount, extraCount };
-    }
-
-    // 4. Generate Color-Only Typed Content Review HTML (No boxes)
-    function buildReviewHtml(items, filter = "all") {
-      if (!items || items.length === 0) {
-        return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No words were typed during this test.</span>`;
-      }
-
-      const filtered =
-        filter === "all" ? items : items.filter((item) => item.type === filter);
-
-      if (filtered.length === 0) {
-        const labelMap = {
-          right: "correct",
-          wrong: "wrong",
-          skip: "skipped",
-          extra: "extra"
-        };
-        return `<span style="font-family:'Google Sans',sans-serif;font-size:0.8rem;color:var(--text-muted);">No ${labelMap[filter] || filter} words found.</span>`;
-      }
-
-      return filtered
-        .map((item) => {
-          if (item.type === "right") {
-            return `<span class="rw-right" title="Correct Word">${escapeHtml(item.typed)}</span>`;
-          }
-          if (item.type === "wrong") {
-            return `<span title="Wrong Word (Expected: ${escapeHtml(item.expected)})"><span class="rw-wrong-typed">${escapeHtml(item.typed)}</span> <span class="rw-bracket">[</span><span class="rw-wrong-expected">${escapeHtml(item.expected)}</span><span class="rw-bracket">]</span></span>`;
-          }
-          if (item.type === "skip") {
-            return `<span class="rw-skip" title="Skipped Word">${escapeHtml(item.expected)}</span>`;
-          }
-          if (item.type === "extra") {
-            return `<span class="rw-extra" title="Extra Word">${escapeHtml(item.typed)}</span>`;
-          }
-          return "";
-        })
-        .join(" ");
-    }
-
-    // 5. Render Standard & Professional English Result Page
-    function renderDetailedResultPage() {
-      const existingNameEl = document.getElementById("resTestName");
-      const testName =
-        selectedTestTitle ||
-        (existingNameEl ? existingNameEl.textContent.trim() : "") ||
-        "Typing Speed Test";
-
-      const isHindi = tiHeading.textContent.toLowerCase().includes("hindi");
-      const langLabel = isHindi ? "Hindi" : "English";
-
-      // Original Passage Words & Typed Words
-      const passageWords = tiPassageBox.textContent
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-      const typedWords = tiTypingBox.value
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-
-      const totalPassageWords = passageWords.length || (isHindi ? 400 : 500);
-      const totalTypedWords = typedWords.length;
-
-      // Exact Time Taken: First keystroke to last keystroke
-      let elapsedMs = 0;
-      if (firstKeystrokeTs !== null && lastKeystrokeTs !== null) {
-        elapsedMs = Math.max(1000, lastKeystrokeTs - firstKeystrokeTs);
-      }
-      const elapsedSecondsDisplay = Math.round(elapsedMs / 1000);
-      const elapsedMinutesExact = elapsedMs > 0 ? elapsedMs / 60000 : 0;
-
-      // Smart Alignment
-      const alignment = alignTypedWithPassage(passageWords, typedWords);
-      const correctWords = alignment.rightCount;
-
-      // Obtained Marks out of 25 (Calculated per correct word)
-      const marksPerWord = 25 / totalPassageWords;
-      const obtainedMarks = Math.min(25, correctWords * marksPerWord);
-
-      // Accuracy Percentage
-      const accuracyPct =
-        totalTypedWords > 0 ? (correctWords / totalTypedWords) * 100 : 0;
-
-      // Gross Speed & Net Speed (Based on original words)
-      const grossWpm =
-        elapsedMinutesExact > 0 ? totalTypedWords / elapsedMinutesExact : 0;
-      const netWpm =
-        elapsedMinutesExact > 0 ? correctWords / elapsedMinutesExact : 0;
-
-      // Exact Font Family, Font Size, Font Weight & Line Height used in the Typing Test
-      const computedTypingStyle = window.getComputedStyle(tiTypingBox);
-      const testFontFamily =
-        tiTypingBox.style.fontFamily || computedTypingStyle.fontFamily;
-      const testFontSize =
-        tiTypingBox.style.fontSize || computedTypingStyle.fontSize;
-      const testFontWeight =
-        tiTypingBox.style.fontWeight || computedTypingStyle.fontWeight;
-      const testLineHeight =
-        tiTypingBox.style.lineHeight || computedTypingStyle.lineHeight;
-
-      const examDateStr = formatExamDate(new Date());
-
-      tiResultPage.innerHTML = `
-        <div class="tr-wrapper">
-          <div class="tr-header">
-            <div class="tr-title-block">
-              <h2>${escapeHtml(testName)}</h2>
-              <p>RSSB LDC 2026 — ${langLabel} Typing Speed Test Assessment</p>
-            </div>
-            <div class="tr-meta-pills">
-              <div class="tr-pill">Exam Date: <strong>${escapeHtml(examDateStr)}</strong></div>
-              <div class="tr-pill">Language: <strong>${langLabel}</strong></div>
-              <div class="tr-pill">Total Passage Words: <strong>${totalPassageWords}</strong></div>
-            </div>
-          </div>
-
-          <div class="tr-metrics-grid">
-            <div class="tr-metric-card marks-card">
-              <div class="tr-metric-val">${obtainedMarks.toFixed(2)} / 25</div>
-              <div class="tr-metric-sub">${marksPerWord.toFixed(4)} marks per correct word</div>
-              <div class="tr-metric-lbl">Obtained Marks</div>
-            </div>
-
-            <div class="tr-metric-card">
-              <div class="tr-metric-val" style="color:var(--green-dark);">${netWpm.toFixed(2)} <span style="font-size:0.75rem;">WPM</span></div>
-              <div class="tr-metric-sub">${correctWords} correct words</div>
-              <div class="tr-metric-lbl">Net Speed</div>
-            </div>
-
-            <div class="tr-metric-card">
-              <div class="tr-metric-val">${grossWpm.toFixed(2)} <span style="font-size:0.75rem;">WPM</span></div>
-              <div class="tr-metric-sub">${totalTypedWords} total typed words</div>
-              <div class="tr-metric-lbl">Gross Speed</div>
-            </div>
-
-            <div class="tr-metric-card">
-              <div class="tr-metric-val">${accuracyPct.toFixed(2)}%</div>
-              <div class="tr-metric-sub">Correct to typed words ratio</div>
-              <div class="tr-metric-lbl">Accuracy</div>
-            </div>
-
-            <div class="tr-metric-card">
-              <div class="tr-metric-val">${formatDuration(elapsedSecondsDisplay)}</div>
-              <div class="tr-metric-sub">First keystroke to last keystroke</div>
-              <div class="tr-metric-lbl">Time Taken</div>
-            </div>
-
-            <div class="tr-metric-card">
-              <div class="tr-metric-val" style="color:var(--saffron);">${backspaceCount}</div>
-              <div class="tr-metric-sub">Total backspace keystrokes</div>
-              <div class="tr-metric-lbl">Backspace Count</div>
-            </div>
-          </div>
-
-          <div class="tr-counts-bar">
-            <span class="tr-count-item"><span class="tr-dot right"></span> Correct Words: <strong>${alignment.rightCount}</strong></span>
-            <span class="tr-count-item"><span class="tr-dot wrong"></span> Wrong Words: <strong>${alignment.wrongCount}</strong></span>
-            <span class="tr-count-item"><span class="tr-dot skip"></span> Skipped Words: <strong>${alignment.skipCount}</strong></span>
-            <span class="tr-count-item"><span class="tr-dot extra"></span> Extra Words: <strong>${alignment.extraCount}</strong></span>
-          </div>
-
-          <div class="tr-review-header">
-            <div class="tr-review-title">Typed Content Review</div>
-            <div class="tr-filter-group" id="trFilterGroup">
-              <button type="button" class="tr-filter-btn active" data-filter="all">All (${alignment.items.length})</button>
-              <button type="button" class="tr-filter-btn" data-filter="right">Correct (${alignment.rightCount})</button>
-              <button type="button" class="tr-filter-btn" data-filter="wrong">Wrong (${alignment.wrongCount})</button>
-              <button type="button" class="tr-filter-btn" data-filter="skip">Skipped (${alignment.skipCount})</button>
-              <button type="button" class="tr-filter-btn" data-filter="extra">Extra (${alignment.extraCount})</button>
-            </div>
-          </div>
-
-          <div class="tr-review-box" id="trReviewBox">
-            ${buildReviewHtml(alignment.items, "all")}
-          </div>
-
-          <div class="tr-legend">
-            <span><strong style="color:#15803d;">Green:</strong> Correct Word</span>
-            <span><strong style="color:#dc2626;text-decoration:line-through;">Red</strong> <strong style="color:#15803d;">[Green]:</strong> Wrong Word [Expected Word]</span>
-            <span><strong style="color:#d97706;">Amber:</strong> Skipped Word</span>
-            <span><strong style="color:#7c3aed;">Purple:</strong> Extra Word</span>
-          </div>
-
-          <div class="tr-actions">
-            ${currentTestId ? `<button type="button" class="btn-secondary" id="trRetakeBtn">Retake Test</button>` : ""}
-            <button type="button" class="btn-primary" id="trHomeBtn">Back to Home</button>
-          </div>
-        </div>
-
-        <footer class="tr-footer">
-          <strong>Design &amp; Developed By Neeraj Kumar Meena</strong>
-          <span class="sep">|</span>
-          Any help: <a href="tel:+916378562616">+91 63785 62616</a>
-          <span class="sep">|</span>
-          <a href="mailto:neerajmeenatonk1@gmail.com">neerajmeenatonk1@gmail.com</a>
-        </footer>
-      `;
-
-      // Apply exact font-family, font-size, font-weight, and line-height of the test to Review Box
-      const reviewBox = document.getElementById("trReviewBox");
-      if (reviewBox) {
-        reviewBox.style.fontFamily = testFontFamily;
-        reviewBox.style.fontSize = testFontSize;
-        reviewBox.style.fontWeight = testFontWeight;
-        reviewBox.style.lineHeight = testLineHeight;
-      }
-
-      // Filter buttons event
-      const filterGroup = document.getElementById("trFilterGroup");
-      if (filterGroup && reviewBox) {
-        filterGroup.querySelectorAll(".tr-filter-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            filterGroup.querySelectorAll(".tr-filter-btn").forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-            reviewBox.innerHTML = buildReviewHtml(alignment.items, btn.dataset.filter);
-          });
-        });
-      }
-
-      // Action buttons (Back to Home & Retake Test)
-      document.getElementById("trHomeBtn").addEventListener("click", () => {
-        tiResultPage.classList.remove("show");
-        tiInterface.classList.remove("active");
-        document.body.style.overflow = "";
-      });
-
-      const retakeBtn = document.getElementById("trRetakeBtn");
-      if (retakeBtn && currentTestId) {
-        retakeBtn.addEventListener("click", () => {
-          tiResultPage.classList.remove("show");
-          const matchingBtn = document.querySelector(`.start-btn[data-id="${currentTestId}"]`);
-          if (matchingBtn) matchingBtn.click();
-        });
-      }
-    }
-
-    // Render updated result page whenever #tiResultPage opens
-    new MutationObserver(function () {
-      if (tiResultPage.classList.contains("show")) {
-        renderDetailedResultPage();
-      }
-    }).observe(tiResultPage, {
-      attributes: true,
-      attributeFilter: ["class"]
-    });
-  })();
-</script>
-<!-- ==================== END COMPLETE EXAM RESULT PAGE & WORD ALIGNMENT ==================== -->
-
+<!-- ==================== END UNIFIED TYPING PLATFORM ==================== -->
   
 
-
-<!-- ==================== SMOOTH PERFORMANCE OPTIMIZER & RESULT LOADING SCREEN ==================== -->
-<style>
-  /* 1. Smooth Rendering & Zero-Lag Containment for Passage & Typing Boxes */
-  #tiPassageBox,
-  #tiTypingBox {
-    contain: layout style;
-    will-change: scroll-position;
-    transform: translateZ(0);
-  }
-
-  /* 2. Result Preparing Full-Screen Loading Overlay */
-  #trPreparingOverlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 3450;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 1.25rem;
-    opacity: 0;
-    transition: opacity 0.22s ease;
-  }
-  #trPreparingOverlay.show {
-    display: flex;
-    opacity: 1;
-  }
-  .tr-prep-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: 4px solid var(--navy);
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow-lg);
-    padding: 2rem 2.25rem;
-    width: 100%;
-    max-width: 24rem;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    animation: popIn 0.2s ease-out;
-  }
-  .tr-prep-spinner {
-    width: 2.6rem;
-    height: 2.6rem;
-    border: 3.5px solid var(--navy-light);
-    border-top-color: var(--navy);
-    border-right-color: var(--saffron);
-    border-radius: 50%;
-    animation: txSpin 0.75s linear infinite;
-  }
-  .tr-prep-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--navy);
-    margin: 0;
-  }
-  .tr-prep-sub {
-    font-size: 0.74rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin: 0;
-  }
-  .tr-prep-bar {
-    width: 100%;
-    height: 0.3rem;
-    background: var(--navy-light);
-    border-radius: 1rem;
-    overflow: hidden;
-    margin-top: 0.25rem;
-  }
-  .tr-prep-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--navy), var(--saffron));
-    border-radius: 1rem;
-    transition: width 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-</style>
-
-<!-- Standard English Result Preparing Screen -->
-<div id="trPreparingOverlay" aria-live="polite" aria-label="Preparing Test Result">
-  <div class="tr-prep-card">
-    <div class="tr-prep-spinner"></div>
-    <h3 class="tr-prep-title">Preparing Your Result...</h3>
-    <p class="tr-prep-sub">Evaluating your typing speed, accuracy, and word alignment. Please wait...</p>
-    <div class="tr-prep-bar">
-      <div class="tr-prep-bar-fill" id="trPrepBarFill"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-  (function () {
-    const tiPassageBox = document.getElementById("tiPassageBox");
-    const tiTypingBox = document.getElementById("tiTypingBox");
-    const tiResultPage = document.getElementById("tiResultPage");
-    const prepOverlay = document.getElementById("trPreparingOverlay");
-    const prepBarFill = document.getElementById("trPrepBarFill");
-
-    /* ============================================================
-       1. ZERO-HANG TYPING OPTIMIZER (Prevents 500-word DOM reflow per keystroke)
-       ============================================================ */
-    if (tiPassageBox && tiTypingBox) {
-      const nativeTextDesc = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
-      const nativeHtmlDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
-
-      let lastPlainText = "";
-      let cachedWords = [];
-      let cachedSpans = null;
-      let prevActiveIdx = -1;
-
-      function buildWordSpansOnce(words) {
-        const frag = document.createDocumentFragment();
-        const spans = new Array(words.length);
-        for (let i = 0; i < words.length; i++) {
-          const sp = document.createElement("span");
-          sp.textContent = words[i];
-          spans[i] = sp;
-          frag.appendChild(sp);
-          if (i < words.length - 1) {
-            frag.appendChild(document.createTextNode(" "));
-          }
-        }
-        nativeHtmlDesc.set.call(tiPassageBox, "");
-        tiPassageBox.appendChild(frag);
-        cachedSpans = spans;
-        prevActiveIdx = -1;
-      }
-
-      // Override textContent on #tiPassageBox: Skip redundant identical re-renders during typing
-      Object.defineProperty(tiPassageBox, "textContent", {
-        get() {
-          return nativeTextDesc.get.call(this);
-        },
-        set(val) {
-          const str = String(val ?? "");
-          if (str === lastPlainText && this.childElementCount === 0) {
-            return; // Zero DOM work if passage text hasn't changed
-          }
-          lastPlainText = str;
-          cachedWords = str.trim() ? str.trim().split(/\s+/) : [];
-          cachedSpans = null;
-          prevActiveIdx = -1;
-          nativeTextDesc.set.call(this, str);
-        }
-      });
-
-      // Override innerHTML on #tiPassageBox: Update only 1-2 active word spans instead of rebuilding 500 spans
-      Object.defineProperty(tiPassageBox, "innerHTML", {
-        get() {
-          return nativeHtmlDesc.get.call(this);
-        },
-        set(htmlStr) {
-          if (!cachedWords.length) {
-            const plain = nativeTextDesc.get.call(this).trim();
-            if (plain) cachedWords = plain.split(/\s+/);
-          }
-          if (!cachedWords.length) {
-            nativeHtmlDesc.set.call(this, htmlStr);
-            return;
-          }
-
-          if (!cachedSpans || cachedSpans.length !== cachedWords.length) {
-            buildWordSpansOnce(cachedWords);
-          }
-
-          const rawTyped = tiTypingBox.value;
-          const endsWithSpace = rawTyped.endsWith(" ");
-          const typedWords = rawTyped.trim() ? rawTyped.trim().split(/\s+/) : [];
-          const activeIndex = endsWithSpace
-            ? typedWords.length
-            : Math.max(0, typedWords.length - 1);
-          const currentTypedWord = endsWithSpace ? "" : (typedWords[activeIndex] || "");
-
-          // Update range between previous active index and current active index (O(1) operation)
-          const startIdx = prevActiveIdx === -1 ? 0 : Math.max(0, Math.min(prevActiveIdx, activeIndex) - 1);
-          const endIdx = prevActiveIdx === -1
-            ? cachedSpans.length - 1
-            : Math.min(cachedSpans.length - 1, Math.max(prevActiveIdx, activeIndex) + 1);
-
-          for (let idx = startIdx; idx <= endIdx; idx++) {
-            const word = cachedWords[idx];
-            let cls = "";
-            if (idx < activeIndex) {
-              cls = typedWords[idx] === word ? "w-correct" : "w-wrong";
-            } else if (idx === activeIndex) {
-              const isWrongLive = currentTypedWord.length > 0 && !word.startsWith(currentTypedWord);
-              cls = isWrongLive ? "w-current w-wrong-live" : "w-current";
-            }
-            if (cachedSpans[idx].className !== cls) {
-              cachedSpans[idx].className = cls;
-            }
-          }
-
-          prevActiveIdx = activeIndex;
-        }
-      });
-    }
-
-    /* ============================================================
-       2. SUBMIT LOADING ANIMATION ("Preparing Your Result...")
-       ============================================================ */
-    if (tiResultPage && prepOverlay) {
-      let isTransitioning = false;
-
-      function showPreparingAnimationThenResult() {
-        if (isTransitioning) return;
-        isTransitioning = true;
-
-        // Keep result page invisible behind overlay while it calculates
-        tiResultPage.style.visibility = "hidden";
-
-        // Show loading overlay immediately
-        prepBarFill.style.transition = "none";
-        prepBarFill.style.width = "12%";
-        prepOverlay.classList.add("show");
-
-        // Animate progress bar smoothly on next frame
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            prepBarFill.style.transition = "width 0.85s cubic-bezier(0.22, 1, 0.36, 1)";
-            prepBarFill.style.width = "100%";
-          });
-        });
-
-        // Reveal the fully prepared Result Page after smooth 950ms animation
-        setTimeout(() => {
-          tiResultPage.style.visibility = "visible";
-          prepOverlay.classList.remove("show");
-          isTransitioning = false;
-        }, 950);
-      }
-
-      // Trigger automatically whenever test is submitted (Manual Submit or Time-Up Auto Submit)
-      new MutationObserver(() => {
-        if (tiResultPage.classList.contains("show")) {
-          showPreparingAnimationThenResult();
-        } else {
-          tiResultPage.style.visibility = "";
-          prepOverlay.classList.remove("show");
-          isTransitioning = false;
-        }
-      }).observe(tiResultPage, {
-        attributes: true,
-        attributeFilter: ["class"]
-      });
-    }
-  })();
-</script>
-<!-- ==================== END SMOOTH PERFORMANCE OPTIMIZER & RESULT LOADING SCREEN ==================== -->
-
-<!-- ==================== SUBMIT BUTTON FIX & NO-WORD-BREAK IN PASSAGE ==================== -->
-<style>
-  /* 1. Passage Box me koi bhi word beech me se tutkar agli line me na jaye */
-  #tiPassageBox {
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
-    word-wrap: normal !important;
-    hyphens: none !important;
-    -webkit-hyphens: none !important;
-  }
-  #tiPassageBox span {
-    white-space: nowrap !important;
-  }
-  #tiTypingBox {
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
-    word-wrap: normal !important;
-    hyphens: none !important;
-  }
-
-  /* 2. Sidebar & Submit Button ko hamesha clickable aur visible rakhna */
-  .ti-sidebar {
-    overflow-y: auto !important;
-  }
-  #tiSubmitBtn {
-    position: relative;
-    z-index: 10;
-    cursor: pointer !important;
-    touch-action: manipulation;
-  }
-  #tiConfirmModal {
-    z-index: 3350 !important;
-  }
-</style>
-
-<script>
-  (function () {
-    const tiInterface = document.getElementById("typingInterface");
-    const tiPassageBox = document.getElementById("tiPassageBox");
-    const tiTypingBox = document.getElementById("tiTypingBox");
-    const tiSubmitBtn = document.getElementById("tiSubmitBtn");
-    const tiConfirmModal = document.getElementById("tiConfirmModal");
-    const tiCancelSubmit = document.getElementById("tiCancelSubmit");
-    const tiConfirmSubmitBtn = document.getElementById("tiConfirmSubmitBtn");
-    const tiResultPage = document.getElementById("tiResultPage");
-
-    /* ============================================================
-       1. PASSAGE BOX ME WORD BREAK ROKNA (Highlight ON ya OFF dono me)
-       ============================================================ */
-    if (tiPassageBox) {
-      function wrapWordsInSpans() {
-        // Agar pehle se spans bane hue hain toh dubara na banayein
-        if (tiPassageBox.children.length > 0) return;
-        const raw = tiPassageBox.textContent.trim();
-        if (!raw || raw.toLowerCase().startsWith("loading test content")) return;
-
-        const words = raw.split(/\s+/).filter(Boolean);
-        const frag = document.createDocumentFragment();
-        words.forEach((word, idx) => {
-          const sp = document.createElement("span");
-          sp.textContent = word;
-          frag.appendChild(sp);
-          if (idx < words.length - 1) {
-            frag.appendChild(document.createTextNode(" "));
-          }
-        });
-        tiPassageBox.innerHTML = "";
-        tiPassageBox.appendChild(frag);
-      }
-
-      new MutationObserver(wrapWordsInSpans).observe(tiPassageBox, {
-        childList: true,
-        characterData: true
-      });
-      wrapWordsInSpans();
-    }
-
-    /* ============================================================
-       2. SUBMIT TEST BUTTON KO 100% RELIABLE BANANA
-       ============================================================ */
-    if (tiSubmitBtn && tiConfirmModal && tiConfirmSubmitBtn && tiResultPage) {
-      let lastSubmitActionAt = 0;
-
-      // Submit Test button par click hote hi confirmation modal kholna
-      tiSubmitBtn.addEventListener(
-        "click",
-        function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          const now = Date.now();
-          if (now - lastSubmitActionAt < 250) return;
-          lastSubmitActionAt = now;
-
-          if (!tiInterface || !tiInterface.classList.contains("active")) return;
-          if (tiResultPage.classList.contains("show")) return;
-
-          tiConfirmModal.classList.add("show");
-        },
-        true
-      );
-
-      // Continue Typing button
-      if (tiCancelSubmit) {
-        tiCancelSubmit.addEventListener(
-          "click",
-          function (e) {
-            e.preventDefault();
-            tiConfirmModal.classList.remove("show");
-            if (tiTypingBox && !tiTypingBox.disabled) {
-              tiTypingBox.focus();
-            }
-          },
-          true
-        );
-      }
-
-      // "Yes, Submit" button — har haal me test submit karke result dikhayega
-      tiConfirmSubmitBtn.addEventListener(
-        "click",
-        function () {
-          setTimeout(() => {
-            // Agar kisi wajah se purana handler ruk gaya ho toh fallback se turant submit karein
-            if (!tiResultPage.classList.contains("show")) {
-              tiConfirmModal.classList.remove("show");
-              if (tiTypingBox) tiTypingBox.disabled = true;
-              tiResultPage.classList.add("show");
-            }
-          }, 60);
-        },
-        false
-      );
-    }
-  })();
-</script>
-<!-- ==================== END SUBMIT BUTTON FIX & NO-WORD-BREAK IN PASSAGE ==================== -->
-
-<!-- ==================== HIGHLIGHT DISABLE FIX ==================== -->
-<style>
-  /* Highlight Disable hone par paragraph box me kisi bhi tarah ka highlight (yellow/green/red) na dikhe */
-  #tiPassageBox.ti-no-highlight span,
-  #tiPassageBox.ti-no-highlight .w-current,
-  #tiPassageBox.ti-no-highlight .w-current.w-wrong-live,
-  #tiPassageBox.ti-no-highlight .w-correct,
-  #tiPassageBox.ti-no-highlight .w-wrong {
-    background: transparent !important;
-    color: #000000 !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    text-decoration: none !important;
-  }
-</style>
-
-<script>
-  (function () {
-    const tiPassageBox = document.getElementById("tiPassageBox");
-    const tiHlDisable = document.getElementById("tiHlDisable");
-    const tiHlEnable = document.getElementById("tiHlEnable");
-    if (!tiPassageBox || !tiHlDisable || !tiHlEnable) return;
-
-    function syncHighlightState() {
-      const isEnabled = tiHlEnable.classList.contains("active");
-      tiPassageBox.classList.toggle("ti-no-highlight", !isEnabled);
-
-      if (!isEnabled) {
-        const highlighted = tiPassageBox.querySelectorAll(".w-current, .w-correct, .w-wrong, .w-wrong-live");
-        highlighted.forEach((el) => el.removeAttribute("class"));
-      }
-    }
-
-    // Highlight Enable / Disable buttons aur Test Start par turant sync karein
-    tiHlDisable.addEventListener("click", syncHighlightState);
-    tiHlEnable.addEventListener("click", syncHighlightState);
-    document.addEventListener(
-      "click",
-      function (e) {
-        if (e.target.closest(".start-btn")) {
-          setTimeout(syncHighlightState, 0);
-        }
-      },
-      true
-    );
-
-    // Button class ya passage box me badlav hote hi state check karein
-    new MutationObserver(syncHighlightState).observe(tiHlEnable, {
-      attributes: true,
-      attributeFilter: ["class"]
-    });
-
-    new MutationObserver(function () {
-      if (!tiHlEnable.classList.contains("active")) {
-        tiPassageBox.classList.add("ti-no-highlight");
-      }
-    }).observe(tiPassageBox, { childList: true });
-
-    syncHighlightState();
-  })();
-</script>
-<!-- ==================== END HIGHLIGHT DISABLE FIX ==================== -->
-<!-- ==================== EXACT 400/500 PASSAGE WORDS FIX ==================== -->
-<script>
-  (function () {
-    const tiPassageBox = document.getElementById("tiPassageBox");
-    const tiHeading = document.getElementById("tiHeading");
-    const tiHlEnable = document.getElementById("tiHlEnable");
-    if (!tiPassageBox || !tiHeading) return;
-
-    let cachedExactKey = "";
-    let cachedNodes = null;
-
-    function getExactTargetCount() {
-      return tiHeading.textContent.toLowerCase().includes("hindi") ? 400 : 500;
-    }
-
-    function buildExactNodes(words) {
-      const nodes = [];
-      for (let i = 0; i < words.length; i++) {
-        const sp = document.createElement("span");
-        sp.textContent = words[i];
-        nodes.push(sp);
-        if (i < words.length - 1) {
-          nodes.push(document.createTextNode(" "));
-        }
-      }
-      return nodes;
-    }
-
-    function enforceExactPassageWords() {
-      const rawText = tiPassageBox.textContent.trim();
-      if (!rawText || rawText.toLowerCase().startsWith("loading test content")) {
-        cachedExactKey = "";
-        cachedNodes = null;
-        return;
-      }
-
-      const targetCount = getExactTargetCount();
-
-      // Agar pehle se exact 400 (Hindi) ya 500 (English) word spans lage hain toh kuch na karein
-      if (tiPassageBox.children.length === targetCount) {
-        return;
-      }
-
-      let words = [];
-
-      // Agar duplicate spans (799/999) ban gaye hon toh pehle exact 400/500 spans hi lein
-      if (tiPassageBox.children.length > targetCount) {
-        words = Array.from(tiPassageBox.children)
-          .slice(0, targetCount)
-          .map((el) => el.textContent.trim())
-          .filter(Boolean);
-      } else {
-        const baseWords = rawText.split(/\s+/).filter(Boolean);
-        if (baseWords.length === 0) return;
-        while (words.length < targetCount) {
-          for (let i = 0; i < baseWords.length && words.length < targetCount; i++) {
-            words.push(baseWords[i]);
-          }
-        }
-      }
-
-      const key = `${targetCount}:${words[0] || ""}:${words[words.length - 1] || ""}:${words.length}`;
-      if (key !== cachedExactKey || !cachedNodes) {
-        cachedExactKey = key;
-        cachedNodes = buildExactNodes(words);
-      }
-
-      // Highlight state ke hisab se class sync karein
-      const isHighlightOn = tiHlEnable && tiHlEnable.classList.contains("active");
-      tiPassageBox.classList.toggle("ti-no-highlight", !isHighlightOn);
-      if (!isHighlightOn) {
-        for (let i = 0; i < cachedNodes.length; i += 2) {
-          if (cachedNodes[i].className) cachedNodes[i].className = "";
-        }
-      }
-
-      // Bina innerHTML trigger kiye exact 400/500 nodes lagayein
-      Element.prototype.replaceChildren.apply(tiPassageBox, cachedNodes);
-    }
-
-    new MutationObserver(enforceExactPassageWords).observe(tiPassageBox, {
-      childList: true
-    });
-
-    enforceExactPassageWords();
-  })();
-</script>
-<!-- ==================== END EXACT 400/500 PASSAGE WORDS FIX ==================== -->
-
+    
 </body>
 </html>
