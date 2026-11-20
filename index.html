@@ -2965,6 +2965,204 @@
     }
   })();
 </script>
+<!-- ==================== LOADING ANIMATIONS (HOMEPAGE, TYPING INTERFACE & ADMIN) ==================== -->
+<style>
+  /* Smooth Dual-Ring Spinner */
+  .tx-spinner {
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 3px solid var(--navy-light);
+    border-top-color: var(--navy);
+    border-right-color: var(--saffron);
+    border-radius: 50%;
+    animation: txSpin 0.75s linear infinite;
+  }
+  @keyframes txSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Homepage & Admin Table Loader */
+  .tx-loader-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 2.6rem 1rem;
+    background: var(--card);
+    text-align: center;
+  }
+  .tx-loader-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .tx-loader-sub {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+
+  /* Typing Interface Full Main-Area Loader */
+  .ti-main {
+    position: relative;
+  }
+  .ti-loader-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+    padding: 1rem;
+  }
+  .ti-loader-overlay.show {
+    display: flex;
+  }
+  .ti-loader-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--navy);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+  }
+</style>
+
+<script>
+  (function () {
+    /* 1. HOMEPAGE LOADING ANIMATION */
+    const homeTableWrap = document.querySelector("#homepageView .table-wrap");
+    const testTableBody = document.getElementById("testTableBody");
+    const emptyState = document.getElementById("emptyState");
+
+    if (homeTableWrap && testTableBody && emptyState) {
+      const homeLoader = document.createElement("div");
+      homeLoader.id = "homeLoader";
+      homeLoader.className = "tx-loader-box";
+      homeLoader.innerHTML = `
+        <div class="tx-spinner"></div>
+        <div class="tx-loader-title">Loading Typing Tests...</div>
+        <div class="tx-loader-sub">Please wait while tests are being fetched</div>
+      `;
+      homeTableWrap.appendChild(homeLoader);
+
+      function syncHomeLoader() {
+        const hasTests = testTableBody.children.length > 0;
+        const isEmptyVisible = emptyState.style.display !== "none";
+        homeLoader.style.display = hasTests || isEmptyVisible ? "none" : "flex";
+      }
+
+      new MutationObserver(syncHomeLoader).observe(testTableBody, { childList: true });
+      new MutationObserver(syncHomeLoader).observe(emptyState, {
+        attributes: true,
+        attributeFilter: ["style"]
+      });
+
+      syncHomeLoader();
+    }
+
+    /* 2. TYPING INTERFACE LOADING ANIMATION (Bina "Loading test content..." text dikhaye) */
+    const typingInterface = document.getElementById("typingInterface");
+    const tiMain = document.querySelector("#typingInterface .ti-main");
+    const tiPassageBox = document.getElementById("tiPassageBox");
+
+    if (typingInterface && tiMain && tiPassageBox) {
+      const tiLoader = document.createElement("div");
+      tiLoader.id = "tiLoaderOverlay";
+      tiLoader.className = "ti-loader-overlay";
+      tiLoader.innerHTML = `
+        <div class="ti-loader-card">
+          <div class="tx-spinner"></div>
+          <div class="tx-loader-title">Preparing Typing Test...</div>
+          <div class="tx-loader-sub">Loading passage and language fonts</div>
+        </div>
+      `;
+      tiMain.appendChild(tiLoader);
+
+      function syncTypingLoader() {
+        if (!typingInterface.classList.contains("active")) {
+          tiLoader.classList.remove("show");
+          return;
+        }
+        const txt = tiPassageBox.textContent.trim();
+        const isStillLoading =
+          !txt || txt.toLowerCase().startsWith("loading test content");
+        tiLoader.classList.toggle("show", isStillLoading);
+      }
+
+      // Start button click hote hi turant animation dikhayein
+      document.addEventListener(
+        "click",
+        function (e) {
+          if (e.target.closest(".start-btn")) {
+            tiLoader.classList.add("show");
+          }
+        },
+        true
+      );
+
+      new MutationObserver(syncTypingLoader).observe(tiPassageBox, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+      new MutationObserver(syncTypingLoader).observe(typingInterface, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+    }
+
+    /* 3. ADMIN PANEL LOADING ANIMATION */
+    const adminView = document.getElementById("adminView");
+    const adminTabs = document.querySelector("#adminView .admin-tabs");
+    const hindiFontGrid = document.getElementById("hindiFontGrid");
+    const fontPanel = document.getElementById("fontPanel");
+
+    if (adminView && adminTabs && hindiFontGrid && fontPanel) {
+      const adminLoader = document.createElement("div");
+      adminLoader.id = "adminLoader";
+      adminLoader.className = "tx-loader-box";
+      adminLoader.style.border = "1px solid var(--border)";
+      adminLoader.style.borderRadius = "var(--radius)";
+      adminLoader.innerHTML = `
+        <div class="tx-spinner"></div>
+        <div class="tx-loader-title">Loading Admin Panel...</div>
+        <div class="tx-loader-sub">Fetching fonts and tests</div>
+      `;
+      adminTabs.insertAdjacentElement("afterend", adminLoader);
+
+      function syncAdminLoader() {
+        const loaded = hindiFontGrid.children.length > 0;
+        adminLoader.style.display = loaded ? "none" : "flex";
+        if (!loaded) {
+          fontPanel.style.display = "none";
+        } else {
+          const activeTab = adminTabs.querySelector(".admin-tab.active");
+          if (activeTab && activeTab.dataset.adminTab === "fonts") {
+            fontPanel.style.display = "";
+          }
+        }
+      }
+
+      new MutationObserver(syncAdminLoader).observe(hindiFontGrid, { childList: true });
+      new MutationObserver(syncAdminLoader).observe(adminView, {
+        attributes: true,
+        attributeFilter: ["style"]
+      });
+
+      syncAdminLoader();
+    }
+  })();
+</script>
+<!-- ==================== END LOADING ANIMATIONS ==================== -->
 
 </body>
 </html>
