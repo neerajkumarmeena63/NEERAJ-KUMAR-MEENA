@@ -5304,6 +5304,47 @@
   }
 </script>
 <!-- ==================== END LEADERBOARD RESULT SAVE FIX ==================== -->
+<!-- ==================== CURRENT WORD YELLOW-ONLY HIGHLIGHT FIX ==================== -->
+<style>
+  /* Current word par hamesha sirf Yellow background aur Black text rahega (type karte waqt Red nahi hoga) */
+  #tiPassageBox.hl-active span.w-current,
+  #tiPassageBox.hl-active span.w-current.w-wrong-live {
+    background: #fde047 !important;
+    color: #000000 !important;
+    padding: 0 0.15rem;
+  }
+
+  /* Space dabane ke baad hi word Green (sahi) ya Red (galat) hoga */
+  #tiPassageBox.hl-active span.w-correct {
+    background: transparent !important;
+    color: #15803d !important;
+  }
+  #tiPassageBox.hl-active span.w-wrong {
+    background: transparent !important;
+    color: #dc2626 !important;
+  }
+</style>
+
+<script>
+  (function () {
+    const passageBox = document.getElementById("tiPassageBox");
+    if (!passageBox) return;
+
+    function removeLiveRedClass() {
+      const liveWrong = passageBox.querySelectorAll("span.w-wrong-live");
+      for (let i = 0; i < liveWrong.length; i++) {
+        liveWrong[i].classList.remove("w-wrong-live");
+      }
+    }
+
+    new MutationObserver(removeLiveRedClass).observe(passageBox, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+  })();
+</script>
+<!-- ==================== END CURRENT WORD YELLOW-ONLY HIGHLIGHT FIX ==================== -->
 
 </body>
 </html>
