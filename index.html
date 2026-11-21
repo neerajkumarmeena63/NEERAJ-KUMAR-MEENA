@@ -4506,6 +4506,686 @@
   }
 </script>
 <!-- ==================== END STUDENT LOGIN SYSTEM & ADMIN STUDENT MANAGEMENT ==================== -->
+<!-- ==================== STUDENT SIDEBAR PROFILE & TEST LEADERBOARD SYSTEM ==================== -->
+<style>
+  /* 1. Sidebar Student Name & Masked Mobile Styling */
+  .ti-profile {
+    width: 100%;
+    padding: 0 0.15rem;
+  }
+  .ti-profile-label {
+    font-size: 0.56rem !important;
+    color: #fde047 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    line-height: 1.25 !important;
+    word-break: break-word;
+    letter-spacing: 0.02em;
+  }
+  .ti-profile-mobile {
+    display: inline-block;
+    margin-top: 0.15rem;
+    padding: 0.12rem 0.38rem;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 0.25rem;
+    font-size: 0.54rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.04em;
+    font-family: monospace;
+  }
+
+  /* 2. Test List Action Column (Start + Result Buttons) */
+  td.col-action {
+    white-space: nowrap;
+  }
+  .tx-action-group {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
+  .result-list-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--navy);
+    color: #ffffff;
+    border: none;
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .result-list-btn:hover {
+    background: var(--navy-dark);
+  }
+  .result-list-btn svg {
+    width: 0.72rem;
+    height: 0.72rem;
+  }
+
+  /* 3. Leaderboard Modal Styling */
+  #lbModalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3100;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+  }
+  #lbModalOverlay.show {
+    display: flex;
+  }
+  .lb-modal {
+    background: var(--card);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 54rem;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: popIn 0.2s ease-out;
+  }
+  .lb-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.35rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .lb-badge {
+    display: inline-block;
+    background: var(--navy-light);
+    color: var(--navy);
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.18rem 0.55rem;
+    border-radius: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .lb-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 0;
+  }
+  .lb-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+  }
+  .lb-close-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .lb-close-btn:hover {
+    background: var(--red-light);
+    color: var(--red);
+    border-color: var(--red-border);
+  }
+  .lb-summary-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.55rem 1.35rem;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .lb-summary-bar strong {
+    color: var(--navy);
+  }
+  .lb-my-rank-pill {
+    background: #dcfce7;
+    color: var(--green-dark);
+    border: 1px solid #bbf7d0;
+    padding: 0.22rem 0.65rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    font-size: 0.68rem;
+  }
+  .lb-body {
+    padding: 1rem 1.35rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .lb-table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  .lb-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.65rem;
+    height: 1.65rem;
+    padding: 0 0.4rem;
+    border-radius: 1rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--bg);
+    color: var(--navy);
+    border: 1px solid var(--border);
+  }
+  .lb-rank-1 {
+    background: #fef08a;
+    color: #854d0e;
+    border-color: #facc15;
+  }
+  .lb-rank-2 {
+    background: #e2e8f0;
+    color: #1e293b;
+    border-color: #94a3b8;
+  }
+  .lb-rank-3 {
+    background: #fed7aa;
+    color: #9a3412;
+    border-color: #fb923c;
+  }
+  tr.lb-self-row {
+    background: #eff6ff !important;
+  }
+  .lb-you-tag {
+    display: inline-block;
+    margin-left: 0.35rem;
+    padding: 0.08rem 0.4rem;
+    border-radius: 0.75rem;
+    background: var(--navy);
+    color: #fff;
+    font-size: 0.56rem;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .lb-mobile-pill {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: var(--text);
+    background: var(--bg);
+    padding: 0.14rem 0.42rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border);
+  }
+  .lb-speed-val {
+    font-weight: 700;
+    color: var(--green-dark);
+  }
+  .lb-marks-val {
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .lb-footer-bar {
+    padding: 0.75rem 1.35rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    background: var(--card);
+  }
+</style>
+
+<!-- Leaderboard Modal -->
+<div id="lbModalOverlay" aria-label="Test Leaderboard">
+  <div class="lb-modal">
+    <div class="lb-header">
+      <div>
+        <span class="lb-badge">Top Performance Ranking</span>
+        <h2 id="lbTestTitle">Test Leaderboard</h2>
+        <p class="lb-sub" id="lbTestSub">Ranked by highest Net Speed (WPM) — Top record per student</p>
+      </div>
+      <button type="button" class="lb-close-btn" id="lbCloseTopBtn" title="Close">×</button>
+    </div>
+
+    <div class="lb-summary-bar">
+      <span>Total Ranked Students: <strong id="lbTotalCount">0</strong></span>
+      <span id="lbMyRankWrap" style="display:none;"></span>
+    </div>
+
+    <div class="lb-body">
+      <div class="lb-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:4.2rem;">Rank</th>
+              <th>Name</th>
+              <th>Mobile Number</th>
+              <th>Net Speed</th>
+              <th>Marks</th>
+              <th>Backspace Used</th>
+              <th>Exam Date</th>
+            </tr>
+          </thead>
+          <tbody id="lbTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="lbEmptyState" style="display:none;">
+          <div class="icon">🏆</div>
+          <h3>No results submitted yet</h3>
+          <p>Be the first student to complete this test and top the leaderboard!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lb-footer-bar">
+      <button type="button" class="btn-secondary" style="flex:none;padding:0.5rem 1.2rem;" id="lbCloseBottomBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const app = getApp();
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+  let activeTestIdForSave = null;
+  let cachedStudentInfo = null; // { uid, fullName, mobile, email }
+
+  /* ============================================================
+     1. STANDARD MOBILE MASKING (e.g. 6378562616 -> 63****2616)
+     ============================================================ */
+  function formatMaskedMobile(rawMobile) {
+    const digits = String(rawMobile || "").replace(/\D/g, "");
+    if (!digits) return "—";
+    const tenDigits = digits.length > 10 ? digits.slice(-10) : digits;
+    if (tenDigits.length >= 6) {
+      return `${tenDigits.slice(0, 2)}****${tenDigits.slice(-4)}`;
+    }
+    return tenDigits;
+  }
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  /* ============================================================
+     2. SIDEBAR STUDENT NAME (UPPERCASE) & MASKED MOBILE UPDATE
+     ============================================================ */
+  async function resolveCurrentStudentInfo() {
+    const user = auth.currentUser;
+    if (!user) {
+      cachedStudentInfo = null;
+      return null;
+    }
+    if (user.email === ADMIN_EMAIL) {
+      cachedStudentInfo = {
+        uid: user.uid,
+        fullName: "NEERAJ KUMAR MEENA",
+        mobile: "6378562616",
+        email: ADMIN_EMAIL,
+        isAdmin: true
+      };
+      return cachedStudentInfo;
+    }
+
+    if (cachedStudentInfo && cachedStudentInfo.uid === user.uid && cachedStudentInfo.fullName) {
+      return cachedStudentInfo;
+    }
+
+    try {
+      const snap = await get(ref(db, `students/${user.uid}`));
+      if (snap.exists()) {
+        const d = snap.val();
+        cachedStudentInfo = {
+          uid: user.uid,
+          fullName: (d.fullName || user.email.split("@")[0]).trim(),
+          mobile: d.mobile || "",
+          email: d.email || user.email,
+          isAdmin: false
+        };
+        return cachedStudentInfo;
+      }
+    } catch {}
+
+    // Fallback from homepage welcome banner if already rendered
+    const bannerName = document.getElementById("stuWelcomeName")?.textContent || "";
+    const cleanedName = bannerName.replace(/^Welcome,\s*/i, "").trim();
+    const bannerMeta = document.getElementById("stuWelcomeMeta")?.textContent || "";
+    const mobileMatch = bannerMeta.match(/(\+?\d{10,13})/);
+
+    cachedStudentInfo = {
+      uid: user.uid,
+      fullName: cleanedName || user.email.split("@")[0],
+      mobile: mobileMatch ? mobileMatch[1] : "",
+      email: user.email,
+      isAdmin: false
+    };
+    return cachedStudentInfo;
+  }
+
+  async function applyStudentToTypingSidebar() {
+    const profileWrap = document.querySelector("#typingInterface .ti-profile");
+    const labelEl = document.querySelector("#typingInterface .ti-profile-label");
+    if (!profileWrap || !labelEl) return;
+
+    let mobileEl = document.getElementById("tiProfileMobile");
+    if (!mobileEl) {
+      mobileEl = document.createElement("div");
+      mobileEl.id = "tiProfileMobile";
+      mobileEl.className = "ti-profile-mobile";
+      profileWrap.appendChild(mobileEl);
+    }
+
+    const info = await resolveCurrentStudentInfo();
+    if (info && info.fullName) {
+      labelEl.textContent = info.fullName.toUpperCase();
+      const masked = formatMaskedMobile(info.mobile);
+      if (masked && masked !== "—") {
+        mobileEl.textContent = masked;
+        mobileEl.style.display = "inline-block";
+      } else {
+        mobileEl.style.display = "none";
+      }
+    } else {
+      labelEl.textContent = "CANDIDATE";
+      mobileEl.style.display = "none";
+    }
+  }
+
+  onAuthStateChanged(auth, () => {
+    cachedStudentInfo = null;
+    resolveCurrentStudentInfo().then(() => {
+      if (document.getElementById("typingInterface")?.classList.contains("active")) {
+        applyStudentToTypingSidebar();
+      }
+    });
+  });
+
+  // Track which test is started (from Homepage Start button or Result Page Retake button)
+  document.addEventListener(
+    "click",
+    (e) => {
+      const startBtn = e.target.closest(".start-btn");
+      if (startBtn && startBtn.dataset.id) {
+        activeTestIdForSave = startBtn.dataset.id;
+        applyStudentToTypingSidebar();
+      }
+    },
+    true
+  );
+
+  const typingInterfaceEl = document.getElementById("typingInterface");
+  if (typingInterfaceEl) {
+    new MutationObserver(() => {
+      if (typingInterfaceEl.classList.contains("active")) {
+        applyStudentToTypingSidebar();
+      }
+    }).observe(typingInterfaceEl, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  /* ============================================================
+     3. SAVE STUDENT'S TOP RECORD TO FIREBASE ON RESULT GENERATION
+     ============================================================ */
+  const tiResultPage = document.getElementById("tiResultPage");
+
+  async function saveStudentTopResultIfHigher() {
+    if (!activeTestIdForSave || !tiResultPage || !tiResultPage.classList.contains("show")) return;
+
+    const info = await resolveCurrentStudentInfo();
+    if (!info || !info.uid || info.isAdmin) return;
+
+    const cards = tiResultPage.querySelectorAll(".tr-metric-card");
+    if (cards.length < 6) return;
+
+    const marksText = cards[0].querySelector(".tr-metric-val")?.textContent || "0";
+    const netWpmText = cards[1].querySelector(".tr-metric-val")?.textContent || "0";
+    const accuracyText = cards[3].querySelector(".tr-metric-val")?.textContent || "0";
+    const backspaceText = cards[5].querySelector(".tr-metric-val")?.textContent || "0";
+
+    const marks = parseFloat(marksText) || 0;
+    const netWpm = parseFloat(netWpmText) || 0;
+    const accuracy = parseFloat(accuracyText) || 0;
+    const backspaceUsed = parseInt(backspaceText, 10) || 0;
+
+    let examDate = new Date().toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+    tiResultPage.querySelectorAll(".tr-pill").forEach((pill) => {
+      if (pill.textContent.includes("Exam Date:")) {
+        const strongVal = pill.querySelector("strong")?.textContent?.trim();
+        if (strongVal) examDate = strongVal;
+      }
+    });
+
+    const resultRef = ref(db, `results/${activeTestIdForSave}/${info.uid}`);
+    try {
+      const existingSnap = await get(resultRef);
+      if (existingSnap.exists()) {
+        const prev = existingSnap.val();
+        const prevNet = Number(prev.netWpm) || 0;
+        const prevMarks = Number(prev.marks) || 0;
+        // Keep only the student's TOP record (based on highest Net Speed, then Marks)
+        if (netWpm < prevNet || (netWpm === prevNet && marks <= prevMarks)) {
+          return;
+        }
+      }
+
+      await set(resultRef, {
+        uid: info.uid,
+        fullName: info.fullName.toUpperCase(),
+        mobile: info.mobile || "",
+        netWpm: Number(netWpm.toFixed(2)),
+        marks: Number(marks.toFixed(2)),
+        accuracy: Number(accuracy.toFixed(2)),
+        backspaceUsed,
+        examDate,
+        updatedAt: Date.now()
+      });
+    } catch (err) {
+      console.warn("Could not save leaderboard result:", err);
+    }
+  }
+
+  if (tiResultPage) {
+    new MutationObserver(() => {
+      if (tiResultPage.classList.contains("show")) {
+        // Wait slightly so result DOM is fully populated
+        setTimeout(saveStudentTopResultIfHigher, 120);
+      }
+    }).observe(tiResultPage, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  /* ============================================================
+     4. ADD "RESULT" BUTTON NEXT TO "START" BUTTON IN TEST LIST
+     ============================================================ */
+  const testTableBody = document.getElementById("testTableBody");
+
+  function injectResultButtonsInTestList() {
+    if (!testTableBody) return;
+    testTableBody.querySelectorAll("tr").forEach((tr) => {
+      const actionTd = tr.querySelector("td.col-action");
+      const startBtn = actionTd?.querySelector(".start-btn");
+      if (!actionTd || !startBtn) return;
+      if (actionTd.querySelector(".result-list-btn")) return;
+
+      const testId = startBtn.dataset.id;
+      const testName = tr.querySelector("td.col-name")?.textContent?.trim() || "Typing Test";
+
+      const resBtn = document.createElement("button");
+      resBtn.type = "button";
+      resBtn.className = "result-list-btn";
+      resBtn.dataset.id = testId;
+      resBtn.dataset.name = testName;
+      resBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+        </svg>
+        Result
+      `;
+
+      const group = document.createElement("div");
+      group.className = "tx-action-group";
+      actionTd.innerHTML = "";
+      group.appendChild(startBtn);
+      group.appendChild(resBtn);
+      actionTd.appendChild(group);
+    });
+  }
+
+  if (testTableBody) {
+    new MutationObserver(injectResultButtonsInTestList).observe(testTableBody, { childList: true });
+    injectResultButtonsInTestList();
+  }
+
+  /* ============================================================
+     5. LEADERBOARD MODAL OPEN, RANK CALCULATION & RENDER
+     ============================================================ */
+  const lbModalOverlay = document.getElementById("lbModalOverlay");
+  const lbTestTitle = document.getElementById("lbTestTitle");
+  const lbTotalCount = document.getElementById("lbTotalCount");
+  const lbMyRankWrap = document.getElementById("lbMyRankWrap");
+  const lbTableBody = document.getElementById("lbTableBody");
+  const lbEmptyState = document.getElementById("lbEmptyState");
+
+  function closeLeaderboardModal() {
+    lbModalOverlay.classList.remove("show");
+  }
+
+  document.getElementById("lbCloseTopBtn")?.addEventListener("click", closeLeaderboardModal);
+  document.getElementById("lbCloseBottomBtn")?.addEventListener("click", closeLeaderboardModal);
+  lbModalOverlay?.addEventListener("click", (e) => {
+    if (e.target === lbModalOverlay) closeLeaderboardModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lbModalOverlay?.classList.contains("show")) {
+      closeLeaderboardModal();
+    }
+  });
+
+  async function openTestLeaderboard(testId, testName) {
+    lbTestTitle.textContent = `${testName} — Leaderboard`;
+    lbTotalCount.textContent = "...";
+    lbMyRankWrap.style.display = "none";
+    lbEmptyState.style.display = "none";
+    lbTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.75rem;color:var(--text-muted);">Loading test leaderboard...</td></tr>`;
+    lbModalOverlay.classList.add("show");
+
+    try {
+      const snap = await get(ref(db, `results/${testId}`));
+      if (!snap.exists()) {
+        lbTotalCount.textContent = "0";
+        lbTableBody.innerHTML = "";
+        lbEmptyState.style.display = "block";
+        return;
+      }
+
+      const rawMap = snap.val();
+      // Keep strictly 1 top entry per student UID and sort by Net Speed (descending)
+      const records = Object.entries(rawMap)
+        .map(([uid, r]) => ({
+          uid,
+          fullName: (r.fullName || "STUDENT").toUpperCase(),
+          mobile: r.mobile || "",
+          netWpm: Number(r.netWpm) || 0,
+          marks: Number(r.marks) || 0,
+          accuracy: Number(r.accuracy) || 0,
+          backspaceUsed: Number(r.backspaceUsed) || 0,
+          examDate: r.examDate || "—",
+          updatedAt: Number(r.updatedAt) || 0
+        }))
+        .sort((a, b) => {
+          if (b.netWpm !== a.netWpm) return b.netWpm - a.netWpm;
+          if (b.marks !== a.marks) return b.marks - a.marks;
+          if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+          return a.updatedAt - b.updatedAt;
+        });
+
+      lbTotalCount.textContent = String(records.length);
+
+      if (records.length === 0) {
+        lbTableBody.innerHTML = "";
+        lbEmptyState.style.display = "block";
+        return;
+      }
+
+      const currentUid = auth.currentUser?.uid || "";
+      const myIdx = records.findIndex((r) => r.uid === currentUid);
+      if (myIdx !== -1) {
+        const myRec = records[myIdx];
+        lbMyRankWrap.innerHTML = `<span class="lb-my-rank-pill">Your Rank: #${myIdx + 1} &bull; Net Speed: ${myRec.netWpm.toFixed(2)} WPM</span>`;
+        lbMyRankWrap.style.display = "inline-block";
+      }
+
+      lbTableBody.innerHTML = records
+        .map((rec, idx) => {
+          const rank = idx + 1;
+          const isSelf = currentUid && rec.uid === currentUid;
+          const rankClass =
+            rank === 1 ? "lb-rank-1" : rank === 2 ? "lb-rank-2" : rank === 3 ? "lb-rank-3" : "";
+
+          return `
+            <tr class="${isSelf ? "lb-self-row" : ""}">
+              <td><span class="lb-rank-badge ${rankClass}">#${rank}</span></td>
+              <td class="col-name">
+                ${escapeHtml(rec.fullName)}
+                ${isSelf ? `<span class="lb-you-tag">YOU</span>` : ""}
+              </td>
+              <td><span class="lb-mobile-pill">${escapeHtml(formatMaskedMobile(rec.mobile))}</span></td>
+              <td class="lb-speed-val">${rec.netWpm.toFixed(2)} WPM</td>
+              <td class="lb-marks-val">${rec.marks.toFixed(2)} / 25</td>
+              <td>${rec.backspaceUsed}</td>
+              <td class="col-date">${escapeHtml(rec.examDate)}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    } catch (err) {
+      console.error("Leaderboard load error:", err);
+      lbTotalCount.textContent = "0";
+      lbTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--red);">Unable to load leaderboard. Please check Firebase Realtime Database Rules for 'results'.</td></tr>`;
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const resBtn = e.target.closest(".result-list-btn");
+    if (!resBtn) return;
+    e.preventDefault();
+    openTestLeaderboard(resBtn.dataset.id, resBtn.dataset.name);
+  });
+</script>
+<!-- ==================== END STUDENT SIDEBAR PROFILE & TEST LEADERBOARD SYSTEM ==================== -->
 
 
 </body>
