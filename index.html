@@ -5345,6 +5345,568 @@
   })();
 </script>
 <!-- ==================== END CURRENT WORD YELLOW-ONLY HIGHLIGHT FIX ==================== -->
+<!-- ==================== ENHANCED FOOTER & ADMIN LEADERBOARD RESET SYSTEM ==================== -->
+<style>
+  /* 1. Sticky Footer Layout (Kam content hone par bhi footer hamesha screen ke neeche rahega) */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #homepageView,
+  #adminView {
+    flex: 1 0 auto;
+    width: 100%;
+  }
+
+  /* 2. Upgraded Professional Site Footer */
+  #siteFooter {
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color: rgba(255, 255, 255, 0.88);
+    border-top: 3px solid var(--saffron);
+    padding: 0;
+    margin-top: 3rem;
+    text-align: left;
+    font-size: 0.7rem;
+    line-height: 1.6;
+  }
+  .tx-footer-inner {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 1.6rem 1.5rem 1.25rem;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr 1.15fr;
+    gap: 1.5rem;
+  }
+  .tx-footer-brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.01em;
+  }
+  .tx-footer-brand span {
+    color: #fbbf24;
+  }
+  .tx-footer-desc {
+    font-size: 0.67rem;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.55;
+  }
+  .tx-footer-badge {
+    display: inline-block;
+    margin-top: 0.55rem;
+    padding: 0.2rem 0.6rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 1rem;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #fde047;
+  }
+  .tx-footer-heading {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fbbf24;
+    margin-bottom: 0.5rem;
+  }
+  .tx-footer-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+    font-size: 0.67rem;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .tx-footer-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .tx-footer-contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.42rem;
+  }
+  .tx-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-size: 0.68rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 0.36rem 0.65rem;
+    border-radius: var(--radius);
+    transition: background 0.15s, border-color 0.15s;
+    width: fit-content;
+  }
+  .tx-footer-link:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: #fbbf24;
+  }
+  .tx-footer-link svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    color: #fbbf24;
+    flex-shrink: 0;
+  }
+  .tx-footer-bottom {
+    background: rgba(0, 0, 0, 0.22);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.64rem;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .tx-footer-bottom strong {
+    color: #ffffff;
+  }
+
+  /* Result Page Footer Upgrade */
+  .tr-footer {
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%) !important;
+    border-top: 3px solid var(--saffron) !important;
+    padding: 0.95rem 1rem !important;
+    font-size: 0.66rem !important;
+  }
+
+  /* 3. Admin Leaderboard Reset Buttons & Panel */
+  .action-btn.reset-lb {
+    color: var(--amber);
+    border-color: #fde68a;
+    background: #fffbeb;
+  }
+  .action-btn.reset-lb:hover {
+    background: var(--amber-light);
+    border-color: var(--amber);
+  }
+  .lb-admin-pill {
+    display: inline-block;
+    padding: 0.18rem 0.55rem;
+    border-radius: 1rem;
+    font-size: 0.64rem;
+    font-weight: 700;
+    background: var(--navy-light);
+    color: var(--navy);
+  }
+  .lb-admin-pill.empty {
+    background: var(--bg);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .lb-reset-all-btn {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.52rem 0.9rem;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.15s;
+  }
+  .lb-reset-all-btn:hover {
+    background: var(--red-hover);
+  }
+  .lb-reset-all-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 720px) {
+    .tx-footer-inner {
+      grid-template-columns: 1fr;
+      gap: 1.1rem;
+      padding: 1.25rem 1rem 1rem;
+    }
+  }
+</style>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const app = getApp();
+  const db = getDatabase(app);
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function showAdminToast(msg, type = "success") {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.className = "toast show " + type;
+    setTimeout(() => toast.classList.remove("show"), 3500);
+  }
+
+  /* ============================================================
+     1. UPGRADE MAIN SITE FOOTER
+     ============================================================ */
+  const siteFooter = document.getElementById("siteFooter");
+  if (siteFooter) {
+    siteFooter.innerHTML = `
+      <div class="tx-footer-inner">
+        <div>
+          <div class="tx-footer-brand">TypingX <span>PRO</span></div>
+          <p class="tx-footer-desc">
+            Bilingual Hindi &amp; English Typing Speed and Accuracy Evaluation Platform engineered for competitive examination practice.
+          </p>
+          <span class="tx-footer-badge">RSSB LDC 2026 Exam Pattern</span>
+        </div>
+
+        <div>
+          <div class="tx-footer-heading">Test Specifications</div>
+          <ul class="tx-footer-list">
+            <li>&#10003; Duration: 10 Minutes • Max Marks: 25</li>
+            <li>&#10003; Hindi: 400 Words • English: 500 Words</li>
+            <li>&#10003; Live Ranking &amp; Detailed Word Review</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="tx-footer-heading">Help &amp; Technical Support</div>
+          <div class="tx-footer-contact-links">
+            <a class="tx-footer-link" href="tel:+916378562616">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              +91 63785 62616
+            </a>
+            <a class="tx-footer-link" href="mailto:neerajmeenatonk1@gmail.com">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+              neerajmeenatonk1@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="tx-footer-bottom">
+        &copy; 2026 <strong>TypingX PRO</strong> &nbsp;&bull;&nbsp; Design &amp; Developed By <strong>Neeraj Kumar Meena</strong>
+      </div>
+    `;
+  }
+
+  /* ============================================================
+     2. CORE LEADERBOARD RESET FUNCTION (WITH SAFE FALLBACK)
+     ============================================================ */
+  async function resetLeaderboardForTest(testId, testName) {
+    const ok = confirm(
+      `Reset Leaderboard for "${testName}"?\n\nThis will permanently clear all student ranks, speeds, and scores for this test.`
+    );
+    if (!ok) return false;
+
+    try {
+      await remove(ref(db, `results/${testId}`));
+    } catch (err) {
+      if (err.code === "PERMISSION_DENIED") {
+        // Fallback: delete each student's result entry under this test
+        const snap = await get(ref(db, `results/${testId}`));
+        if (snap.exists()) {
+          const uids = Object.keys(snap.val());
+          await Promise.all(uids.map((uid) => remove(ref(db, `results/${testId}/${uid}`))));
+        }
+      } else {
+        throw err;
+      }
+    }
+
+    showAdminToast(`Leaderboard reset for "${testName}".`, "success");
+    return true;
+  }
+
+  /* ============================================================
+     3. ADD "RESET LEADERBOARD" BUTTON IN TEST MANAGEMENT TABLE
+     ============================================================ */
+  const adminTestTableBody = document.getElementById("adminTestTableBody");
+
+  function injectResetButtonsInAdminTests() {
+    if (!adminTestTableBody) return;
+    adminTestTableBody.querySelectorAll("tr").forEach((tr) => {
+      const actionTd = tr.querySelector("td.col-action");
+      const editBtn = actionTd?.querySelector(".action-btn.edit");
+      if (!actionTd || !editBtn) return;
+      if (actionTd.querySelector(".action-btn.reset-lb")) return;
+
+      const testId = editBtn.dataset.id;
+      const testName = tr.querySelector("td.col-name")?.textContent?.trim() || "Test";
+
+      const resetBtn = document.createElement("button");
+      resetBtn.type = "button";
+      resetBtn.className = "action-btn reset-lb";
+      resetBtn.dataset.id = testId;
+      resetBtn.dataset.name = testName;
+      resetBtn.title = "Clear all leaderboard entries for this test";
+      resetBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+          <path d="M3 3v5h5"></path>
+        </svg>
+        Reset Leaderboard
+      `;
+
+      resetBtn.addEventListener("click", async () => {
+        resetBtn.disabled = true;
+        try {
+          await resetLeaderboardForTest(testId, testName);
+        } catch (err) {
+          console.error("Reset leaderboard error:", err);
+          showAdminToast("Failed to reset leaderboard. Please check Firebase Rules.", "error");
+        } finally {
+          resetBtn.disabled = false;
+        }
+      });
+
+      actionTd.insertBefore(resetBtn, editBtn);
+    });
+  }
+
+  if (adminTestTableBody) {
+    new MutationObserver(injectResetButtonsInAdminTests).observe(adminTestTableBody, { childList: true });
+    injectResetButtonsInAdminTests();
+  }
+
+  /* ============================================================
+     4. DEDICATED "LEADERBOARDS" TAB IN ADMIN CONTROL PANEL
+     ============================================================ */
+  function initAdminLeaderboardTab() {
+    const adminTabsBar = document.querySelector("#adminView .admin-tabs");
+    const adminView = document.getElementById("adminView");
+    if (!adminTabsBar || !adminView) return;
+
+    if (!adminTabsBar.querySelector('[data-admin-tab="leaderboards"]')) {
+      const lbTab = document.createElement("button");
+      lbTab.type = "button";
+      lbTab.className = "admin-tab";
+      lbTab.dataset.adminTab = "leaderboards";
+      lbTab.textContent = "Leaderboards";
+      adminTabsBar.appendChild(lbTab);
+    }
+
+    let lbAdminPanel = document.getElementById("leaderboardAdminPanel");
+    if (!lbAdminPanel) {
+      lbAdminPanel = document.createElement("div");
+      lbAdminPanel.id = "leaderboardAdminPanel";
+      lbAdminPanel.style.display = "none";
+      lbAdminPanel.innerHTML = `
+        <div class="admin-toolbar">
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="lbAdminSummary">Manage and reset test leaderboards</span>
+          <button type="button" class="lb-reset-all-btn" id="lbResetAllBtn">Reset All Leaderboards</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-serial">S.No.</th>
+                <th>Test Name</th>
+                <th>Language</th>
+                <th>Ranked Students</th>
+                <th>Top Speed</th>
+                <th>Top Scorer</th>
+                <th class="col-action">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminLbTableBody"></tbody>
+          </table>
+          <div class="empty-state" id="adminLbEmptyState" style="display:none;">
+            <div class="icon">🏆</div>
+            <h3>No tests available</h3>
+            <p>Create a test first to manage its leaderboard.</p>
+          </div>
+        </div>
+      `;
+      adminView.appendChild(lbAdminPanel);
+    }
+
+    // Coordinate clean tab switching across all tabs
+    adminTabsBar.addEventListener(
+      "click",
+      (e) => {
+        const btn = e.target.closest(".admin-tab");
+        if (!btn) return;
+        const tab = btn.dataset.adminTab;
+
+        if (tab === "leaderboards") {
+          e.stopImmediatePropagation();
+          adminTabsBar.querySelectorAll(".admin-tab").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          ["fontPanel", "testPanel", "displayPanel", "studentPanel"].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = "none";
+          });
+          lbAdminPanel.style.display = "";
+          loadAdminLeaderboards();
+        } else {
+          lbAdminPanel.style.display = "none";
+        }
+      },
+      true
+    );
+
+    const resetAllBtn = document.getElementById("lbResetAllBtn");
+    if (resetAllBtn) {
+      resetAllBtn.addEventListener("click", async () => {
+        const ok = confirm(
+          "Are you sure you want to reset ALL test leaderboards?\n\nEvery student's ranking across all tests will be permanently erased."
+        );
+        if (!ok) return;
+
+        resetAllBtn.disabled = true;
+        const orig = resetAllBtn.textContent;
+        resetAllBtn.textContent = "Resetting...";
+
+        try {
+          await remove(ref(db, "results"));
+          showAdminToast("All leaderboards have been reset successfully.", "success");
+          await loadAdminLeaderboards();
+        } catch (err) {
+          console.error("Reset all leaderboards error:", err);
+          showAdminToast("Failed to reset all leaderboards.", "error");
+        } finally {
+          resetAllBtn.disabled = false;
+          resetAllBtn.textContent = orig;
+        }
+      });
+    }
+  }
+
+  async function loadAdminLeaderboards() {
+    const tbody = document.getElementById("adminLbTableBody");
+    const emptyEl = document.getElementById("adminLbEmptyState");
+    const summaryEl = document.getElementById("lbAdminSummary");
+    if (!tbody || !emptyEl) return;
+
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Loading leaderboards...</td></tr>`;
+    emptyEl.style.display = "none";
+
+    try {
+      const [testsSnap, resultsSnap] = await Promise.all([
+        get(ref(db, "tests")),
+        get(ref(db, "results"))
+      ]);
+
+      if (!testsSnap.exists()) {
+        tbody.innerHTML = "";
+        emptyEl.style.display = "block";
+        if (summaryEl) summaryEl.textContent = "0 tests";
+        return;
+      }
+
+      const testsData = testsSnap.val();
+      const resultsData = resultsSnap.exists() ? resultsSnap.val() : {};
+
+      const rows = Object.entries(testsData)
+        .map(([id, t]) => {
+          const testResultsObj = resultsData[id] || {};
+          const entries = Object.values(testResultsObj).sort((a, b) => {
+            const diff = (Number(b.netWpm) || 0) - (Number(a.netWpm) || 0);
+            return diff !== 0 ? diff : (Number(b.marks) || 0) - (Number(a.marks) || 0);
+          });
+          const top = entries[0] || null;
+          return {
+            id,
+            name: t.name || "Untitled Test",
+            language: (t.language || "").toLowerCase(),
+            createdAt: t.createdAt || 0,
+            count: entries.length,
+            topWpm: top ? `${Number(top.netWpm || 0).toFixed(2)} WPM` : "—",
+            topScorer: top ? (top.fullName || "STUDENT").toUpperCase() : "—"
+          };
+        })
+        .sort((a, b) => b.createdAt - a.createdAt);
+
+      const totalEntries = rows.reduce((sum, r) => sum + r.count, 0);
+      if (summaryEl) {
+        summaryEl.textContent = `${rows.length} test${rows.length !== 1 ? "s" : ""} • ${totalEntries} total ranked entr${totalEntries !== 1 ? "ies" : "y"}`;
+      }
+
+      tbody.innerHTML = rows
+        .map((r, idx) => {
+          const langLabel = r.language ? r.language.charAt(0).toUpperCase() + r.language.slice(1) : "—";
+          return `
+            <tr>
+              <td class="col-serial">${idx + 1}</td>
+              <td class="col-name">${escapeHtml(r.name)}</td>
+              <td class="col-lang">${escapeHtml(langLabel)}</td>
+              <td>
+                <span class="lb-admin-pill ${r.count === 0 ? "empty" : ""}">
+                  ${r.count} student${r.count !== 1 ? "s" : ""}
+                </span>
+              </td>
+              <td style="font-weight:700;color:var(--green-dark);">${escapeHtml(r.topWpm)}</td>
+              <td>${escapeHtml(r.topScorer)}</td>
+              <td class="col-action">
+                <button type="button" class="action-btn edit admin-view-lb-btn" data-id="${escapeHtml(r.id)}" data-name="${escapeHtml(r.name)}">
+                  View
+                </button>
+                <button type="button" class="action-btn delete admin-reset-lb-btn" data-id="${escapeHtml(r.id)}" data-name="${escapeHtml(r.name)}" ${r.count === 0 ? "disabled style='opacity:0.45;cursor:not-allowed;'" : ""}>
+                  Reset
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      // View button opens the exact same Leaderboard Modal
+      tbody.querySelectorAll(".admin-view-lb-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const tempBtn = document.createElement("button");
+          tempBtn.className = "result-list-btn";
+          tempBtn.dataset.id = btn.dataset.id;
+          tempBtn.dataset.name = btn.dataset.name;
+          tempBtn.style.display = "none";
+          document.body.appendChild(tempBtn);
+          tempBtn.click();
+          tempBtn.remove();
+        });
+      });
+
+      // Reset button clears that test's leaderboard
+      tbody.querySelectorAll(".admin-reset-lb-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          btn.disabled = true;
+          try {
+            const done = await resetLeaderboardForTest(btn.dataset.id, btn.dataset.name);
+            if (done) await loadAdminLeaderboards();
+            else btn.disabled = false;
+          } catch (err) {
+            console.error("Reset error:", err);
+            showAdminToast("Failed to reset leaderboard.", "error");
+            btn.disabled = false;
+          }
+        });
+      });
+    } catch (err) {
+      console.error("Load admin leaderboards error:", err);
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--red);">Unable to load leaderboards.</td></tr>`;
+    }
+  }
+
+  initAdminLeaderboardTab();
+</script>
+<!-- ==================== END ENHANCED FOOTER & ADMIN LEADERBOARD RESET SYSTEM ==================== -->
 
 </body>
 </html>
