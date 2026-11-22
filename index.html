@@ -6889,6 +6889,122 @@
   }
 </script>
 <!-- ==================== END TARGETED FIXES ==================== -->
+<!-- ==================== FINAL BUG FIXES: FIRST-CLICK START, TOAST Z-INDEX, 0 WPM & ADMIN CLEANUP ==================== -->
+<style>
+  /* 1. Toast Notification ko Result Page (3300) aur Leaderboard Modal (3100) ke upar dikhana */
+  #toast {
+    z-index: 4000 !important;
+  }
+</style>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const app = getApp();
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+  /* ============================================================
+     FIX 1: STUDENT KE PEHLE CLICK PAR HI START / RETAKE OPEN HONA
+     ============================================================ */
+  const nativeBtnClick = HTMLButtonElement.prototype.click;
+  HTMLButtonElement.prototype.click = function () {
+    if (this.disabled && this.dataset && this.dataset.txVerified === "1") {
+      this.disabled = false;
+    }
+    return nativeBtnClick.apply(this, arguments);
+  };
+
+  /* ============================================================
+     FIX 2: 0.00 WPM / 0 MARKS SCORE KO LEADERBOARD PAR SAVE HONE SE ROKNA
+     ============================================================ */
+  const tiResultPage = document.getElementById("tiResultPage");
+  if (tiResultPage) {
+    new MutationObserver(() => {
+      if (!tiResultPage.classList.contains("show")) return;
+
+      const cards = tiResultPage.querySelectorAll(".tr-metric-card");
+      if (cards.length < 2) return;
+
+      const marks = parseFloat(cards[0].querySelector(".tr-metric-val")?.textContent || "0") || 0;
+      const netWpm = parseFloat(cards[1].querySelector(".tr-metric-val")?.textContent || "0") || 0;
+
+      if (netWpm <= 0 && marks <= 0) {
+        const savedId = window.__txActiveTestId;
+        window.__txActiveTestId = null;
+        setTimeout(() => {
+          window.__txActiveTestId = savedId;
+        }, 400);
+
+        const user = auth.currentUser;
+        if (user && user.email !== ADMIN_EMAIL) {
+          const toast = document.getElementById("toast");
+          if (toast) {
+            toast.textContent = "0.00 WPM score was not added to the leaderboard.";
+            toast.className = "toast show error";
+            setTimeout(() => toast.classList.remove("show"), 3500);
+          }
+        }
+      }
+    }).observe(tiResultPage, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  /* ============================================================
+     FIX 3: ADMIN "DISPLAY SETTINGS" TAB CLICK FLASH ROKNA
+     ============================================================ */
+  const displayTabBtn = document.querySelector('#adminView .admin-tab[data-admin-tab="display"]');
+  if (displayTabBtn) {
+    displayTabBtn.addEventListener(
+      "click",
+      (e) => {
+        e.stopImmediatePropagation();
+        document.querySelectorAll("#adminView .admin-tab").forEach((b) => b.classList.remove("active"));
+        displayTabBtn.classList.add("active");
+        ["fontPanel", "testPanel", "studentPanel", "leaderboardAdminPanel"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = "none";
+        });
+        const dp = document.getElementById("displayPanel");
+        if (dp) dp.style.display = "";
+      },
+      true
+    );
+  }
+
+  /* ============================================================
+     FIX 4: TEST DELETE KARNE PAR USKA LEADERBOARD BHI CLEANUP HONA
+     ============================================================ */
+  const adminTestTableBody = document.getElementById("adminTestTableBody");
+  let lastDeletedTestCandidateId = null;
+
+  if (adminTestTableBody) {
+    adminTestTableBody.addEventListener(
+      "click",
+      (e) => {
+        const delBtn = e.target.closest(".action-btn.delete");
+        if (!delBtn || delBtn.classList.contains("reset-lb")) return;
+        lastDeletedTestCandidateId = delBtn.dataset.id || null;
+      },
+      true
+    );
+
+    new MutationObserver(async () => {
+      const targetId = lastDeletedTestCandidateId;
+      if (!targetId) return;
+      try {
+        const snap = await get(ref(db, `tests/${targetId}`));
+        if (!snap.exists()) {
+          lastDeletedTestCandidateId = null;
+          await remove(ref(db, `results/${targetId}`));
+        }
+      } catch {}
+    }).observe(adminTestTableBody, { childList: true });
+  }
+</script>
+<!-- ==================== END FINAL BUG FIXES ==================== -->
 
 </body>
 </html>
