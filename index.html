@@ -6555,6 +6555,112 @@
   });
 </script>
 <!-- ==================== END TARGETED FIXES ==================== -->
+<!-- ==================== TARGETED FIXES: SESSION LOADER, GRAMMARLY OFF & BACK-BUTTON LOOP ==================== -->
+<style>
+  /* 1. Page Refresh par Login Box Flash rokne ke liye Session Loader */
+  #txAuthBootLoader {
+    max-width: 24rem;
+    margin: 2.5rem auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--navy);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow);
+    padding: 1.75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    text-align: center;
+  }
+</style>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const app = getApp();
+  const auth = getAuth(app);
+  const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+  /* ============================================================
+     FIX 1: PAGE REFRESH PAR LOGIN BOX FLASH ROKNA
+     ============================================================ */
+  const homepageView = document.getElementById("homepageView");
+  const studentLoginGate = document.getElementById("studentLoginGate");
+
+  if (homepageView && studentLoginGate) {
+    const bootLoader = document.createElement("div");
+    bootLoader.id = "txAuthBootLoader";
+    bootLoader.innerHTML = `
+      <div class="tx-spinner"></div>
+      <div class="tx-loader-title">Verifying Session...</div>
+      <div class="tx-loader-sub">Connecting to TypingX PRO portal</div>
+    `;
+
+    studentLoginGate.style.visibility = "hidden";
+    studentLoginGate.style.position = "absolute";
+    studentLoginGate.style.pointerEvents = "none";
+    homepageView.prepend(bootLoader);
+
+    const revealLoginIfNeeded = () => {
+      if (document.getElementById("txAuthBootLoader")) {
+        bootLoader.remove();
+      }
+      studentLoginGate.style.visibility = "";
+      studentLoginGate.style.position = "";
+      studentLoginGate.style.pointerEvents = "";
+    };
+
+    const unsubBoot = onAuthStateChanged(auth, () => {
+      revealLoginIfNeeded();
+      unsubBoot();
+    });
+
+    // Slow network ke liye 3.5 second safety fallback
+    setTimeout(revealLoginIfNeeded, 3500);
+  }
+
+  /* ============================================================
+     FIX 3: TYPING BOX MEIN GRAMMARLY / BROWSER EXTENSIONS BAND KARNA
+     ============================================================ */
+  const tiTypingBox = document.getElementById("tiTypingBox");
+  if (tiTypingBox) {
+    tiTypingBox.setAttribute("data-gramm", "false");
+    tiTypingBox.setAttribute("data-gramm_editor", "false");
+    tiTypingBox.setAttribute("data-enable-grammarly", "false");
+  }
+
+  /* ============================================================
+     FIX 5: ADMIN LOGIN MODAL KA BROWSER BACK-BUTTON LOOP ROKNA
+     ============================================================ */
+  const loginModal = document.getElementById("loginModal");
+
+  window.addEventListener(
+    "popstate",
+    () => {
+      const isCurrentlyAdmin = auth.currentUser?.email === ADMIN_EMAIL;
+      // Agar Back dabane par URL dubara #/admin par ja raha hai aur user Admin nahi hai, toh #/ par replace karein
+      if (!isCurrentlyAdmin && location.hash === "#/admin") {
+        history.replaceState(null, "", "#/");
+      }
+    },
+    true
+  );
+
+  window.addEventListener(
+    "hashchange",
+    (e) => {
+      const isCurrentlyAdmin = auth.currentUser?.email === ADMIN_EMAIL;
+      if (!isCurrentlyAdmin && location.hash === "#/admin" && loginModal && loginModal.classList.contains("show")) {
+        e.stopImmediatePropagation();
+        history.replaceState(null, "", "#/");
+      }
+    },
+    true
+  );
+</script>
+<!-- ==================== END TARGETED FIXES ==================== -->
 
 </body>
 </html>
