@@ -7005,6 +7005,150 @@
   }
 </script>
 <!-- ==================== END FINAL BUG FIXES ==================== -->
+<!-- ==================== RESULT PAGE HANG FIX & INSTANT HOME / RETAKE HANDLER ==================== -->
+<style>
+  /* 1. Flexbox space-between hit-test freeze hatakar smooth block scroll lagayein */
+  #tiResultPage.show {
+    display: block !important;
+    overflow-y: auto !important;
+    padding: 1.25rem 0 0 !important;
+  }
+  #tiResultPage .tr-wrapper {
+    margin: 0 auto 2rem !important;
+    pointer-events: auto !important;
+  }
+  #tiResultPage .tr-actions button,
+  #tiResultPage .tr-filter-btn {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+
+  /* 2. 500 Words Review Box ko lag-free rakhne ke liye layout containment */
+  #trReviewBox {
+    contain: content;
+  }
+</style>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const app = getApp();
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+  function safeExitFullscreen() {
+    const ti = document.getElementById("typingInterface");
+    if (ti) ti.classList.remove("ti-fullscreen-mode");
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    } catch {}
+  }
+
+  /* 1. Preparing Overlay aate hi Full Screen exit kar dein taaki Result Page par koi reflow hang na ho */
+  const prepOverlay = document.getElementById("trPreparingOverlay");
+  if (prepOverlay) {
+    new MutationObserver(() => {
+      if (prepOverlay.classList.contains("show")) {
+        safeExitFullscreen();
+      }
+    }).observe(prepOverlay, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  /* 2. Instant, Non-Blocking "Back to Home" & "Retake Test" Click Handler */
+  window.addEventListener(
+    "click",
+    (e) => {
+      const homeBtn = e.target.closest("#trHomeBtn");
+      const retakeBtn = e.target.closest("#trRetakeBtn");
+      if (!homeBtn && !retakeBtn) return;
+
+      // Purane blocking capture listeners ko rokein
+      e.stopImmediatePropagation();
+      e.preventDefault();
+
+      const tiResultPage = document.getElementById("tiResultPage");
+      const tiInterface = document.getElementById("typingInterface");
+      const tiConfirmModal = document.getElementById("tiConfirmModal");
+      const prepEl = document.getElementById("trPreparingOverlay");
+
+      safeExitFullscreen();
+      if (tiConfirmModal) tiConfirmModal.classList.remove("show");
+      if (prepEl) prepEl.classList.remove("show");
+
+      /* CASE A: BACK TO HOME */
+      if (homeBtn) {
+        if (tiResultPage) {
+          tiResultPage.classList.remove("show");
+          tiResultPage.innerHTML = "";
+        }
+        if (tiInterface) tiInterface.classList.remove("active");
+        document.body.style.overflow = "";
+        return;
+      }
+
+      /* CASE B: RETAKE TEST */
+      if (retakeBtn) {
+        const testId = window.__txActiveTestId;
+        if (tiResultPage) {
+          tiResultPage.classList.remove("show");
+          tiResultPage.innerHTML = "";
+        }
+
+        // Bina kisi network wait ke turant test dubara start karein
+        if (testId) {
+          let targetStartBtn = document.querySelector(`.start-btn[data-id="${CSS.escape(testId)}"]`);
+          let isTempBtn = false;
+          if (!targetStartBtn) {
+            targetStartBtn = document.createElement("button");
+            targetStartBtn.type = "button";
+            targetStartBtn.className = "start-btn";
+            targetStartBtn.dataset.id = testId;
+            targetStartBtn.style.display = "none";
+            document.body.appendChild(targetStartBtn);
+            isTempBtn = true;
+          }
+          targetStartBtn.dataset.txVerified = "1";
+          targetStartBtn.click();
+          if (isTempBtn) {
+            setTimeout(() => targetStartBtn.remove(), 500);
+          }
+        } else if (tiInterface) {
+          tiInterface.classList.remove("active");
+          document.body.style.overflow = "";
+        }
+
+        // Background mein deleted student check (UI ko freeze kiye bina)
+        const user = auth.currentUser;
+        if (user && user.email !== ADMIN_EMAIL) {
+          get(ref(db, `students/${user.uid}`))
+            .then(async (snap) => {
+              if (!snap.exists()) {
+                await signOut(auth);
+                if (tiInterface) tiInterface.classList.remove("active");
+                document.body.style.overflow = "";
+                const toast = document.getElementById("toast");
+                if (toast) {
+                  toast.textContent = "Your student account has been removed by the administrator.";
+                  toast.className = "toast show error";
+                  setTimeout(() => toast.classList.remove("show"), 3500);
+                }
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    },
+    true
+  );
+</script>
+<!-- ==================== END RESULT PAGE HANG FIX & INSTANT HOME / RETAKE HANDLER ==================== -->
 
 </body>
 </html>
