@@ -6282,6 +6282,99 @@
   });
 </script>
 <!-- ==================== END WINDOWS AUTO-SCALE & FULL-SCREEN TYPING MODE ==================== -->
+<!-- ==================== FULL-SCREEN MARGINS & BOTTOM-RIGHT CIRCLE SUBMIT ==================== -->
+<style>
+  /* 1. Full Screen Mode me Left aur Right side barabar aur paryapt margin */
+  #typingInterface.ti-fullscreen-mode {
+    justify-content: center !important;
+  }
+  #typingInterface.ti-fullscreen-mode .ti-sidebar {
+    display: none !important;
+  }
+  #typingInterface.ti-fullscreen-mode .ti-main {
+    flex: none !important;
+    width: min(46rem, calc(100vw - 7rem)) !important;
+    max-width: 46rem !important;
+    margin: 0 auto !important;
+    padding: 0.7rem 0 0.95rem !important;
+  }
+  #typingInterface.ti-fullscreen-mode .ti-header-simple {
+    padding: 0.1rem 0 !important;
+  }
+
+  /* 2. Bottom-Right Small Circular Submit Button with Right (Tick) Icon */
+  #tiFsFloatingSubmitBtn {
+    display: none;
+    position: fixed !important;
+    top: auto !important;
+    left: auto !important;
+    bottom: 1rem !important;
+    right: 1.15rem !important;
+    width: 1.9rem !important;
+    height: 1.9rem !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    z-index: 2600 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--green) !important;
+    color: #ffffff !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.38) !important;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+    touch-action: manipulation;
+  }
+  #typingInterface.ti-fullscreen-mode #tiFsFloatingSubmitBtn {
+    display: inline-flex !important;
+  }
+  #tiFsFloatingSubmitBtn:hover {
+    background: var(--green-dark) !important;
+    transform: scale(1.06);
+    box-shadow: 0 6px 16px rgba(21, 128, 61, 0.48) !important;
+  }
+  #tiFsFloatingSubmitBtn:active {
+    transform: scale(0.95);
+  }
+  #tiFsFloatingSubmitBtn svg {
+    width: 0.95rem !important;
+    height: 0.95rem !important;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  (function () {
+    const tiInterface = document.getElementById("typingInterface");
+    const tiMain = tiInterface?.querySelector(".ti-main");
+    const tiSubmitBtn = document.getElementById("tiSubmitBtn");
+    if (!tiInterface || !tiMain) return;
+
+    let fsBtn = document.getElementById("tiFsFloatingSubmitBtn");
+    if (!fsBtn) {
+      fsBtn = document.createElement("button");
+      fsBtn.type = "button";
+      fsBtn.id = "tiFsFloatingSubmitBtn";
+      tiMain.appendChild(fsBtn);
+    }
+
+    fsBtn.title = "Submit Test";
+    fsBtn.setAttribute("aria-label", "Submit Test");
+    fsBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    `;
+
+    if (!fsBtn.dataset.bound) {
+      fsBtn.dataset.bound = "1";
+      fsBtn.addEventListener("click", function () {
+        if (tiSubmitBtn) tiSubmitBtn.click();
+      });
+    }
+  })();
+</script>
+<!-- ==================== END FULL-SCREEN MARGINS & BOTTOM-RIGHT CIRCLE SUBMIT ==================== -->
 
 </body>
 </html>
