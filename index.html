@@ -6661,6 +6661,234 @@
   );
 </script>
 <!-- ==================== END TARGETED FIXES ==================== -->
+<!-- ==================== TARGETED FIXES: ADMIN CONTROL PANEL BUTTON, NETWORK RETRY & ZERO-DRIFT TIMER ==================== -->
+<style>
+  .tx-panel-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--navy);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.42rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .tx-panel-nav-btn:hover {
+    background: var(--navy-dark);
+  }
+</style>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const app = getApp();
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+  function showAuditToast(msg, type = "error") {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.className = "toast show " + type;
+    setTimeout(() => toast.classList.remove("show"), 3500);
+  }
+
+  /* ============================================================
+     FIX 1: ADMIN HEADER MEIN "CONTROL PANEL" BUTTON JODNA
+     ============================================================ */
+  const adminWelcome = document.getElementById("adminWelcome");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (adminWelcome && logoutBtn && !document.getElementById("txGoAdminPanelBtn")) {
+    const panelBtn = document.createElement("button");
+    panelBtn.type = "button";
+    panelBtn.id = "txGoAdminPanelBtn";
+    panelBtn.className = "tx-panel-nav-btn";
+    panelBtn.textContent = "Control Panel";
+    panelBtn.addEventListener("click", () => {
+      location.hash = "#/admin";
+    });
+    adminWelcome.insertBefore(panelBtn, logoutBtn);
+
+    function syncControlPanelBtnVisibility() {
+      const onAdminPage = location.hash === "#/admin";
+      panelBtn.style.display = onAdminPage ? "none" : "inline-flex";
+    }
+    window.addEventListener("hashchange", syncControlPanelBtnVisibility);
+    new MutationObserver(syncControlPanelBtnVisibility).observe(adminWelcome, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+    syncControlPanelBtnVisibility();
+  }
+
+  /* ============================================================
+     FIX 4: INTERNET FLICKER PAR LEADERBOARD SAVE RETRY SYSTEM
+     ============================================================ */
+  const tiResultPage = document.getElementById("tiResultPage");
+  if (tiResultPage) {
+    new MutationObserver(() => {
+      if (!tiResultPage.classList.contains("show")) return;
+
+      const user = auth.currentUser;
+      const testId = window.__txActiveTestId;
+      if (!user || user.email === ADMIN_EMAIL || !testId) return;
+
+      const actionsDiv = tiResultPage.querySelector(".tr-actions");
+      if (!actionsDiv || document.getElementById("txRetryLbSaveBtn")) return;
+
+      const retryBtn = document.createElement("button");
+      retryBtn.type = "button";
+      retryBtn.id = "txRetryLbSaveBtn";
+      retryBtn.className = "btn-secondary";
+      retryBtn.style.display = "none";
+      retryBtn.textContent = "Retry Leaderboard Save";
+      actionsDiv.prepend(retryBtn);
+
+      async function verifyOrSaveScore(isManualRetry = false) {
+        const cards = tiResultPage.querySelectorAll(".tr-metric-card");
+        if (cards.length < 6) return;
+
+        const marks = parseFloat(cards[0].querySelector(".tr-metric-val")?.textContent || "0") || 0;
+        const netWpm = parseFloat(cards[1].querySelector(".tr-metric-val")?.textContent || "0") || 0;
+        const accuracy = parseFloat(cards[3].querySelector(".tr-metric-val")?.textContent || "0") || 0;
+        const backspaceUsed = parseInt(cards[5].querySelector(".tr-metric-val")?.textContent || "0", 10) || 0;
+        if (netWpm <= 0 && marks <= 0) return;
+
+        let examDate = new Date().toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        });
+        tiResultPage.querySelectorAll(".tr-pill").forEach((p) => {
+          if (p.textContent.includes("Exam Date:")) {
+            const v = p.querySelector("strong")?.textContent?.trim();
+            if (v) examDate = v;
+          }
+        });
+
+        try {
+          const rRef = ref(db, `results/${testId}/${user.uid}`);
+          const snap = await get(rRef);
+          if (snap.exists()) {
+            const prev = snap.val();
+            const prevNet = Number(prev.netWpm) || 0;
+            const prevMarks = Number(prev.marks) || 0;
+            if (netWpm < prevNet || (netWpm === prevNet && marks <= prevMarks)) {
+              retryBtn.style.display = "none";
+              if (isManualRetry) {
+                showAuditToast(`Your best score (${prevNet.toFixed(2)} WPM) is already saved.`, "success");
+              }
+              return;
+            }
+          }
+
+          let fullName = user.email.split("@")[0];
+          let mobile = "";
+          const sSnap = await get(ref(db, `students/${user.uid}`));
+          if (sSnap.exists()) {
+            fullName = (sSnap.val().fullName || fullName).trim();
+            mobile = sSnap.val().mobile || "";
+          }
+
+          await set(rRef, {
+            uid: user.uid,
+            fullName: fullName.toUpperCase(),
+            mobile,
+            netWpm: Number(netWpm.toFixed(2)),
+            marks: Number(marks.toFixed(2)),
+            accuracy: Number(accuracy.toFixed(2)),
+            backspaceUsed,
+            examDate,
+            updatedAt: Date.now()
+          });
+
+          retryBtn.style.display = "none";
+          if (isManualRetry) {
+            showAuditToast("Score saved to leaderboard successfully!", "success");
+          }
+        } catch {
+          retryBtn.style.display = "inline-flex";
+          if (isManualRetry) {
+            showAuditToast("Still offline. Check internet connection and try again.", "error");
+          }
+        }
+      }
+
+      retryBtn.addEventListener("click", async () => {
+        retryBtn.disabled = true;
+        retryBtn.textContent = "Saving...";
+        await verifyOrSaveScore(true);
+        retryBtn.disabled = false;
+        retryBtn.textContent = "Retry Leaderboard Save";
+      });
+
+      setTimeout(() => verifyOrSaveScore(false), 1400);
+    }).observe(tiResultPage, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  /* ============================================================
+     FIX 5: EXACT TIMESTAMP-SYNCED 10:00 TIMER (ZERO DRIFT)
+     ============================================================ */
+  const tiInterface = document.getElementById("typingInterface");
+  const tiCountdown = document.getElementById("tiCountdown");
+  const tiTypingBox = document.getElementById("tiTypingBox");
+  const tiConfirmSubmitBtn = document.getElementById("tiConfirmSubmitBtn");
+
+  let exactEndTs = null;
+  let exactClockInterval = null;
+
+  function formatMmSs(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  if (tiCountdown && tiInterface) {
+    new MutationObserver(() => {
+      const txt = tiCountdown.textContent.trim();
+      if (txt === "10:00") {
+        exactEndTs = null;
+        clearInterval(exactClockInterval);
+        return;
+      }
+
+      if (txt === "09:59" && exactEndTs === null && tiInterface.classList.contains("active")) {
+        exactEndTs = Date.now() + 599 * 1000;
+        clearInterval(exactClockInterval);
+        exactClockInterval = setInterval(() => {
+          if (!tiInterface.classList.contains("active") || !exactEndTs) {
+            clearInterval(exactClockInterval);
+            exactEndTs = null;
+            return;
+          }
+          const trueRem = Math.max(0, Math.ceil((exactEndTs - Date.now()) / 1000));
+          const formatted = formatMmSs(trueRem);
+          if (tiCountdown.textContent !== formatted) {
+            tiCountdown.textContent = formatted;
+          }
+          if (trueRem === 0) {
+            clearInterval(exactClockInterval);
+            exactEndTs = null;
+            if (tiConfirmSubmitBtn && tiTypingBox && !tiTypingBox.disabled) {
+              tiConfirmSubmitBtn.click();
+            }
+          }
+        }, 250);
+      }
+    }).observe(tiCountdown, { childList: true, characterData: true, subtree: true });
+  }
+</script>
+<!-- ==================== END TARGETED FIXES ==================== -->
 
 </body>
 </html>
