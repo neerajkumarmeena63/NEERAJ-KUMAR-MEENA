@@ -6375,6 +6375,186 @@
   })();
 </script>
 <!-- ==================== END FULL-SCREEN MARGINS & BOTTOM-RIGHT CIRCLE SUBMIT ==================== -->
+<!-- ==================== TARGETED FIXES: DELETED STUDENT GUARD, 0 WPM BLOCK & RETAKE SYNC ==================== -->
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const app = getApp();
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const ADMIN_EMAIL = "neerajmeenatonk1@gmail.com";
+
+  function showFixToast(msg, type = "error") {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.className = "toast show " + type;
+    setTimeout(() => toast.classList.remove("show"), 3600);
+  }
+
+  function maskMobileStd(rawMobile) {
+    const digits = String(rawMobile || "").replace(/\D/g, "");
+    if (!digits) return "";
+    const ten = digits.length > 10 ? digits.slice(-10) : digits;
+    return ten.length >= 6 ? `${ten.slice(0, 2)}****${ten.slice(-4)}` : ten;
+  }
+
+  async function syncSidebarProfileNow() {
+    const user = auth.currentUser;
+    const labelEl = document.querySelector("#typingInterface .ti-profile-label");
+    const profileWrap = document.querySelector("#typingInterface .ti-profile");
+    if (!labelEl || !profileWrap) return;
+
+    let mobileEl = document.getElementById("tiProfileMobile");
+    if (!mobileEl) {
+      mobileEl = document.createElement("div");
+      mobileEl.id = "tiProfileMobile";
+      mobileEl.className = "ti-profile-mobile";
+      profileWrap.appendChild(mobileEl);
+    }
+
+    if (!user) {
+      labelEl.textContent = "CANDIDATE";
+      mobileEl.style.display = "none";
+      return;
+    }
+
+    if (user.email === ADMIN_EMAIL) {
+      labelEl.textContent = "NEERAJ KUMAR MEENA";
+      mobileEl.textContent = maskMobileStd("6378562616");
+      mobileEl.style.display = "inline-block";
+      return;
+    }
+
+    try {
+      const snap = await get(ref(db, `students/${user.uid}`));
+      if (snap.exists()) {
+        const d = snap.val();
+        const name = (d.fullName || user.email.split("@")[0]).trim().toUpperCase();
+        const masked = maskMobileStd(d.mobile);
+        labelEl.textContent = name;
+        if (masked) {
+          mobileEl.textContent = masked;
+          mobileEl.style.display = "inline-block";
+        } else {
+          mobileEl.style.display = "none";
+        }
+      }
+    } catch {}
+  }
+
+  /* ============================================================
+     FIX 1: DELETED STUDENT KE START / RETAKE CLICK PAR RACE CONDITION ROKNA
+     ============================================================ */
+  window.addEventListener(
+    "click",
+    async (e) => {
+      const actionBtn = e.target.closest(".start-btn, #trRetakeBtn");
+      if (!actionBtn) return;
+
+      if (actionBtn.classList.contains("start-btn") && actionBtn.dataset.id) {
+        window.__txActiveTestId = actionBtn.dataset.id;
+      }
+
+      const user = auth.currentUser;
+      if (!user || user.email === ADMIN_EMAIL) return;
+
+      // Second pass after live verification succeeds
+      if (actionBtn.dataset.txVerified === "1") {
+        delete actionBtn.dataset.txVerified;
+        return;
+      }
+
+      // Block test from opening until student existence is verified in RTDB
+      e.stopImmediatePropagation();
+      e.preventDefault();
+
+      const origHtml = actionBtn.innerHTML;
+      actionBtn.disabled = true;
+      actionBtn.textContent = "Checking...";
+
+      try {
+        const snap = await get(ref(db, `students/${user.uid}`));
+        if (!snap.exists()) {
+          await signOut(auth);
+          const ti = document.getElementById("typingInterface");
+          const tr = document.getElementById("tiResultPage");
+          if (tr) tr.classList.remove("show");
+          if (ti) ti.classList.remove("active");
+          document.body.style.overflow = "";
+          showFixToast("Your student account has been removed by the administrator.", "error");
+          return;
+        }
+
+        actionBtn.dataset.txVerified = "1";
+        actionBtn.click();
+      } catch {
+        // Network error fallback: allow test to proceed
+        actionBtn.dataset.txVerified = "1";
+        actionBtn.click();
+      } finally {
+        actionBtn.disabled = false;
+        actionBtn.innerHTML = origHtml;
+      }
+    },
+    true
+  );
+
+  /* ============================================================
+     FIX 2: BINA KUCH TYPE KIYE SUBMIT PAR 0.00 WPM LEADERBOARD MEIN SAVE ROKNA
+     ============================================================ */
+  const tiResultPage = document.getElementById("tiResultPage");
+  const tiTypingBox = document.getElementById("tiTypingBox");
+
+  if (tiResultPage && tiTypingBox) {
+    new MutationObserver(() => {
+      if (!tiResultPage.classList.contains("show")) return;
+
+      const typedText = tiTypingBox.value.trim();
+      if (typedText.length === 0) {
+        const preservedTestId = window.__txActiveTestId;
+        // Temporarily pause activeTestId during the 150ms leaderboard save check
+        window.__txActiveTestId = null;
+        setTimeout(() => {
+          window.__txActiveTestId = preservedTestId;
+        }, 350);
+
+        const user = auth.currentUser;
+        if (user && user.email !== ADMIN_EMAIL) {
+          showFixToast("No words typed — 0.00 WPM score was not added to the leaderboard.", "error");
+        }
+      }
+    }).observe(tiResultPage, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  /* ============================================================
+     FIX 3: RETAKE TEST DABANE PAR SIDEBAR PROFILE AUR ACTIVE TEST SYNC
+     ============================================================ */
+  document.addEventListener("click", (e) => {
+    const retakeBtn = e.target.closest("#trRetakeBtn");
+    if (!retakeBtn) return;
+
+    syncSidebarProfileNow();
+
+    const passageBox = document.getElementById("tiPassageBox");
+    if (passageBox) passageBox.scrollTop = 0;
+    if (tiTypingBox) tiTypingBox.scrollTop = 0;
+
+    // Re-focus typing box cleanly once test loader finishes
+    const waitFocus = setInterval(() => {
+      const loader = document.getElementById("tiLoaderOverlay");
+      const isLoading = loader && loader.classList.contains("show");
+      if (!isLoading && tiTypingBox && !tiTypingBox.disabled) {
+        tiTypingBox.focus();
+        clearInterval(waitFocus);
+      }
+    }, 100);
+    setTimeout(() => clearInterval(waitFocus), 5000);
+  });
+</script>
+<!-- ==================== END TARGETED FIXES ==================== -->
 
 </body>
 </html>
