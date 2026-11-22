@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEERAJ KUMAR MEENA | MS EXCEL TEST-01 Practical Assessment Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --navy-dark: #071936;
+      --navy-primary: #0b2447;
+      --navy-hover: #19376d;
+      --green-excel: #15803d;
+      --green-hover: #166534;
+      --green-soft: #f0fdf4;
+      --green-border: #bbf7d0;
+      --saffron: #ea580c;
+      --red-danger: #b91c1c;
+      --red-soft: #fef2f2;
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-light: #cbd5e1;
+      --border-subtle: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tricolor-bar {
+      height: 5px;
+      width: 100%;
+      background: linear-gradient(90deg, #ff9933 0%, #ff9933 33.33%, #ffffff 33.33%, #ffffff 66.66%, #138808 66.66%, #138808 100%);
+    }
+
+    .gov-topbar {
+      background-color: var(--navy-dark);
+      color: #e2e8f0;
+      font-size: 12px;
+      padding: 6px 24px;
+    }
+
+    .gov-topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .portal-header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      padding: 15px 24px;
+    }
+
+    .portal-header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .emblem-box {
+      width: 52px;
+      height: 52px;
+      background: var(--green-soft);
+      border: 1.5px solid var(--green-excel);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-titles .owner-tag {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--saffron);
+      display: block;
+    }
+
+    .brand-titles h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy-primary);
+      line-height: 1.25;
+    }
+
+    .brand-titles .sub-tag {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .exam-meta-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .metric-pill {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--navy-primary);
+    }
+
+    .metric-pill.highlight {
+      background: var(--green-soft);
+      border-color: var(--green-border);
+      color: var(--green-excel);
+    }
+
+    .main-wrapper {
+      max-width: 1180px;
+      width: 100%;
+      margin: 22px auto;
+      padding: 0 20px;
+      flex: 1;
+    }
+
+    .status-banner {
+      background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%);
+      border: 1px solid #bfdbfe;
+      border-left: 5px solid var(--navy-primary);
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .exam-badge {
+      background: var(--navy-primary);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 8px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .card-title {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: var(--navy-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      background: var(--navy-primary);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+
+    .step-badge.green {
+      background: var(--green-excel);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 820px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 13.5px;
+      margin-bottom: 14px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--green-excel);
+      box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px dashed #94a3b8;
+      border-radius: 6px;
+      background: #f8fafc;
+      font-size: 13px;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    input[type="file"]:hover {
+      border-color: var(--green-excel);
+      background: var(--green-soft);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--navy-primary);
+      background: #ffffff;
+      color: var(--navy-primary);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.18s ease;
+    }
+
+    .btn:hover {
+      background: #eff6ff;
+    }
+
+    .btn-primary {
+      background: var(--navy-primary);
+      color: #ffffff;
+      border-color: var(--navy-primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--navy-hover);
+    }
+
+    .btn-excel {
+      background: var(--green-excel);
+      color: #ffffff;
+      border-color: var(--green-excel);
+    }
+
+    .btn-excel:hover {
+      background: var(--green-hover);
+    }
+
+    .download-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: 6px;
+      border: 1px solid var(--border-light);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.data-table th {
+      background-color: var(--navy-primary);
+      color: #ffffff;
+      font-weight: 500;
+      text-align: left;
+      padding: 11px 14px;
+      white-space: nowrap;
+    }
+
+    table.data-table td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      vertical-align: top;
+    }
+
+    table.data-table tbody tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .justify-cell {
+      text-align: justify;
+      text-justify: inter-word;
+      line-height: 1.65;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 20px;
+    }
+
+    .badge.pass {
+      background: var(--green-soft);
+      color: var(--green-excel);
+      border: 1px solid var(--green-border);
+    }
+
+    .badge.fail {
+      background: var(--red-soft);
+      color: var(--red-danger);
+      border: 1px solid #fecaca;
+    }
+
+    .reason-hindi {
+      color: #991b1b;
+      font-weight: 600;
+      font-size: 13px;
+      display: block;
+      text-align: justify;
+      text-justify: inter-word;
+      line-height: 1.65;
+      margin-bottom: 8px;
+    }
+
+    .reason-ok {
+      color: #166534;
+      font-weight: 600;
+      font-size: 13px;
+      display: block;
+      text-align: justify;
+      text-justify: inter-word;
+      line-height: 1.65;
+      margin-bottom: 8px;
+    }
+
+    .solution-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-left: 3.5px solid var(--navy-primary);
+      border-radius: 5px;
+      padding: 10px 13px;
+      font-size: 12.5px;
+      color: #1e293b;
+      text-align: justify;
+      text-justify: inter-word;
+      line-height: 1.65;
+    }
+
+    .solution-box-title {
+      font-weight: 700;
+      color: var(--navy-primary);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    .solution-steps-list {
+      margin-left: 18px;
+      margin-top: 2px;
+    }
+
+    .solution-steps-list li {
+      margin-bottom: 4px;
+      text-align: justify;
+      text-justify: inter-word;
+    }
+
+    .scorecard-sheet {
+      border: 2px solid var(--navy-primary);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+      margin-bottom: 22px;
+    }
+
+    .scorecard-banner {
+      background: var(--navy-primary);
+      color: #ffffff;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .scorecard-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 12px;
+      padding: 15px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .meta-item span {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .meta-item strong {
+      font-size: 15px;
+      color: var(--navy-primary);
+    }
+
+    .scorecard-footer {
+      padding: 11px 20px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border-light);
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .portal-footer {
+      background: var(--navy-dark);
+      color: #cbd5e1;
+      padding: 14px 24px;
+      font-size: 12px;
+      margin-top: auto;
+      border-top: 3px solid var(--saffron);
+    }
+
+    .portal-footer-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media print {
+      .tricolor-bar, .gov-topbar, .portal-header, .no-print, .portal-footer {
+        display: none !important;
+      }
+      body { background: #ffffff; }
+      .main-wrapper { margin: 0; padding: 0; }
+      .scorecard-sheet { border: 1.5px solid #000000; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tricolor-bar"></div>
+
+  <div class="gov-topbar">
+    <div class="gov-topbar-inner">
+      <div>NEERAJ KUMAR MEENA — COMPUTER EFFICIENCY &amp; SPREADSHEET SKILL ASSESSMENT</div>
+      <span id="liveDateDisplay"></span>
+    </div>
+  </div>
+
+  <header class="portal-header">
+    <div class="portal-header-inner">
+      <div class="brand-group">
+        <div class="emblem-box" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="28" height="28" rx="4" stroke="#15803D" stroke-width="2.4"/>
+            <path d="M4 13H32M4 22H32M14 4V32M23 4V32" stroke="#15803D" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <span class="owner-tag">BY NEERAJ KUMAR MEENA</span>
+          <h1>MS Excel Practical Skill Evaluation Portal</h1>
+          <div class="sub-tag">Automated Spreadsheet Practical Assessment &amp; Instant Result System</div>
+        </div>
+      </div>
+
+      <div class="exam-meta-badges">
+        <span class="metric-pill highlight">Exam Name: MS EXCEL TEST-01</span>
+        <span class="metric-pill">Total Questions: 15</span>
+        <span class="metric-pill">Maximum Marks: 25</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+
+    <!-- Exam Info Strip -->
+    <div class="status-banner no-print">
+      <div>
+        <span class="exam-badge">MS EXCEL TEST-01</span>
+        <strong style="color: var(--navy-primary); font-size: 14.5px;">Practical Assessment by Neeraj Kumar Meena</strong>
+      </div>
+      <div style="font-size: 12.5px; color: var(--text-muted); font-weight: 500;">
+        Total Questions: <strong style="color:var(--navy-primary);">15</strong> &nbsp;|&nbsp; Maximum Marks: <strong style="color:var(--green-excel);">25</strong>
+      </div>
+    </div>
+
+    <!-- Step 1: Download Practice Excel File (Google Drive) & Official Question Paper PDF -->
+    <div class="card no-print">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="step-badge">STEP 1</span>
+          <span>Download MS Excel File &amp; Official Question Paper PDF</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="download-box">
+          <div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--navy-primary); margin-bottom: 4px;">
+              1. MS Excel Practice File (<span style="color: var(--green-excel);">MSEXCELPAPER-01.xlsx</span>)
+            </div>
+            <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px;">
+              Google Drive से MS Excel अभ्यास फाइल डाउनलोड करें (File &rarr; Download &rarr; Microsoft Excel (.xlsx)) और सभी 15 प्रश्न हल करके सेव करें।
+            </p>
+          </div>
+          <a
+            href="https://docs.google.com/spreadsheets/d/15-RXSlRBX9Zu8iImCDGmGNRjnqLioGTh/edit?usp=drivesdk&ouid=115237982382713316177&rtpof=true&sd=true"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-excel"
+            style="width: 100%;"
+          >
+            Download MS Excel File (Google Drive)
+          </a>
+        </div>
+
+        <div class="download-box">
+          <div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--navy-primary); margin-bottom: 4px;">
+              2. Official Question Paper (<span style="color: var(--saffron);">MS_EXCEL_TEST_01.pdf</span>)
+            </div>
+            <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px;">
+              सभी 15 प्रश्नों (25 अंक) का आधिकारिक प्रश्न पत्र PDF सीधे डाउनलोड करें और निर्देशों के अनुसार Excel शीट में कार्य करें।
+            </p>
+          </div>
+          <button type="button" class="btn btn-primary" style="width: 100%;" onclick="downloadQuestionPaperPdf()">
+            Download Question Paper PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Candidate Details & Upload Solved Excel File -->
+    <div class="card no-print">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="step-badge green">STEP 2</span>
+          <span>Enter Your Details &amp; Upload Solved MS Excel File</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>Candidate Name / अभ्यर्थी का नाम *</label>
+          <input type="text" id="stuName" placeholder="Enter your full name" />
+        </div>
+        <div>
+          <label>Mobile Number / मोबाइल नंबर *</label>
+          <input type="tel" id="stuMobile" maxlength="15" placeholder="Enter your 10-digit mobile number" />
+        </div>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div style="flex: 1; min-width: 260px;">
+          <label>Upload Completed MS Excel File (.xlsx) *</label>
+          <input type="file" id="studentSolvedXlsx" accept=".xlsx" style="margin-bottom: 0;" />
+        </div>
+        <div>
+          <button type="button" class="btn btn-excel" style="padding: 12px 26px; font-size: 14px;" onclick="evaluateExcelSubmission()">
+            Check File &amp; Generate Evaluation Scorecard
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evaluation Scorecard (All 15 Questions ONLY appear here after evaluation) -->
+    <div id="resultBox" class="scorecard-sheet hidden">
+      <div class="scorecard-banner">
+        <div>
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; opacity: 0.9;">
+            NEERAJ KUMAR MEENA • MS EXCEL TEST-01
+          </div>
+          <h2 style="font-size: 17px; font-weight: 600;">Evaluation Scorecard / परीक्षा परिणाम पत्रक</h2>
+        </div>
+        <button type="button" class="btn no-print" style="background: #ffffff; color: var(--navy-primary);" onclick="window.print()">
+          Print Scorecard
+        </button>
+      </div>
+
+      <div id="scoreSummary" class="scorecard-meta-grid"></div>
+
+      <div style="padding: 16px 20px;">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">Q.No</th>
+                <th style="width: 31%;">Question</th>
+                <th style="width: 85px; text-align: center;">Status</th>
+                <th style="width: 85px; text-align: center;">Marks</th>
+                <th>विस्तृत मूल्यांकन टिप्पणी एवं हल करने की विधि / Diagnostic Remarks &amp; Step-by-Step Solution</th>
+              </tr>
+            </thead>
+            <tbody id="resultDetailsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="scorecard-footer">
+        <span>Evaluated by: <strong>NEERAJ KUMAR MEENA</strong> Automated OOXML Engine</span>
+        <span>Generated on: <strong id="scoreTimestamp"></strong></span>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="portal-footer">
+    <div class="portal-footer-inner">
+      <span><strong>NEERAJ KUMAR MEENA</strong> — MS Excel Practical Skill Assessment Portal</span>
+      <span>Exam: MS EXCEL TEST-01 • Total Questions: 15 • Maximum Marks: 25</span>
+    </div>
+  </footer>
+
+<script>
+  const S_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+
+  const EXAM_DATA = {
+    owner: "NEERAJ KUMAR MEENA",
+    examName: "MS EXCEL TEST-01",
+    totalQuestions: 15,
+    maxMarks: 25,
+    questions: [
+      {
+        id: 1,
+        rule: "row1_height_18",
+        prompt: "Set the row height of cell range A1:G1 to 18.",
+        marks: 1,
+        solutionSteps: [
+          "माउस के बाएं बटन को दबाए रखकर Cell A1 से Cell G1 (A1:G1) तक की पंक्ति को चुनें।",
+          "ऊपर Home Tab के Cells Group में Format आइकन पर Left-Click करें।",
+          "खुलने वाले मेनू में Row Height विकल्प पर Left-Click करें।",
+          "Row Height के बॉक्स में 18 टाइप करें और OK बटन पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 2,
+        rule: "align_justify_d2_e11",
+        prompt: "Set the horizontal alignment of the text in cell range D2:E11 to Justify.",
+        marks: 1,
+        solutionSteps: [
+          "माउस के बाएं बटन से ड्रैग करके Cell D2 से Cell E11 (D2:E11) तक सभी सेल्स को चुनें।",
+          "Home Tab के Alignment Group के निचले दाएं कोने पर बने छोटे तीर (Alignment Settings आइकन) पर Left-Click करें।",
+          "Format Cells विंडो के Alignment Tab में Horizontal ड्रॉपडाउन सूची पर Left-Click करें और Justify विकल्प चुनकर OK बटन पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 3,
+        rule: "fill_gold_accent4_lighter80",
+        prompt: "Apply the fill color \"Gold, Accent 4, Lighter 80%\" to cells A1:G1.",
+        marks: 1,
+        solutionSteps: [
+          "माउस के बाएं बटन से ड्रैग करके Cell A1 से Cell G1 (A1:G1) तक सभी शीर्षक सेल्स को चुनें।",
+          "Home Tab के Font Group में Fill Color (बाल्टी आइकन) के बगल में बने छोटे तीर पर Left-Click करें।",
+          "Theme Colors में चौथे स्तंभ (Gold, Accent 4) की सबसे ऊपरी हल्की शेड \"Gold, Accent 4, Lighter 80%\" पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 4,
+        rule: "vertically_centered_page",
+        prompt: "Set the worksheet (Sheet1) to be vertically centered on the page.",
+        marks: 1,
+        solutionSteps: [
+          "ऊपर Page Layout Tab पर Left-Click करें और Page Setup Group के निचले दाएं कोने पर बने छोटे तीर (Page Setup Dialog Box Launcher) पर Left-Click करें।",
+          "खुलने वाली Page Setup विंडो में Margins Tab पर Left-Click करें।",
+          "नीचे Center on page भाग में Vertically के चेकबॉक्स पर Left-Click करके सही का निशान लगाएं और OK बटन पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 5,
+        rule: "purple_all_borders_a1_g11",
+        prompt: "Apply purple-colored All Borders to the entire cell range A1:G11.",
+        marks: 1,
+        solutionSteps: [
+          "माउस के बाएं बटन को दबाए रखकर Cell A1 से Cell G11 (A1:G11) तक पूरी तालिका को चुनें।",
+          "Home Tab के Font Group में Borders आइकन के बगल में बने छोटे तीर पर Left-Click करें और सबसे नीचे More Borders विकल्प पर Left-Click करें।",
+          "Format Cells विंडो के Border Tab में Color ड्रॉपडाउन पर Left-Click करके Standard Colors में से Purple रंग चुनें।",
+          "अब Presets में Outline और Inside दोनों बटनों पर Left-Click करें (अथवा सभी चारों बॉर्डर रेखाओं पर Left-Click करें) और OK बटन पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 6,
+        rule: "strikethrough_ranges",
+        prompt: "Apply the Strikethrough effect to the text in cell ranges A4:A7, B3:B5, and B9:B11.",
+        marks: 1,
+        solutionSteps: [
+          "माउस के बाएं बटन से ड्रैग करके पहले Cell A4 से Cell A7 (A4:A7) तक के सेल्स चुनें।",
+          "Home Tab के Font Group के निचले दाएं कोने पर बने छोटे तीर (Font Settings आइकन) पर Left-Click करें।",
+          "Effects भाग में Strikethrough के चेकबॉक्स पर Left-Click करके सही का निशान लगाएं और OK पर Left-Click करें।",
+          "यही प्रक्रिया दोहराते हुए Cell B3 से B5 (B3:B5) तथा Cell B9 से B11 (B9:B11) को चुनकर प्रत्येक पर Strikethrough लागू करें।"
+        ]
+      },
+      {
+        id: 7,
+        rule: "shrink_to_fit_b2_b11",
+        prompt: "Apply the Shrink to Fit alignment option to all cells in the range B2:B11.",
+        marks: 1,
+        solutionSteps: [
+          "माउस के बाएं बटन से ड्रैग करके Cell B2 से Cell B11 (B2:B11) तक सभी सेल्स को चुनें।",
+          "Home Tab के Alignment Group के निचले दाएं कोने पर बने छोटे तीर (Alignment Settings आइकन) पर Left-Click करें।",
+          "Format Cells विंडो के Alignment Tab में Text control भाग के अंतर्गत Shrink to fit के चेकबॉक्स पर Left-Click करके निशान लगाएं और OK बटन पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 8,
+        rule: "margins_top_bottom_2cm",
+        prompt: "Set the top and bottom page margins to 2 cm each.",
+        marks: 1,
+        solutionSteps: [
+          "ऊपर Page Layout Tab पर Left-Click करें और Page Setup Group के निचले दाएं कोने पर बने छोटे तीर पर Left-Click करें।",
+          "Page Setup विंडो में Margins Tab पर Left-Click करें।",
+          "Top बॉक्स में 2 cm (अथवा इंच इकाई होने पर 0.79) और Bottom बॉक्स में 2 cm (अथवा 0.79) टाइप करें तथा OK बटन पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 9,
+        rule: "page_legal_landscape",
+        prompt: "Set the page size to Legal and change the page orientation to Landscape.",
+        marks: 1,
+        solutionSteps: [
+          "ऊपर Page Layout Tab पर Left-Click करें।",
+          "Page Setup Group में Orientation आइकन पर Left-Click करें और Landscape विकल्प पर Left-Click करें।",
+          "इसके बाद Page Setup Group में Size आइकन पर Left-Click करें और Legal विकल्प पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 10,
+        rule: "footer_right_page_num_start_5",
+        prompt: "Insert a page number in the right section of the page footer, starting from 5.",
+        marks: 1,
+        solutionSteps: [
+          "ऊपर Insert Tab पर Left-Click करें और Text Group में Header & Footer पर Left-Click करें।",
+          "Header & Footer Tab के Navigation Group में Go to Footer पर Left-Click करें और Footer के दाएं भाग (Right Section) पर Left-Click करें।",
+          "Header & Footer Elements Group में Page Number आइकन पर Left-Click करें, फिर शीट के किसी सेल (जैसे A1) पर Left-Click करें।",
+          "पेज नंबर 5 से शुरू करने के लिए Page Layout Tab पर Left-Click करें, Page Setup Dialog Box Launcher पर Left-Click करें और Page Tab में First page number बॉक्स में 5 टाइप करके OK पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 11,
+        rule: "italic_and_center_c2_c11",
+        prompt: "Apply Italic formatting and Center horizontal alignment to the text in cell range C2:C11.",
+        marks: 2,
+        solutionSteps: [
+          "माउस के बाएं बटन से ड्रैग करके Cell C2 से Cell C11 (C2:C11) तक Gender कॉलम के सभी सेल्स को चुनें।",
+          "Home Tab के Font Group में I (Italic) आइकन पर Left-Click करें।",
+          "इसके पश्चात Home Tab के Alignment Group में Center (Horizontal Center Align) आइकन पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 12,
+        rule: "match_b7_formatting",
+        prompt: "Apply the exact same formatting as cell B7 to cells A3, B3, and A10.",
+        marks: 2,
+        solutionSteps: [
+          "सबसे पहले Cell B7 पर Left-Click करके उसे चुनें।",
+          "Home Tab के Clipboard Group में Format Painter (ब्रश आइकन) पर लगातार दो बार Left-Click करें ताकि Format Painter लॉक हो जाए।",
+          "अब एक-एक करके Cell A3, Cell B3 और Cell A10 पर Left-Click करें।",
+          "तीनों सेल्स पर फॉर्मेटिंग लागू होने के बाद ऊपर Home Tab में सक्रिय Format Painter आइकन पर पुनः Left-Click करके उसे बंद कर दें (यदि प्रश्न 6 में B3 पर Strikethrough लगाया है, तो B3 पर पुनः Strikethrough चेक कर लें)।"
+        ]
+      },
+      {
+        id: 13,
+        rule: "maths_marks_f2_f11",
+        prompt: "Calculate the marks obtained by each student in Maths in cells F2:F11 using an appropriate function or formula.",
+        marks: 3,
+        solutionSteps: [
+          "तालिका में Total Marks (G कॉलम) में से Hindi (D कॉलम) और Science (E कॉलम) के अंक घटाने पर Maths के अंक प्राप्त होंगे।",
+          "Cell F2 पर Left-Click करें और '=G2-D2-E2' अथवा '=G2-SUM(D2:E2)' फॉर्मूला टाइप करके Enter दबाएं।",
+          "अब पुनः Cell F2 पर Left-Click करें और सेल के निचले दाएं कोने पर बने Fill Handle बिंदु को माउस के बाएं बटन से दबाए रखकर Cell F11 (F2:F11) तक नीचे की ओर ड्रैग करें और छोड़ दें।"
+        ]
+      },
+      {
+        id: 14,
+        rule: "header_center_ms_excel_2013_arial_bold",
+        prompt: "Enter \"MS EXCEL 2013\" in the center section of the page header using Arial font with Bold style.",
+        marks: 4,
+        solutionSteps: [
+          "ऊपर Insert Tab पर Left-Click करें और Text Group में Header & Footer पर Left-Click करें।",
+          "Header के मध्य भाग (Center Section) पर Left-Click करें और वहां MS EXCEL 2013 टाइप करें।",
+          "अब माउस के बाएं बटन से ड्रैग करके लिखे गए टेक्स्ट 'MS EXCEL 2013' को चुनें।",
+          "ऊपर Home Tab पर Left-Click करें, Font Group में Font ड्रॉपडाउन से Arial चुनें तथा B (Bold) आइकन पर Left-Click करें, फिर शीट के किसी सेल (जैसे A1) पर Left-Click करें।"
+        ]
+      },
+      {
+        id: 15,
+        rule: "female_science_total_j7",
+        prompt: "Using an appropriate function or formula, calculate the total Science marks obtained by all female students in cell J7.",
+        marks: 4,
+        solutionSteps: [
+          "मर्ज किए गए सेल बॉक्स I6:J7 (Cell J7) पर Left-Click करें।",
+          "सभी महिला विद्यार्थियों (Female) के Science (E कॉलम) के कुल अंक निकालने के लिए यह फॉर्मूला टाइप करें: =SUMIF(C2:C11,\"Female\",E2:E11) अथवा =SUMIFS(E2:E11,C2:C11,\"Female\") और Enter दबाएं।",
+          "सही फॉर्मूला लगाने पर सेल में कुल योग 340 प्रदर्शित होगा।"
+        ]
+      }
+    ]
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const opts = { weekday: "short", day: "2-digit", month: "short", year: "numeric" };
+    document.getElementById("liveDateDisplay").textContent = new Date().toLocaleDateString("en-IN", opts);
+  });
+
+  // ==================== CLIENT-SIDE OFFICIAL QUESTION PAPER PDF GENERATOR ====================
+  function downloadQuestionPaperPdf() {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert("PDF library is loading. Please check your internet connection and try again.");
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    // Subtle Diagonal Watermark: NEERAJ KUMAR MEENA
+    doc.saveGraphicsState();
+    if (doc.GState) {
+      doc.setGState(new doc.GState({ opacity: 0.10 }));
+    }
+    doc.setTextColor(120, 120, 120);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(38);
+    doc.text("NEERAJ KUMAR MEENA", 105, 165, { align: "center", angle: 45 });
+    doc.restoreGraphicsState();
+
+    // Header Banner
+    doc.setFillColor(11, 36, 71);
+    doc.rect(14, 12, 182, 22, "F");
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("NEERAJ KUMAR MEENA", 105, 20, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("PRACTICAL SKILL ASSESSMENT  |  EXAM: MS EXCEL TEST-01", 105, 27, { align: "center" });
+
+    // Metadata Sub-bar
+    doc.setFillColor(240, 253, 244);
+    doc.setDrawColor(187, 247, 208);
+    doc.rect(14, 36, 182, 9, "FD");
+    doc.setTextColor(21, 128, 61);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9.5);
+    doc.text("Practice File: MSEXCELPAPER-01.xlsx", 18, 42);
+    doc.text("Total Questions: 15   |   Maximum Marks: 25", 192, 42, { align: "right" });
+
+    // Table of all 15 Questions
+    const tableBody = EXAM_DATA.questions.map((q, idx) => [
+      `Q.${idx + 1}`,
+      q.prompt,
+      String(q.marks)
+    ]);
+
+    doc.autoTable({
+      startY: 48,
+      head: [["Q. No.", "Practical Instructions (Solve All Questions in MSEXCELPAPER-01.xlsx)", "Marks"]],
+      body: tableBody,
+      theme: "grid",
+      margin: { left: 14, right: 14 },
+      styles: {
+        font: "helvetica",
+        fontSize: 9.5,
+        textColor: [15, 23, 42],
+        cellPadding: 3.2,
+        lineColor: [148, 163, 184],
+        lineWidth: 0.25,
+        valign: "middle"
+      },
+      headStyles: {
+        fillColor: [11, 36, 71],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        halign: "left"
+      },
+      columnStyles: {
+        0: { cellWidth: 16, halign: "center", fontStyle: "bold" },
+        1: { cellWidth: 148, halign: "left" },
+        2: { cellWidth: 18, halign: "center", fontStyle: "bold" }
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252]
+      }
+    });
+
+    // Footer Note
+    const finalY = doc.lastAutoTable.finalY + 8;
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text(
+      "Note: Save your completed MSEXCELPAPER-01.xlsx file and upload it on the portal to generate your Evaluation Scorecard.",
+      105,
+      Math.min(finalY, 286),
+      { align: "center" }
+    );
+
+    doc.save("MS_EXCEL_TEST_01_Question_Paper.pdf");
+  }
+
+  // ==================== EVALUATE SOLVED EXCEL FILE ====================
+  async function evaluateExcelSubmission() {
+    const stuName = document.getElementById("stuName").value.trim();
+    const stuMobile = document.getElementById("stuMobile").value.trim();
+    const excelFile = document.getElementById("studentSolvedXlsx").files[0];
+
+    if (!stuName) {
+      alert("कृपया अपना नाम (Candidate Name) दर्ज करें। / Please enter your Name.");
+      document.getElementById("stuName").focus();
+      return;
+    }
+    if (!stuMobile) {
+      alert("कृपया अपना मोबाइल नंबर (Mobile Number) दर्ज करें। / Please enter your Mobile Number.");
+      document.getElementById("stuMobile").focus();
+      return;
+    }
+    if (!excelFile) {
+      alert("कृपया अपनी हल की गई MS Excel (.xlsx) फाइल अपलोड करें। / Please upload your solved .xlsx file.");
+      return;
+    }
+
+    try {
+      const sheetData = await parseXlsxPackage(await excelFile.arrayBuffer());
+      let earned = 0;
+      let rowsHtml = "";
+
+      EXAM_DATA.questions.forEach((q, idx) => {
+        const res = evaluateSingleQuestion(q, sheetData);
+        if (res.passed) earned += Number(q.marks);
+
+        const stepsListHtml = q.solutionSteps.map((st) => `<li>${escapeHtml(st)}</li>`).join("");
+
+        rowsHtml += `
+          <tr>
+            <td><strong>Q.${idx + 1}</strong></td>
+            <td class="justify-cell">${escapeHtml(q.prompt)}</td>
+            <td style="text-align:center;"><span class="badge ${res.passed ? "pass" : "fail"}">${res.passed ? "PASS" : "FAIL"}</span></td>
+            <td style="text-align:center;"><strong>${res.passed ? q.marks : 0} / ${q.marks}</strong></td>
+            <td class="justify-cell">
+              ${res.passed
+                ? `<span class="reason-ok">✔ ${escapeHtml(res.hindiReason)}</span>`
+                : `<span class="reason-hindi">✘ ${escapeHtml(res.hindiReason)}</span>`}
+              <div class="solution-box">
+                <span class="solution-box-title">सटीक हल करने की विधि (केवल MS Excel Ribbon और Mouse Left-Click से):</span>
+                <ol class="solution-steps-list">${stepsListHtml}</ol>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      const percent = ((earned / EXAM_DATA.maxMarks) * 100).toFixed(1);
+      const isPassed = earned >= EXAM_DATA.maxMarks * 0.4;
+
+      document.getElementById("scoreSummary").innerHTML = `
+        <div class="meta-item"><span>Exam Name</span><strong>${EXAM_DATA.examName}</strong></div>
+        <div class="meta-item"><span>Candidate Name</span><strong>${escapeHtml(stuName)}</strong></div>
+        <div class="meta-item"><span>Mobile Number</span><strong>${escapeHtml(stuMobile)}</strong></div>
+        <div class="meta-item"><span>Marks Obtained</span><strong style="color:var(--green-excel); font-size:17px;">${earned} / ${EXAM_DATA.maxMarks} (${percent}%)</strong></div>
+        <div class="meta-item"><span>Result Status</span><span class="badge ${isPassed ? "pass" : "fail"}">${isPassed ? "QUALIFIED" : "FAIL"}</span></div>
+      `;
+
+      document.getElementById("scoreTimestamp").textContent = new Date().toLocaleString("en-IN");
+      document.getElementById("resultDetailsTable").innerHTML = rowsHtml;
+      document.getElementById("resultBox").classList.remove("hidden");
+      document.getElementById("resultBox").scrollIntoView({ behavior: "smooth" });
+    } catch (err) {
+      alert("Error evaluating .xlsx file: " + err.message);
+    }
+  }
+
+  function getCellOrBlank(sheetData, ref) {
+    return sheetData.cells[ref] || {
+      ref,
+      hasFormula: false,
+      formula: "",
+      displayValue: "",
+      font: { bold: false, italic: false, strike: false, underlineType: "none", size: 11, family: "Calibri", color: "black", rawColor: "theme:1" },
+      fill: { patternType: "none", fgColor: "none", bgColor: "none", isGoldAccent4Lighter80: false, rawSig: "none" },
+      border: { allSides: false, allPurple: false },
+      align: "general",
+      shrinkToFit: false
+    };
+  }
+
+  // ==================== BUILT-IN FORMULA EVALUATOR (FALLBACK WHEN CACHED <v> IS MISSING) ====================
+  function computeFormulaValue(formulaStr, sheetData, depth = 0) {
+    if (!formulaStr || depth > 8) return NaN;
+    let expr = formulaStr.trim().replace(/^=/, "");
+
+    // Handle SUMIF(range, criteria, sum_range)
+    const sumifMatch = /^SUMIF\s*\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)$/i.exec(expr);
+    if (sumifMatch) {
+      const critRefs = expandExcelRange(sumifMatch[1]);
+      const critRaw = sumifMatch[2].trim().replace(/^"|"$/g, "").toLowerCase();
+      const sumRefs = expandExcelRange(sumifMatch[3]);
+      let total = 0;
+      for (let i = 0; i < Math.min(critRefs.length, sumRefs.length); i++) {
+        const cv = getCellOrBlank(sheetData, critRefs[i]).displayValue.toLowerCase();
+        if (cv === critRaw) {
+          total += getNumericCellVal(sheetData, sumRefs[i], depth + 1);
+        }
+      }
+      return total;
+    }
+
+    // Handle SUMIFS(sum_range, crit_range1, criteria1, ...)
+    const sumifsMatch = /^SUMIFS\s*\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)$/i.exec(expr);
+    if (sumifsMatch) {
+      const sumRefs = expandExcelRange(sumifsMatch[1]);
+      const critRefs = expandExcelRange(sumifsMatch[2]);
+      const critRaw = sumifsMatch[3].trim().replace(/^"|"$/g, "").toLowerCase();
+      let total = 0;
+      for (let i = 0; i < Math.min(critRefs.length, sumRefs.length); i++) {
+        const cv = getCellOrBlank(sheetData, critRefs[i]).displayValue.toLowerCase();
+        if (cv === critRaw) {
+          total += getNumericCellVal(sheetData, sumRefs[i], depth + 1);
+        }
+      }
+      return total;
+    }
+
+    // Replace SUM(...) and SUBTOTAL(9,...)
+    expr = expr.replace(/(?:SUM|SUBTOTAL\s*\(\s*9\s*,)\s*\(?([^()]+)\)/gi, (_, inner) => {
+      const vals = extractNumericArgs(inner, sheetData, depth + 1);
+      return String(vals.reduce((a, b) => a + b, 0));
+    });
+
+    // Replace AVERAGE(...)
+    expr = expr.replace(/AVERAGE\s*\(([^()]+)\)/gi, (_, inner) => {
+      const vals = extractNumericArgs(inner, sheetData, depth + 1);
+      return vals.length ? String(vals.reduce((a, b) => a + b, 0) / vals.length) : "0";
+    });
+
+    // Replace MIN(...)
+    expr = expr.replace(/MIN\s*\(([^()]+)\)/gi, (_, inner) => {
+      const vals = extractNumericArgs(inner, sheetData, depth + 1);
+      return vals.length ? String(Math.min(...vals)) : "0";
+    });
+
+    // Replace MAX(...)
+    expr = expr.replace(/MAX\s*\(([^()]+)\)/gi, (_, inner) => {
+      const vals = extractNumericArgs(inner, sheetData, depth + 1);
+      return vals.length ? String(Math.max(...vals)) : "0";
+    });
+
+    // Replace individual cell references like G2, D2, E2
+    expr = expr.replace(/\$?([A-Z]{1,3})\$?(\d+)/gi, (_, colL, rowD) => {
+      const ref = `${colL.toUpperCase()}${rowD}`;
+      const v = getNumericCellVal(sheetData, ref, depth + 1);
+      return isNaN(v) ? "0" : String(v);
+    });
+
+    if (/^[0-9+\-*/().\s]+$/.test(expr)) {
+      try {
+        return Function(`"use strict"; return (${expr});`)();
+      } catch (e) {
+        return NaN;
+      }
+    }
+    return NaN;
+  }
+
+  function extractNumericArgs(argStr, sheetData, depth) {
+    const out = [];
+    argStr.split(",").forEach((part) => {
+      const p = part.trim();
+      if (!p) return;
+      if (p.includes(":")) {
+        expandExcelRange(p).forEach((r) => {
+          const v = getNumericCellVal(sheetData, r, depth);
+          if (!isNaN(v)) out.push(v);
+        });
+      } else if (/^\$?[A-Z]{1,3}\$?\d+$/i.test(p)) {
+        const cleanRef = p.replace(/\$/g, "").toUpperCase();
+        const v = getNumericCellVal(sheetData, cleanRef, depth);
+        if (!isNaN(v)) out.push(v);
+      } else {
+        const num = parseFloat(p);
+        if (!isNaN(num)) out.push(num);
+      }
+    });
+    return out;
+  }
+
+  function getNumericCellVal(sheetData, ref, depth = 0) {
+    const c = getCellOrBlank(sheetData, ref);
+    if (c.displayValue !== "") {
+      const n = parseFloat(c.displayValue);
+      if (!isNaN(n)) return n;
+    }
+    if (c.hasFormula && c.formula) {
+      return computeFormulaValue(c.formula, sheetData, depth + 1);
+    }
+    return NaN;
+  }
+
+  // ==================== ALL 15 QUESTIONS EVALUATOR ====================
+  function evaluateSingleQuestion(q, sheetData) {
+    // Q.1: Row Height of A1:G1 to 18
+    if (q.rule === "row1_height_18") {
+      const r1 = sheetData.rowHeights[1];
+      if (r1 && Math.abs(r1.height - 18) <= 0.45) {
+        return {
+          passed: true,
+          hindiReason: "सही उत्तर: आपने पंक्ति 1 (A1:G1) की Row Height बिल्कुल सही 18 सेट की है।"
+        };
+      }
+      return {
+        passed: false,
+        hindiReason: `आपने Cell Range A1:G1 की Row Height 18 सेट नहीं की है (वर्तमान ऊँचाई: ${r1 ? r1.height : "Default 14.6"})।`
+      };
+    }
+
+    // Q.2: Horizontal alignment of D2:E11 to justify
+    if (q.rule === "align_justify_d2_e11") {
+      const refs = expandExcelRange("D2:E11");
+      const cells = refs.map((r) => getCellOrBlank(sheetData, r));
+      const bad = cells.find((c) => c.align !== "justify");
+      if (bad) {
+        return {
+          passed: false,
+          hindiReason: `आपने Cell Range D2:E11 के सभी सेल्स (जैसे Cell ${bad.ref}) का Horizontal Alignment 'Justify' सेट नहीं किया है (वर्तमान अलाइनमेंट: '${bad.align}')।`
+        };
+      }
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cell Range D2:E11 के सभी सेल्स का Horizontal Alignment 'Justify' बिल्कुल सही सेट किया है।"
+      };
+    }
+
+    // Q.3: Fill Color "Gold, Accent 4, Lighter 80%" to A1:G1
+    if (q.rule === "fill_gold_accent4_lighter80") {
+      const refs = expandExcelRange("A1:G1");
+      const cells = refs.map((r) => getCellOrBlank(sheetData, r));
+      const bad = cells.find((c) => !c.fill.isGoldAccent4Lighter80);
+      if (bad) {
+        return {
+          passed: false,
+          hindiReason: `आपने Cell Range A1:G1 के सभी सेल्स (जैसे Cell ${bad.ref}) में \"Gold, Accent 4, Lighter 80%\" Fill Color लागू नहीं किया है (वर्तमान रंग: ${bad.fill.fgColor === "none" ? "कोई रंग नहीं" : bad.fill.fgColor})।`
+        };
+      }
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cell Range A1:G1 में \"Gold, Accent 4, Lighter 80%\" Fill Color बिल्कुल सही लागू किया है।"
+      };
+    }
+
+    // Q.4: Worksheet vertically centered on the page
+    if (q.rule === "vertically_centered_page") {
+      if (sheetData.printOptions.verticalCentered) {
+        return {
+          passed: true,
+          hindiReason: "सही उत्तर: आपने वर्कशीट (Sheet1) को पेज पर Vertically Centered बिल्कुल सही सेट किया है।"
+        };
+      }
+      return {
+        passed: false,
+        hindiReason: "आपने Page Setup के Margins टैब में 'Vertically' (Center on page) विकल्प को सक्रिय नहीं किया है।"
+      };
+    }
+
+    // Q.5: Purple-colored All Borders to A1:G11
+    if (q.rule === "purple_all_borders_a1_g11") {
+      const refs = expandExcelRange("A1:G11");
+      const cells = refs.map((r) => getCellOrBlank(sheetData, r));
+      const anyBorderCount = cells.filter((c) => c.border.allSides).length;
+      const purpleCount = cells.filter((c) => c.border.allPurple).length;
+
+      if (anyBorderCount === 0) {
+        return {
+          passed: false,
+          hindiReason: "आपने Cell Range A1:G11 के किसी भी सेल पर All Borders लागू नहीं किए हैं।"
+        };
+      }
+      if (anyBorderCount < cells.length) {
+        const missing = cells.find((c) => !c.border.allSides);
+        return {
+          passed: false,
+          hindiReason: `आपने कुछ सेल्स पर बॉर्डर तो लगाए हैं, लेकिन पूरी Range A1:G11 (जैसे Cell ${missing.ref}) पर All Borders लागू नहीं किए हैं।`
+        };
+      }
+      if (purpleCount < cells.length) {
+        return {
+          passed: false,
+          hindiReason: "आपने Cell Range A1:G11 पर All Borders तो लागू कर दिए हैं, लेकिन बॉर्डर का रंग Purple Color के स्थान पर काला या कोई अन्य रंग रखा है।"
+        };
+      }
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cell Range A1:G11 के सभी सेल्स पर Purple Color से All Borders बिल्कुल सही लागू किए हैं।"
+      };
+    }
+
+    // Q.6: Strikethrough effect to A4:A7, B3:B5, and B9:B11
+    if (q.rule === "strikethrough_ranges") {
+      const refs = expandExcelRange("A4:A7,B3:B5,B9:B11");
+      const cells = refs.map((r) => getCellOrBlank(sheetData, r));
+      const bad = cells.find((c) => !c.font.strike);
+      if (bad) {
+        return {
+          passed: false,
+          hindiReason: `आपने सभी निर्धारित रेंज (A4:A7, B3:B5, और B9:B11) के सभी सेल्स (जैसे Cell ${bad.ref}) पर Strikethrough प्रभाव लागू नहीं किया है।`
+        };
+      }
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने तीनों रेंज (A4:A7, B3:B5, एवं B9:B11) के टेक्स्ट पर Strikethrough प्रभाव बिल्कुल सही लागू किया है।"
+      };
+    }
+
+    // Q.7: Shrink to Fit to B2:B11
+    if (q.rule === "shrink_to_fit_b2_b11") {
+      const refs = expandExcelRange("B2:B11");
+      const cells = refs.map((r) => getCellOrBlank(sheetData, r));
+      const bad = cells.find((c) => !c.shrinkToFit);
+      if (bad) {
+        return {
+          passed: false,
+          hindiReason: `आपने Cell Range B2:B11 के सभी सेल्स (जैसे Cell ${bad.ref}) पर 'Shrink to Fit' विकल्प लागू नहीं किया है।`
+        };
+      }
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cell Range B2:B11 के सभी सेल्स पर 'Shrink to Fit' बिल्कुल सही लागू किया है।"
+      };
+    }
+
+    // Q.8: Top and bottom margins of the page to 2 cm each (2 cm = 0.7874 inches)
+    if (q.rule === "margins_top_bottom_2cm") {
+      const pm = sheetData.pageMargins;
+      const topOk = Math.abs(pm.top - 0.7874) <= 0.03;
+      const botOk = Math.abs(pm.bottom - 0.7874) <= 0.03;
+
+      if (topOk && botOk) {
+        return {
+          passed: true,
+          hindiReason: "सही उत्तर: आपने पेज के Top और Bottom Margins को 2 cm (0.79 inch) प्रत्येक बिल्कुल सही सेट किया है।"
+        };
+      }
+      return {
+        passed: false,
+        hindiReason: `आपने पेज के Top और Bottom Margins को 2 cm (0.79 inch) सेट नहीं किया है (वर्तमान Top: ${(pm.top * 2.54).toFixed(2)} cm, Bottom: ${(pm.bottom * 2.54).toFixed(2)} cm)।`
+      };
+    }
+
+    // Q.9: Page size to Legal and orientation to Landscape
+    if (q.rule === "page_legal_landscape") {
+      const ps = sheetData.pageSetup;
+      const isLegal = ps.paperSize === "5";
+      const isLandscape = ps.orientation.toLowerCase() === "landscape";
+
+      if (isLegal && isLandscape) {
+        return {
+          passed: true,
+          hindiReason: "सही उत्तर: आपने Page Size 'Legal' तथा Page Orientation 'Landscape' बिल्कुल सही सेट किया है।"
+        };
+      }
+      if (isLegal && !isLandscape) {
+        return {
+          passed: false,
+          hindiReason: "आपने Page Size तो 'Legal' सेट कर दिया है, लेकिन Page Orientation 'Landscape' के स्थान पर 'Portrait' रखा है।"
+        };
+      }
+      if (!isLegal && isLandscape) {
+        return {
+          passed: false,
+          hindiReason: "आपने Page Orientation तो 'Landscape' कर दिया है, लेकिन Page Size 'Legal' नहीं चुना है।"
+        };
+      }
+      return {
+        passed: false,
+        hindiReason: "आपने Page Size 'Legal' और Page Orientation 'Landscape' सेट नहीं किया है।"
+      };
+    }
+
+    // Q.10: Page number in right section of page footer, starting from 5
+    if (q.rule === "footer_right_page_num_start_5") {
+      const hf = sheetData.headerFooter;
+      const ps = sheetData.pageSetup;
+      const rightFooter = extractHeaderSection(hf.oddFooter, "R");
+      const hasPageField = rightFooter.includes("&P");
+      const hasStart5 = ps.firstPageNumber === "5" && ps.useFirstPageNumber !== "0";
+
+      if (hasPageField && hasStart5) {
+        return {
+          passed: true,
+          hindiReason: "सही उत्तर: आपने Page Footer के Right Section में 5 से प्रारंभ होने वाला Page Number बिल्कुल सही डाला है।"
+        };
+      }
+      if (hasPageField && !hasStart5) {
+        return {
+          passed: false,
+          hindiReason: `आपने Footer के Right Section में Page Number तो डाल दिया है, लेकिन Page Setup में First Page Number '5' सेट नहीं किया है (वर्तमान प्रारंभिक संख्या: '${ps.firstPageNumber || "Auto/1"}')।`
+        };
+      }
+      if (!hasPageField && hasStart5) {
+        return {
+          passed: false,
+          hindiReason: "आपने First Page Number '5' तो सेट कर दिया है, लेकिन Page Footer के Right Section में Page Number (&[Page]) प्रविष्ट नहीं किया है।"
+        };
+      }
+      return {
+        passed: false,
+        hindiReason: "आपने Page Footer के Right Section में Page Number नहीं डाला है और न ही First Page Number '5' सेट किया है।"
+      };
+    }
+
+    // Q.11: Italic formatting and Center horizontal alignment to C2:C11
+    if (q.rule === "italic_and_center_c2_c11") {
+      const refs = expandExcelRange("C2:C11");
+      const cells = refs.map((r) => getCellOrBlank(sheetData, r));
+      const allItalic = cells.every((c) => c.font.italic);
+      const allCenter = cells.every((c) => c.align === "center");
+
+      if (!allItalic && !allCenter) {
+        return {
+          passed: false,
+          hindiReason: "आपने Cell Range C2:C11 (Gender कॉलम) के टेक्स्ट को न तो Italic किया है और न ही Center Alignment लागू किया है।"
+        };
+      }
+      if (allItalic && !allCenter) {
+        const bad = cells.find((c) => c.align !== "center");
+        return {
+          passed: false,
+          hindiReason: `आपने Cell Range C2:C11 के टेक्स्ट को Italic तो कर दिया है, लेकिन Horizontal Alignment 'Center' सेट नहीं किया है (Cell ${bad.ref} अभी '${bad.align}' अलाइन है)।`
+        };
+      }
+      if (!allItalic && allCenter) {
+        const bad = cells.find((c) => !c.font.italic);
+        return {
+          passed: false,
+          hindiReason: `आपने Cell Range C2:C11 को Center Align तो कर दिया है, लेकिन इसके टेक्स्ट (जैसे Cell ${bad.ref}) को Italic नहीं किया है।`
+        };
+      }
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cell Range C2:C11 के टेक्स्ट को Italic तथा Center Align बिल्कुल सही किया है।"
+      };
+    }
+
+    // Q.12: Same formatting as cell B7 to cells A3, B3, and A10
+    if (q.rule === "match_b7_formatting") {
+      const b7 = getCellOrBlank(sheetData, "B7");
+      const targets = ["A3", "B3", "A10"];
+      const badCells = [];
+
+      for (const tRef of targets) {
+        const tc = getCellOrBlank(sheetData, tRef);
+        const fontOk =
+          tc.font.bold === b7.font.bold &&
+          tc.font.underlineType === b7.font.underlineType &&
+          tc.font.color === b7.font.color &&
+          tc.font.family.toLowerCase() === b7.font.family.toLowerCase();
+
+        const fillOk =
+          tc.fill.patternType === b7.fill.patternType &&
+          (tc.fill.rawSig === b7.fill.rawSig || (tc.fill.fgColor === b7.fill.fgColor && tc.fill.bgColor === b7.fill.bgColor));
+
+        if (!fontOk || !fillOk) {
+          badCells.push(tRef);
+        }
+      }
+
+      if (badCells.length > 0) {
+        return {
+          passed: false,
+          hindiReason: `आपने सभी लक्षित सेल्स (${badCells.join(", ")}) पर Cell B7 जैसी समान फॉर्मेटिंग (Format Painter: Arial Font, Bold, Single Underline, Purple Font Color एवं Gray-Yellow Pattern Fill) लागू नहीं की है।`
+        };
+      }
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cells A3, B3 और A10 पर Cell B7 जैसी हूबहू फॉर्मेटिंग (Format Painter) बिल्कुल सही लागू की है।"
+      };
+    }
+
+    // Q.13: Maths marks in F2:F11 (=G2-D2-E2 or =G2-SUM(D2:E2))
+    if (q.rule === "maths_marks_f2_f11") {
+      const refs = expandExcelRange("F2:F11");
+      let formulaCount = 0;
+
+      for (const ref of refs) {
+        const c = getCellOrBlank(sheetData, ref);
+        const rowNum = parseCellRef(ref).row;
+        const hindi = parseFloat(getCellOrBlank(sheetData, `D${rowNum}`).displayValue) || 0;
+        const sci = parseFloat(getCellOrBlank(sheetData, `E${rowNum}`).displayValue) || 0;
+        const total = parseFloat(getCellOrBlank(sheetData, `G${rowNum}`).displayValue) || 0;
+        const expectedMaths = total - hindi - sci;
+
+        if (!c.hasFormula) {
+          if (formulaCount > 0) {
+            return {
+              passed: false,
+              hindiReason: `आपने शुरुआती सेल में तो Formula लगाया है, लेकिन उसे Fill Handle से नीचे Cell ${ref} तक ड्रैग नहीं किया है—Cell ${ref} में Formula अनुपस्थित है।`
+            };
+          }
+          return {
+            passed: false,
+            hindiReason: `आपने Cell ${ref} में =G${rowNum}-D${rowNum}-E${rowNum} अथवा =G${rowNum}-SUM(D${rowNum}:E${rowNum}) Formula लगाने के स्थान पर सीधे मान ('${c.displayValue || "खाली"}') लिख दिया है।`
+          };
+        }
+
+        formulaCount++;
+        let actualNum = parseFloat(c.displayValue);
+        if (isNaN(actualNum)) {
+          actualNum = computeFormulaValue(c.formula, sheetData);
+        }
+
+        if (isNaN(actualNum) || Math.abs(actualNum - expectedMaths) > 0.01) {
+          return {
+            passed: false,
+            hindiReason: `आपने Cell ${ref} में Formula (=${c.formula}) तो लगाया है, लेकिन गलत गणना के कारण Maths के अंक ${expectedMaths} के स्थान पर '${isNaN(actualNum) ? (c.displayValue || "त्रुटि") : actualNum}' आ रहे हैं।`
+          };
+        }
+      }
+
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cell Range F2:F11 में उपयुक्त Formula का उपयोग करके सभी विद्यार्थियों के Maths के अंक बिल्कुल सही निकाले हैं।"
+      };
+    }
+
+    // Q.14: "MS EXCEL 2013" in center section of page header using Arial font with Bold style
+    if (q.rule === "header_center_ms_excel_2013_arial_bold") {
+      const centerHdr = extractHeaderSection(sheetData.headerFooter.oddHeader, "C");
+      const plainText = stripExcelHeaderCodes(centerHdr).replace(/\s+/g, " ").trim();
+      const hasText = plainText.toUpperCase() === "MS EXCEL 2013";
+
+      const hasArial = /&"[^"]*arial[^"]*"/i.test(centerHdr);
+      const hasBold = /&"[^"]*arial[^"]*bold[^"]*"/i.test(centerHdr) || /&B(?![A-Z])/i.test(centerHdr);
+
+      if (hasText && hasArial && hasBold) {
+        return {
+          passed: true,
+          hindiReason: "सही उत्तर: आपने Page Header के Center Section में Arial Font और Bold Style के साथ \"MS EXCEL 2013\" बिल्कुल सही लिखा है।"
+        };
+      }
+
+      const issues = [];
+      if (!hasText) issues.push(`Center Header में सटीक टेक्स्ट "MS EXCEL 2013" नहीं लिखा गया है (वर्तमान टेक्स्ट: '${plainText || "खाली"}')`);
+      if (!hasArial) issues.push("टेक्स्ट पर 'Arial' Font लागू नहीं किया गया है");
+      if (!hasBold) issues.push("टेक्स्ट पर 'Bold' Style लागू नहीं किया गया है");
+
+      return {
+        passed: false,
+        hindiReason: `आपने Page Header के Center Section में निर्देशों का पूर्ण पालन नहीं किया है: ${issues.join(", ")}।`
+      };
+    }
+
+    // Q.15: Total Science marks obtained by all female students in cell J7 (Merged I6:J7)
+    if (q.rule === "female_science_total_j7") {
+      const mergedCandidates = ["I6", "J7", "I7", "J6"].map((r) => getCellOrBlank(sheetData, r));
+      const targetCell = mergedCandidates.find((c) => c.hasFormula) ||
+                         mergedCandidates.find((c) => c.displayValue !== "") ||
+                         mergedCandidates[0];
+
+      const expectedFemaleSci = 340;
+
+      if (!targetCell.hasFormula) {
+        return {
+          passed: false,
+          hindiReason: `आपने Cell J7 (मर्ज बॉक्स I6:J7) में =SUMIF(C2:C11,"Female",E2:E11) अथवा =SUMIFS(...) Formula लगाने के स्थान पर सीधे मान ('${targetCell.displayValue || "खाली"}') लिख दिया है।`
+        };
+      }
+
+      let actualVal = parseFloat(targetCell.displayValue);
+      if (isNaN(actualVal)) {
+        actualVal = computeFormulaValue(targetCell.formula, sheetData);
+      }
+
+      if (isNaN(actualVal) || Math.abs(actualVal - expectedFemaleSci) > 0.01) {
+        return {
+          passed: false,
+          hindiReason: `आपने Cell J7 में Formula (=${targetCell.formula}) तो लगाया है, लेकिन गलत रेंज या शर्त के कारण महिला विद्यार्थियों के Science के कुल अंक ${expectedFemaleSci} के स्थान पर '${isNaN(actualVal) ? (targetCell.displayValue || "त्रुटि") : actualVal}' आ रहे हैं।`
+        };
+      }
+
+      return {
+        passed: true,
+        hindiReason: "सही उत्तर: आपने Cell J7 (I6:J7) में उपयुक्त Formula (=SUMIF / =SUMIFS) का उपयोग करके सभी महिला विद्यार्थियों के Science के कुल अंक (340) बिल्कुल सही निकाले हैं।"
+      };
+    }
+
+    return { passed: false, hindiReason: "इस प्रश्न के नियम की जांच संभव नहीं हो सकी।" };
+  }
+
+  // ==================== HEADER & FOOTER SECTION PARSER ====================
+  function extractHeaderSection(hfStr, sectionLetter) {
+    if (!hfStr) return "";
+    const marker = "&" + sectionLetter.toUpperCase();
+    const idx = hfStr.toUpperCase().indexOf(marker);
+    if (idx === -1) return "";
+    const rest = hfStr.substring(idx + 2);
+    const nextMatch = /&(L|C|R)(?![A-Z])/i.exec(rest);
+    return nextMatch ? rest.substring(0, nextMatch.index) : rest;
+  }
+
+  function stripExcelHeaderCodes(secStr) {
+    return secStr
+      .replace(/&"[^"]*"/g, "")
+      .replace(/&\d+/g, "")
+      .replace(/&K[0-9A-F]{6}/gi, "")
+      .replace(/&[A-Z]/gi, "")
+      .trim();
+  }
+
+  // ==================== XML ELEMENT HELPER ====================
+  function getXmlTags(parent, tagName) {
+    if (!parent) return [];
+    const byNs = parent.getElementsByTagNameNS(S_NS, tagName);
+    if (byNs && byNs.length > 0) return Array.from(byNs);
+    const byLocal = parent.getElementsByTagName(tagName);
+    if (byLocal && byLocal.length > 0) return Array.from(byLocal);
+    return Array.from(parent.getElementsByTagName("*")).filter((el) => el.localName === tagName);
+  }
+
+  // ==================== SHARED FORMULA REFERENCE SHIFTER ====================
+  function shiftFormulaReferences(formulaStr, masterRef, targetRef) {
+    const mCoord = parseCellRef(masterRef);
+    const tCoord = parseCellRef(targetRef);
+    const dCol = tCoord.col - mCoord.col;
+    const dRow = tCoord.row - mCoord.row;
+
+    const parts = formulaStr.split('"');
+    for (let i = 0; i < parts.length; i += 2) {
+      parts[i] = parts[i].replace(/(\$?)([A-Z]{1,3})(\$?)(\d+)/gi, (match, colAbs, colLetters, rowAbs, rowDigits) => {
+        let colNum = 0;
+        const up = colLetters.toUpperCase();
+        for (let k = 0; k < up.length; k++) colNum = colNum * 26 + (up.charCodeAt(k) - 64);
+        let rowNum = parseInt(rowDigits, 10);
+
+        if (!colAbs) colNum = Math.max(1, colNum + dCol);
+        if (!rowAbs) rowNum = Math.max(1, rowNum + dRow);
+
+        return `${colAbs}${colIndexToLetter(colNum)}${rowAbs}${rowNum}`;
+      });
+    }
+    return parts.join('"');
+  }
+
+  // ==================== XLSX OOXML PARSER ====================
+  async function parseXlsxPackage(inputData) {
+    const zip = await JSZip.loadAsync(inputData);
+    const parser = new DOMParser();
+
+    const sharedStrings = [];
+    const ssFile = zip.file("xl/sharedStrings.xml");
+    if (ssFile) {
+      const ssDoc = parser.parseFromString(await ssFile.async("string"), "application/xml");
+      getXmlTags(ssDoc, "si").forEach((si) => {
+        const tNodes = getXmlTags(si, "t");
+        let txt = "";
+        for (let i = 0; i < tNodes.length; i++) txt += tNodes[i].textContent || "";
+        sharedStrings.push(txt);
+      });
+    }
+
+    const fonts = [];
+    const fills = [];
+    const borders = [];
+    const cellXfs = [];
+
+    const stFile = zip.file("xl/styles.xml");
+    if (stFile) {
+      const stDoc = parser.parseFromString(await stFile.async("string"), "application/xml");
+
+      getXmlTags(stDoc, "font").forEach((f) => {
+        const bEl = getXmlTags(f, "b")[0];
+        const iEl = getXmlTags(f, "i")[0];
+        const sEl = getXmlTags(f, "strike")[0];
+        const uEl = getXmlTags(f, "u")[0];
+        const szEl = getXmlTags(f, "sz")[0];
+        const nameEl = getXmlTags(f, "name")[0];
+        const colEl = getXmlTags(f, "color")[0];
+
+        let uType = "none";
+        if (uEl) {
+          const uVal = (uEl.getAttribute("val") || "single").toLowerCase();
+          uType = uVal === "none" ? "none" : uVal;
+        }
+
+        fonts.push({
+          bold: !!bEl && bEl.getAttribute("val") !== "0" && bEl.getAttribute("val") !== "false",
+          italic: !!iEl && iEl.getAttribute("val") !== "0" && iEl.getAttribute("val") !== "false",
+          strike: !!sEl && sEl.getAttribute("val") !== "0" && sEl.getAttribute("val") !== "false",
+          underlineType: uType,
+          size: szEl ? parseFloat(szEl.getAttribute("val")) : 11,
+          family: nameEl ? nameEl.getAttribute("val") : "Calibri",
+          color: parseExcelColorNode(colEl),
+          rawColor: getRawColorSig(colEl)
+        });
+      });
+
+      getXmlTags(stDoc, "fill").forEach((fl) => {
+        const pf = getXmlTags(fl, "patternFill")[0];
+        const fg = pf ? getXmlTags(pf, "fgColor")[0] : null;
+        const bg = pf ? getXmlTags(pf, "bgColor")[0] : null;
+        const pType = pf ? (pf.getAttribute("patternType") || "none") : "none";
+
+        let isGoldAccent4Lighter80 = false;
+        if (pType === "solid" && fg) {
+          const theme = fg.getAttribute("theme");
+          const tint = parseFloat(fg.getAttribute("tint") || "0");
+          const rgb = (fg.getAttribute("rgb") || "").toUpperCase();
+          if (theme === "7" && tint >= 0.70 && tint <= 0.88) {
+            isGoldAccent4Lighter80 = true;
+          } else if (rgb.endsWith("FFF2CC") || rgb.endsWith("FFE699")) {
+            isGoldAccent4Lighter80 = true;
+          }
+        }
+
+        fills.push({
+          patternType: pType,
+          fgColor: pType !== "none" ? parseExcelColorNode(fg) : "none",
+          bgColor: pType !== "none" ? parseExcelColorNode(bg) : "none",
+          isGoldAccent4Lighter80,
+          rawSig: `${pType}|${getRawColorSig(fg)}|${getRawColorSig(bg)}`
+        });
+      });
+
+      getXmlTags(stDoc, "border").forEach((bd) => {
+        const sides = ["left", "right", "top", "bottom"].map((side) => {
+          const el = getXmlTags(bd, side)[0];
+          const style = el ? el.getAttribute("style") : null;
+          const colEl = el ? getXmlTags(el, "color")[0] : null;
+          return {
+            hasStyle: !!style,
+            color: style ? parseExcelColorNode(colEl) : "none"
+          };
+        });
+        const allSides = sides.every((s) => s.hasStyle);
+        const allPurple = allSides && sides.every((s) => s.color === "purple");
+        borders.push({ allSides, allPurple });
+      });
+
+      const cellXfsParent = getXmlTags(stDoc, "cellXfs")[0];
+      if (cellXfsParent) {
+        getXmlTags(cellXfsParent, "xf").forEach((xf) => {
+          const al = getXmlTags(xf, "alignment")[0];
+          cellXfs.push({
+            fontId: parseInt(xf.getAttribute("fontId") || "0", 10),
+            fillId: parseInt(xf.getAttribute("fillId") || "0", 10),
+            borderId: parseInt(xf.getAttribute("borderId") || "0", 10),
+            align: al ? (al.getAttribute("horizontal") || "general") : "general",
+            shrinkToFit: al ? (al.getAttribute("shrinkToFit") === "1" || al.getAttribute("shrinkToFit") === "true") : false
+          });
+        });
+      }
+    }
+
+    const sheetFile = zip.file("xl/worksheets/sheet1.xml");
+    if (!sheetFile) throw new Error("xl/worksheets/sheet1.xml missing");
+    const shDoc = parser.parseFromString(await sheetFile.async("string"), "application/xml");
+
+    // Row heights
+    const rowHeights = {};
+    getXmlTags(shDoc, "row").forEach((rEl) => {
+      const rNum = parseInt(rEl.getAttribute("r") || "0", 10);
+      if (rNum > 0) {
+        rowHeights[rNum] = {
+          height: parseFloat(rEl.getAttribute("ht") || "14.6"),
+          customHeight: rEl.getAttribute("customHeight") === "1" || rEl.getAttribute("customHeight") === "true"
+        };
+      }
+    });
+
+    // Shared & Array formulas
+    const sharedFormulaMap = {};
+    const arrayFormulaRanges = [];
+
+    getXmlTags(shDoc, "c").forEach((c) => {
+      const ref = (c.getAttribute("r") || "").toUpperCase();
+      if (!ref) return;
+      const fEl = getXmlTags(c, "f")[0];
+      if (fEl) {
+        const fType = (fEl.getAttribute("t") || "").toLowerCase();
+        const si = fEl.getAttribute("si");
+        const fText = (fEl.textContent || "").trim();
+        const fRefRange = (fEl.getAttribute("ref") || "").toUpperCase();
+
+        if (fType === "shared" && si !== null && fText.length > 0) {
+          sharedFormulaMap[si] = { masterRef: ref, formula: fText };
+        }
+        if (fType === "array" && fRefRange && fText.length > 0) {
+          arrayFormulaRanges.push({ refs: expandExcelRange(fRefRange), formula: fText });
+        }
+      }
+    });
+
+    const cells = {};
+    getXmlTags(shDoc, "c").forEach((c) => {
+      const ref = (c.getAttribute("r") || "").toUpperCase();
+      if (!ref) return;
+
+      const t = c.getAttribute("t") || "";
+      const sIdx = parseInt(c.getAttribute("s") || "0", 10);
+      const fEl = getXmlTags(c, "f")[0];
+      const vEl = getXmlTags(c, "v")[0];
+      const isEl = getXmlTags(c, "is")[0];
+
+      let resolvedFormula = "";
+      let hasFormula = false;
+
+      if (fEl) {
+        hasFormula = true;
+        const fType = (fEl.getAttribute("t") || "").toLowerCase();
+        const si = fEl.getAttribute("si");
+        const rawFText = (fEl.textContent || "").trim();
+
+        if (rawFText.length > 0) {
+          resolvedFormula = rawFText;
+        } else if (fType === "shared" && si !== null && sharedFormulaMap[si]) {
+          const master = sharedFormulaMap[si];
+          resolvedFormula = shiftFormulaReferences(master.formula, master.masterRef, ref);
+        }
+      } else {
+        const arrMatch = arrayFormulaRanges.find((af) => af.refs.includes(ref));
+        if (arrMatch) {
+          hasFormula = true;
+          resolvedFormula = arrMatch.formula;
+        }
+      }
+
+      let displayValue = "";
+      if (t === "s" && vEl) {
+        displayValue = sharedStrings[parseInt(vEl.textContent, 10)] || "";
+      } else if (t === "inlineStr" && isEl) {
+        const tNodes = getXmlTags(isEl, "t");
+        for (let i = 0; i < tNodes.length; i++) displayValue += tNodes[i].textContent || "";
+      } else if (t === "str" && vEl) {
+        displayValue = vEl.textContent || "";
+      } else if (vEl) {
+        displayValue = vEl.textContent || "";
+      }
+
+      const xf = cellXfs[sIdx] || { fontId: 0, fillId: 0, borderId: 0, align: "general", shrinkToFit: false };
+      const fontObj = fonts[xf.fontId] || { bold: false, italic: false, strike: false, underlineType: "none", size: 11, family: "Calibri", color: "black", rawColor: "theme:1" };
+      const fillObj = fills[xf.fillId] || { patternType: "none", fgColor: "none", bgColor: "none", isGoldAccent4Lighter80: false, rawSig: "none" };
+      const borderObj = borders[xf.borderId] || { allSides: false, allPurple: false };
+
+      cells[ref] = {
+        ref,
+        hasFormula,
+        formula: resolvedFormula,
+        displayValue: String(displayValue).trim(),
+        font: fontObj,
+        fill: fillObj,
+        border: borderObj,
+        align: xf.align,
+        shrinkToFit: xf.shrinkToFit
+      };
+    });
+
+    const poEl = getXmlTags(shDoc, "printOptions")[0];
+    const printOptions = {
+      verticalCentered: poEl ? (poEl.getAttribute("verticalCentered") === "1" || poEl.getAttribute("verticalCentered") === "true") : false
+    };
+
+    const pmEl = getXmlTags(shDoc, "pageMargins")[0];
+    const pageMargins = {
+      top: pmEl ? parseFloat(pmEl.getAttribute("top") || "0.75") : 0.75,
+      bottom: pmEl ? parseFloat(pmEl.getAttribute("bottom") || "0.75") : 0.75
+    };
+
+    const hfEl = getXmlTags(shDoc, "headerFooter")[0];
+    const oddHeaderEl = hfEl ? getXmlTags(hfEl, "oddHeader")[0] : null;
+    const oddFooterEl = hfEl ? getXmlTags(hfEl, "oddFooter")[0] : null;
+    const headerFooter = {
+      oddHeader: oddHeaderEl ? (oddHeaderEl.textContent || "") : "",
+      oddFooter: oddFooterEl ? (oddFooterEl.textContent || "") : ""
+    };
+
+    const psEl = getXmlTags(shDoc, "pageSetup")[0];
+    const pageSetup = {
+      firstPageNumber: psEl ? (psEl.getAttribute("firstPageNumber") || "") : "",
+      useFirstPageNumber: psEl ? (psEl.getAttribute("useFirstPageNumber") || "") : "",
+      orientation: psEl ? (psEl.getAttribute("orientation") || "portrait") : "portrait",
+      paperSize: psEl ? (psEl.getAttribute("paperSize") || "1") : "1"
+    };
+
+    return { cells, rowHeights, printOptions, pageMargins, headerFooter, pageSetup };
+  }
+
+  function getRawColorSig(colEl) {
+    if (!colEl) return "none";
+    if (colEl.getAttribute("rgb")) return "rgb:" + colEl.getAttribute("rgb").toUpperCase();
+    if (colEl.getAttribute("theme") !== null) return "theme:" + colEl.getAttribute("theme") + ":" + (colEl.getAttribute("tint") || "0");
+    if (colEl.getAttribute("indexed") !== null) return "idx:" + colEl.getAttribute("indexed");
+    return "auto";
+  }
+
+  function parseExcelColorNode(colEl) {
+    if (!colEl) return "black";
+    const rgb = colEl.getAttribute("rgb");
+    if (rgb) {
+      const hex6 = rgb.length === 8 ? rgb.substring(2).toUpperCase() : rgb.toUpperCase();
+      return classifyHexColor(hex6);
+    }
+    const theme = colEl.getAttribute("theme");
+    if (theme !== null) {
+      if (theme === "0") return "white";
+      if (theme === "1") return "black";
+      if (theme === "4" || theme === "8") return "light_blue";
+      if (theme === "5") return "orange";
+      if (theme === "7") return "yellow";
+      if (theme === "9") return "green";
+      return "other";
+    }
+    const indexed = colEl.getAttribute("indexed");
+    if (indexed === "6" || indexed === "13" || indexed === "43") return "yellow";
+    if (indexed === "4" || indexed === "5" || indexed === "41" || indexed === "44") return "light_blue";
+    if (indexed === "2" || indexed === "10") return "red";
+    if (indexed === "3" || indexed === "11" || indexed === "50") return "green";
+    if (indexed === "14" || indexed === "20" || indexed === "36" || indexed === "39" || indexed === "55" || indexed === "60") return "purple";
+    return "black";
+  }
+
+  function expandExcelRange(rangeStr) {
+    const tokens = rangeStr.trim().toUpperCase().split(",");
+    const result = [];
+    tokens.forEach((tok) => {
+      const clean = tok.trim();
+      if (!clean) return;
+      if (!clean.includes(":")) {
+        result.push(clean);
+      } else {
+        const [startRef, endRef] = clean.split(":");
+        const s = parseCellRef(startRef);
+        const e = parseCellRef(endRef);
+        for (let r = Math.min(s.row, e.row); r <= Math.max(s.row, e.row); r++) {
+          for (let c = Math.min(s.col, e.col); c <= Math.max(s.col, e.col); c++) {
+            result.push(`${colIndexToLetter(c)}${r}`);
+          }
+        }
+      }
+    });
+    return [...new Set(result)];
+  }
+
+  function parseCellRef(ref) {
+    const m = /^([A-Z]+)(\d+)$/i.exec(ref.trim());
+    if (!m) return { col: 1, row: 1 };
+    const letters = m[1].toUpperCase();
+    let col = 0;
+    for (let i = 0; i < letters.length; i++) col = col * 26 + (letters.charCodeAt(i) - 64);
+    return { col, row: parseInt(m[2], 10) };
+  }
+
+  function colIndexToLetter(col) {
+    let str = "";
+    while (col > 0) {
+      const rem = (col - 1) % 26;
+      str = String.fromCharCode(65 + rem) + str;
+      col = Math.floor((col - 1) / 26);
+    }
+    return str;
+  }
+
+  function classifyHexColor(hex) {
+    if (!hex || hex === "AUTO") return "black";
+    if (!/^[0-9A-F]{6}$/i.test(hex)) return "unknown";
+    if (hex === "000000") return "black";
+    if (["FFFF00", "FFD966", "FFF2CC", "FFE699"].includes(hex)) return "yellow";
+    if (["00B0F0", "5B9BD5", "8EA9DB", "ADD8E6", "00CCFF", "BDD7EE", "D9E1F2", "4472C4", "9BC2E6", "00FFFF"].includes(hex)) return "light_blue";
+    if (["7030A0", "800080", "9933FF", "6600CC", "B4A7D6", "8E7CC3", "5F497A", "8064A2", "B2A1C7", "CCC0DA", "403151", "9900CC", "CC00FF"].includes(hex)) return "purple";
+    if (["FF0000", "C00000"].includes(hex)) return "red";
+    if (["00B050", "92D050", "008000", "A9D08E", "C6E0B4", "70AD47"].includes(hex)) return "green";
+    if (["002060", "0070C0", "2F5597", "1F4E78"].includes(hex)) return "dark_blue";
+    if (["FFC000", "ED7D31", "F4B084"].includes(hex)) return "orange";
+
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, l = (max + min) / 2;
+    const d = max - min;
+    if (d === 0) return l < 0.2 ? "black" : "gray";
+    if (max === r) h = ((g - b) / d) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h = Math.round(h * 60);
+    if (h < 0) h += 360;
+
+    if (h >= 45 && h <= 68) return "yellow";
+    if (h >= 180 && h <= 215) return "light_blue";
+    if (h > 215 && h <= 250) return l > 0.38 ? "light_blue" : "dark_blue";
+    if (h > 250 && h <= 325) return "purple";
+    if (h >= 80 && h <= 165) return "green";
+    if (h >= 15 && h < 45) return "orange";
+    if (h >= 340 || h < 15) return "red";
+    return "other";
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+</script>
+</body>
+</html>
