@@ -6724,6 +6724,66 @@
 
 </body>
 </html>
+<!-- ==================== INSTANT NON-HANG BACK TO HOME FIX ==================== -->
+<script>
+  (function () {
+    function resetHomeViewCleanly() {
+      const resultPage = document.getElementById("tiResultPage");
+      const typingInterface = document.getElementById("typingInterface");
+      const confirmModal = document.getElementById("tiConfirmModal");
+      const prepOverlay = document.getElementById("trPreparingOverlay");
+      const typingBox = document.getElementById("tiTypingBox");
+      const homepageView = document.getElementById("homepageView");
+
+      if (typingInterface) {
+        typingInterface.classList.remove("ti-fullscreen-mode");
+        typingInterface.classList.remove("active");
+      }
+
+      if (confirmModal) confirmModal.classList.remove("show");
+      if (prepOverlay) prepOverlay.classList.remove("show");
+      if (resultPage) resultPage.classList.remove("show");
+
+      if (typingBox) {
+        typingBox.disabled = true;
+        typingBox.value = "";
+      }
+
+      window.__txActiveTestId = null;
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+
+      if (homepageView) {
+        homepageView.style.display = "";
+      }
+
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(function () {});
+        } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } catch (e) {}
+
+      requestAnimationFrame(function () {
+        window.scrollTo(0, 0);
+      });
+    }
+
+    window.addEventListener(
+      "click",
+      function (e) {
+        const btn = e.target && e.target.closest ? e.target.closest("#trHomeBtn") : null;
+        if (!btn) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        resetHomeViewCleanly();
+      },
+      true
+    );
+  })();
+</script>
+<!-- ==================== END INSTANT NON-HANG BACK TO HOME FIX ==================== -->
 
 </body>
 </html>
