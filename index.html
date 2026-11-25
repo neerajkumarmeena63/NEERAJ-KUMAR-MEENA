@@ -6661,6 +6661,69 @@
 })();
 </script>
 <!-- END FINAL GUEST PROFILE + LEADERBOARD SAVE PATCH -->
+...
+<!-- END FINAL GUEST PROFILE + LEADERBOARD SAVE PATCH -->
+
+<!-- ==================== CLEAN BACK TO HOME FIX FOR RESULT PAGE ==================== -->
+<script>
+  (function () {
+    function exitAnyFullscreen() {
+      const ti = document.getElementById("typingInterface");
+      if (ti) ti.classList.remove("ti-fullscreen-mode");
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } catch {}
+    }
+
+    function goToHomeFromResult() {
+      const resultPage = document.getElementById("tiResultPage");
+      const typingInterface = document.getElementById("typingInterface");
+      const confirmModal = document.getElementById("tiConfirmModal");
+      const prepOverlay = document.getElementById("trPreparingOverlay");
+
+      exitAnyFullscreen();
+
+      if (confirmModal) confirmModal.classList.remove("show");
+      if (prepOverlay) prepOverlay.classList.remove("show");
+
+      if (resultPage) {
+        resultPage.classList.remove("show");
+      }
+      if (typingInterface) {
+        typingInterface.classList.remove("active");
+      }
+
+      document.body.style.overflow = "";
+      window.__txActiveTestId = null;
+
+      const homepageView = document.getElementById("homepageView");
+      if (homepageView) {
+        homepageView.style.display = "";
+      }
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    document.addEventListener(
+      "click",
+      function (e) {
+        const homeBtn = e.target.closest("#trHomeBtn");
+        if (!homeBtn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        goToHomeFromResult();
+      },
+      true
+    );
+  })();
+</script>
+<!-- ==================== END CLEAN BACK TO HOME FIX FOR RESULT PAGE ==================== -->
+
+</body>
+</html>
 
 </body>
 </html>
