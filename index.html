@@ -3560,6 +3560,259 @@
     bottom: 0.9rem !important;
   }
 </style>
+<!-- ==================== CLEAN SINGLE-PASTE MARKS-FIRST LEADERBOARD PATCH ==================== -->
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const txCleanDb = getDatabase(getApp());
+  const txCleanResultPage = document.getElementById("tiResultPage");
+  const txCleanLbModal = document.getElementById("lbModalOverlay");
+  const txCleanAdminLbBody = document.getElementById("adminLbTableBody");
+
+  function txCleanSortByMarksThenWpm(list) {
+    return [...list].sort((a, b) => {
+      const mDiff = (Number(b.marks) || 0) - (Number(a.marks) || 0);
+      if (mDiff !== 0) return mDiff;
+      const wDiff = (Number(b.netWpm) || 0) - (Number(a.netWpm) || 0);
+      if (wDiff !== 0) return wDiff;
+      const aDiff = (Number(b.accuracy) || 0) - (Number(a.accuracy) || 0);
+      if (aDiff !== 0) return aDiff;
+      return (Number(a.updatedAt) || 0) - (Number(b.updatedAt) || 0);
+    });
+  }
+
+  function txCleanGetGuestProfile() {
+    try {
+      return JSON.parse(localStorage.getItem("typingx_guest_profile") || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function txCleanGetGuestKey(profile) {
+    const id = String(profile.mobile || profile.name || "guest").replace(/\s+/g, " ").trim().toLowerCase();
+    let h1 = 2166136261, h2 = 2246822519;
+    for (let i = 0; i < id.length; i++) {
+      const c = id.charCodeAt(i);
+      h1 = Math.imul(h1 ^ c, 16777619);
+      h2 = Math.imul(h2 ^ (c + i), 3266489917);
+    }
+    return "guest_" + (h1 >>> 0).toString(16) + (h2 >>> 0).toString(16);
+  }
+
+  function txCleanMaskMobile(value) {
+    const raw = String(value || "").trim();
+    if (/^\d{2}\*{4}\d{4}$/.test(raw)) return raw;
+    const digits = raw.replace(/\D/g, "");
+    if (!digits) return "—";
+    const ten = digits.length > 10 ? digits.slice(-10) : digits;
+    return ten.length >= 6 ? `${ten.slice(0, 2)}****${ten.slice(-4)}` : ten;
+  }
+
+  function txCleanEsc(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  let txCleanSaving = false;
+  let txCleanLastSig = "";
+
+  // Ensure best score is kept by Marks first, then Net WPM (no duplicate toast)
+  async function txCleanEnsureBestByMarks() {
+    if (txCleanSaving || !txCleanResultPage?.classList.contains("show")) return;
+    const testId = window.__txActiveTestId;
+    const profile = txCleanGetGuestProfile();
+    const fullName = String(profile.name || "").trim();
+    if (!testId || !fullName) return;
+
+    const cards = txCleanResultPage.querySelectorAll(".tr-metric-card");
+    if (cards.length < 6) return;
+
+    const val = (i) => cards[i]?.querySelector(".tr-metric-val")?.textContent || "0";
+    const marks = parseFloat(val(0).replace(/[^\d.\-]/g, "")) || 0;
+    const netWpm = parseFloat(val(1).replace(/[^\d.\-]/g, "")) || 0;
+    const accuracy = parseFloat(val(3).replace(/[^\d.\-]/g, "")) || 0;
+    const backspaceUsed = parseInt(val(5).replace(/[^\d]/g, ""), 10) || 0;
+    if (marks <= 0 && netWpm <= 0) return;
+
+    const uid = txCleanGetGuestKey(profile);
+    const sig = `${testId}|${uid}|${marks}|${netWpm}|${accuracy}|${backspaceUsed}`;
+    if (sig === txCleanLastSig) return;
+
+    txCleanSaving = true;
+    try {
+      const rRef = ref(txCleanDb, `results/${testId}/${uid}`);
+      const snap = await get(rRef);
+      if (snap.exists()) {
+        const prev = snap.val() || {};
+        const prevMarks = Number(prev.marks) || 0;
+        const prevWpm = Number(prev.netWpm) || 0;
+        if (marks < prevMarks || (marks === prevMarks && netWpm <= prevWpm)) {
+          txCleanLastSig = sig;
+          return;
+        }
+      }
+
+      let examDate = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+      txCleanResultPage.querySelectorAll(".tr-pill").forEach((p) => {
+        if (/Exam Date:/i.test(p.textContent || "")) {
+          const d = p.querySelector("strong")?.textContent?.trim();
+          if (d) examDate = d;
+        }
+      });
+
+      await set(rRef, {
+        uid,
+        fullName: fullName.toUpperCase(),
+        mobile: txCleanMaskMobile(profile.mobile),
+        netWpm: Number(netWpm.toFixed(2)),
+        marks: Number(marks.toFixed(2)),
+        accuracy: Number(accuracy.toFixed(2)),
+        backspaceUsed,
+        examDate,
+        updatedAt: Date.now()
+      });
+      txCleanLastSig = sig;
+    } catch (err) {
+      console.error("Marks best-score sync error:", err);
+      txCleanLastSig = "";
+    } finally {
+      txCleanSaving = false;
+    }
+  }
+
+  async function txCleanRenderMarksLeaderboard(testId) {
+    if (!testId || !txCleanLbModal?.classList.contains("show")) return;
+    const subEl = txCleanLbModal.querySelector(".lb-sub");
+    if (subEl) subEl.textContent = "Ranked by highest Marks (and Net Speed WPM on tie) — Top record per candidate";
+
+    try {
+      const snap = await get(ref(txCleanDb, `results/${testId}`));
+      if (!snap.exists()) return;
+
+      const records = txCleanSortByMarksThenWpm(
+        Object.entries(snap.val()).map(([uid, r]) => ({ uid, ...(r || {}) }))
+      );
+
+      const totalCountEl = document.getElementById("lbTotalCount");
+      if (totalCountEl) totalCountEl.textContent = String(records.length);
+
+      const guest = txCleanGetGuestProfile();
+      const myKey = guest.name ? txCleanGetGuestKey(guest) : "";
+      const myIdx = myKey ? records.findIndex((r) => r.uid === myKey) : -1;
+      const myRankWrap = document.getElementById("lbMyRankWrap");
+      if (myRankWrap) {
+        if (myIdx !== -1) {
+          const me = records[myIdx];
+          myRankWrap.innerHTML = `<span class="lb-my-rank-pill">Your Rank: #${myIdx + 1} &bull; ${Number(me.marks || 0).toFixed(2)} Marks (${Number(me.netWpm || 0).toFixed(2)} WPM)</span>`;
+          myRankWrap.style.display = "inline-block";
+        } else {
+          myRankWrap.style.display = "none";
+        }
+      }
+
+      const tbody = document.getElementById("lbTableBody");
+      if (tbody) {
+        tbody.innerHTML = records.map((rec, idx) => {
+          const rank = idx + 1;
+          const isSelf = myKey && rec.uid === myKey;
+          const rankClass = rank === 1 ? "lb-rank-1" : rank === 2 ? "lb-rank-2" : rank === 3 ? "lb-rank-3" : "";
+          return `
+            <tr class="${isSelf ? "lb-self-row" : ""}">
+              <td><span class="lb-rank-badge ${rankClass}">#${rank}</span></td>
+              <td class="col-name">${txCleanEsc((rec.fullName || "CANDIDATE").toUpperCase())} ${isSelf ? `<span class="lb-you-tag">YOU</span>` : ""}</td>
+              <td><span class="lb-mobile-pill">${txCleanEsc(txCleanMaskMobile(rec.mobile))}</span></td>
+              <td class="lb-speed-val">${Number(rec.netWpm || 0).toFixed(2)} WPM</td>
+              <td class="lb-marks-val">${Number(rec.marks || 0).toFixed(2)} / 25</td>
+              <td>${Number(rec.backspaceUsed || 0)}</td>
+              <td class="col-date">${txCleanEsc(rec.examDate || "—")}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+    } catch {}
+  }
+
+  let txCleanCurrentLbTestId = null;
+
+  // Capture testId immediately on Result button click so modal renders Marks order right away
+  document.addEventListener(
+    "click",
+    (e) => {
+      const resBtn = e.target.closest(".result-list-btn, .admin-view-lb-btn");
+      if (resBtn?.dataset?.id) {
+        txCleanCurrentLbTestId = resBtn.dataset.id;
+        setTimeout(() => txCleanRenderMarksLeaderboard(txCleanCurrentLbTestId), 60);
+      }
+    },
+    true
+  );
+
+  if (txCleanResultPage) {
+    new MutationObserver(() => {
+      if (txCleanResultPage.classList.contains("show")) {
+        setTimeout(txCleanEnsureBestByMarks, 220);
+      }
+    }).observe(txCleanResultPage, { attributes: true, attributeFilter: ["class"] });
+
+    txCleanResultPage.addEventListener("click", (e) => {
+      if (e.target.closest("#trRetakeBtn, #trHomeBtn")) txCleanLastSig = "";
+    });
+  }
+
+  if (txCleanAdminLbBody) {
+    new MutationObserver(async () => {
+      const lbPanel = document.getElementById("leaderboardAdminPanel");
+      if (!lbPanel || lbPanel.style.display === "none" || lbPanel.dataset.txCleanBusy) return;
+      lbPanel.dataset.txCleanBusy = "1";
+      try {
+        const [testsSnap, resSnap] = await Promise.all([get(ref(txCleanDb, "tests")), get(ref(txCleanDb, "results"))]);
+        if (!testsSnap.exists()) return;
+        const testsData = testsSnap.val();
+        const resData = resSnap.exists() ? resSnap.val() : {};
+
+        const rows = Object.entries(testsData)
+          .map(([id, t]) => {
+            const sorted = txCleanSortByMarksThenWpm(Object.values(resData[id] || {}));
+            const top = sorted[0] || null;
+            return {
+              id,
+              name: t.name || "Untitled Test",
+              language: (t.language || "").toLowerCase(),
+              createdAt: t.createdAt || 0,
+              count: sorted.length,
+              topWpm: top ? `${Number(top.netWpm || 0).toFixed(2)} WPM` : "—",
+              topScorer: top ? `${(top.fullName || "CANDIDATE").toUpperCase()} (${Number(top.marks || 0).toFixed(2)})` : "—"
+            };
+          })
+          .sort((a, b) => b.createdAt - a.createdAt);
+
+        txCleanAdminLbBody.innerHTML = rows.map((r, idx) => {
+          const langLabel = r.language ? r.language.charAt(0).toUpperCase() + r.language.slice(1) : "—";
+          return `
+            <tr>
+              <td class="col-serial">${idx + 1}</td>
+              <td class="col-name">${txCleanEsc(r.name)}</td>
+              <td class="col-lang">${txCleanEsc(langLabel)}</td>
+              <td><span class="lb-admin-pill ${r.count === 0 ? "empty" : ""}">${r.count} candidate${r.count !== 1 ? "s" : ""}</span></td>
+              <td style="font-weight:700;color:var(--green-dark);">${txCleanEsc(r.topWpm)}</td>
+              <td>${txCleanEsc(r.topScorer)}</td>
+              <td class="col-action">
+                <button type="button" class="action-btn edit admin-view-lb-btn" data-id="${txCleanEsc(r.id)}" data-name="${txCleanEsc(r.name)}">View</button>
+                <button type="button" class="action-btn delete admin-reset-lb-btn" data-id="${txCleanEsc(r.id)}" data-name="${txCleanEsc(r.name)}" ${r.count === 0 ? "disabled style='opacity:0.45;cursor:not-allowed;'" : ""}>Reset</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } catch {} finally {
+        delete lbPanel.dataset.txCleanBusy;
+      }
+    }).observe(txCleanAdminLbBody, { childList: true });
+  }
+</script>
+<!-- ==================== END CLEAN SINGLE-PASTE MARKS-FIRST LEADERBOARD PATCH ==================== -->
 
 </body>
 </html>
